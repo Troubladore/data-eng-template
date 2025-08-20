@@ -1,0 +1,49 @@
+{
+  "name": "Data Eng DevContainer (Podman)",
+  "dockerComposeFile": "compose.yaml",
+  "service": "dev",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "runServices": ["postgres", "airflow-webserver", "airflow-scheduler"],
+  "shutdownAction": "stopCompose",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "username": "vscode",
+      "uid": "1000",
+      "gid": "1000",
+      "installZsh": true,
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "charliermarsh.ruff",
+        "EditorConfig.EditorConfig"
+      ],
+      "settings": {
+        "python.analysis.typeCheckingMode": "basic",
+        "ruff.importStrategy": "fromEnvironment",
+        "python.formatting.provider": "none",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.ruff": "explicit"
+        }
+      }
+    }
+  },
+  "containerUser": "vscode",
+  "remoteEnv": {
+    "AIRFLOW_HOME": "/opt/airflow"
+  },
+  "forwardPorts": [8080, 5432],
+  "portsAttributes": {
+    "8080": { "label": "Airflow Web UI" },
+    "5432": { "label": "Postgres" }
+  },
+  "postCreateCommand": "bash .devcontainer/bootstrap-dev.sh",
+  "postStartCommand": "bash .devcontainer/post-start.sh"
+}

@@ -1,0 +1,30 @@
+[project]
+name = "{{cookiecutter.repo_slug}}"
+version = "0.1.0"
+requires-python = "=={{cookiecutter.python_version}}.*"
+description = "Data engineering repo with Airflow (containers), Postgres, uv, ruff, sqlmodel, and dbt."
+dependencies = [
+  "sqlmodel>=0.0.21",
+  "pydantic>=2.7",
+  "sqlalchemy>=2.0",
+  "psycopg[binary]>=2.9",
+  "dbt-core>=1.7",
+]
+
+[tool.uv]
+# Use uv for resolver/installer
+
+[tool.ruff]
+line-length = 100
+target-version = "py{{cookiecutter.python_version | replace('.', '')}}"
+extend-select = ["I", "E", "F", "UP"]
+fix = true
+unsafe-fixes = true
+
+[tool.ruff.lint.isort]
+known-first-party = ["{{cookiecutter.repo_slug}}"]
+combine-as-imports = true
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+addopts = "-q"

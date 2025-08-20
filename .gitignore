@@ -1,0 +1,10 @@
+.env
+pg_data/
+__pycache__/
+*.pyc
+.airflow*
+data/
+.venv/
+uv.lock
+
+.temp/

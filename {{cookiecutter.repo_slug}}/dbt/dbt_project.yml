@@ -1,0 +1,10 @@
+name: "{{cookiecutter.repo_slug}}"
+version: "1.0.0"
+profile: "{{cookiecutter.repo_slug}}"
+model-paths: ["models"]
+models:
+  {{cookiecutter.repo_slug}}:
+    silver:
+      +materialized: view
+    gold:
+      +materialized: table

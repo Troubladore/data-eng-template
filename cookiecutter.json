@@ -1,0 +1,9 @@
+{
+  "project_name": "Awesome Data Project",
+  "repo_slug": "awesome-data-project",
+  "python_version": "3.12",
+  "airflow_version": "2.9.3",
+  "postgres_version": "16",
+  "airflow_executor": ["LocalExecutor", "SequentialExecutor"],
+  "license": ["Proprietary", "MIT", "Apache-2.0"]
+}
