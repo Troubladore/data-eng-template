@@ -2,7 +2,7 @@
   "name": "Data Eng DevContainer (Podman)",
   "dockerComposeFile": "compose.yaml",
   "service": "dev",
-  "workspaceFolder": "/workspaces/{{cookiecutter.repo_slug}}",
+  "workspaceFolder": "/workspaces/{{cookiecutter.repo_slug}}_devcontainer",
   "runServices": ["postgres", "airflow-webserver", "airflow-scheduler"],
   "shutdownAction": "stopCompose",
   "features": {

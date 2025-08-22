@@ -79,8 +79,8 @@ services:
     user: "1000:1000"  # Use consistent UID/GID for vscode user
     init: true
     volumes:
-      - ..:/workspaces/{{cookiecutter.repo_slug}}
-    working_dir: /workspaces/{{cookiecutter.repo_slug}}
+      - ..:/workspaces/{{cookiecutter.repo_slug}}_devcontainer
+    working_dir: /workspaces/{{cookiecutter.repo_slug}}_devcontainer
     depends_on:
       - airflow-webserver
       - airflow-scheduler
