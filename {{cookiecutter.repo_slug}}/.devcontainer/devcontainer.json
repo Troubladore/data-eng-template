@@ -44,6 +44,6 @@
     "8080": { "label": "Airflow Web UI" },
     "5432": { "label": "Postgres" }
   },
-  "postCreateCommand": "bash .devcontainer/bootstrap-dev.sh",
+  "postCreateCommand": "bash .devcontainer/setup-hydra-env.sh && bash .devcontainer/bootstrap-dev.sh",
   "postStartCommand": "bash .devcontainer/post-start.sh"
 }

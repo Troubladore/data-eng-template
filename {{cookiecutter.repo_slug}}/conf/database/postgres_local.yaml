@@ -33,7 +33,7 @@ postgres:
   fsync: "off"  # Faster for development (data loss risk acceptable locally)
   
   # Schema and search path
-  schema: "public"
+  db_schema: "public"
   search_path: "public"
   
   # Encoding

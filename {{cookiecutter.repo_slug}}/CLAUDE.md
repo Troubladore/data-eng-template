@@ -37,6 +37,21 @@ python scripts/run_pipeline.py runtime.dry_run=true
 - `conf/transformations/` - dbt and transformation settings
 - `conf/compute/` - Resource allocation and processing framework configs
 
+### Development Environment Setup
+
+The DevContainer is fully integrated with the Hydra configuration system:
+
+1. **Open in DevContainer**: Configuration is set up automatically during container creation
+2. **No Manual .env Files**: Environment variables are generated from Hydra configs
+3. **Dynamic Configuration**: Changes to `conf/` files are reflected after container restart
+4. **Local Overrides**: Create `conf/local/custom.yaml` for personal development settings
+
+**Key Points**:
+- `.env` files are **generated automatically** - do not edit manually
+- All configuration managed through `conf/` directory hierarchy  
+- Environment variables sourced from Hydra during container startup
+- Services (Airflow, PostgreSQL) configured entirely through Hydra
+
 ---
 
 ## Project Structure

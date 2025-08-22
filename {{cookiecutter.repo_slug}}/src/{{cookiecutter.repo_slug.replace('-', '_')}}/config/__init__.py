@@ -5,7 +5,7 @@ Pydantic settings classes. It supports hierarchical configuration composition,
 environment-specific overrides, and seamless integration with the data pipeline.
 
 Example usage:
-    from {{cookiecutter.repo_slug}}.config import get_settings
+    from {{cookiecutter.repo_slug.replace('-', '_')}}.config import get_settings
     
     # Load default configuration
     settings = get_settings()
@@ -18,6 +18,7 @@ Example usage:
 """
 
 from .settings import (
+    Settings,
     ProjectSettings,
     DatabaseSettings, 
     OrchestrationSettings,
@@ -28,6 +29,7 @@ from .settings import (
 )
 
 __all__ = [
+    "Settings",
     "ProjectSettings",
     "DatabaseSettings", 
     "OrchestrationSettings",

@@ -34,7 +34,7 @@ postgres:
   fsync: "on"  # Data integrity critical
   
   # Schema management
-  schema: "{{cookiecutter.repo_slug}}"  # Dedicated schema for this project
+  db_schema: "{{cookiecutter.repo_slug}}"  # Dedicated schema for this project
   search_path: "{{cookiecutter.repo_slug}},public"
   
   # Character encoding

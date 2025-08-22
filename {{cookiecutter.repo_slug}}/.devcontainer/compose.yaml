@@ -1,10 +1,10 @@
 x-airflow-env: &airflow-env
-  AIRFLOW__CORE__EXECUTOR: ${AIRFLOW_EXECUTOR:-LocalExecutor}
-  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+  AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR:-LocalExecutor}
+  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@postgres:5432/${POSTGRES_DB:-airflow}
   # AIRFLOW__WEBSERVER__RBAC: "True"
   AIRFLOW__CORE__LOAD_EXAMPLES: ${AIRFLOW__CORE__LOAD_EXAMPLES:-False}
-  # Default "-" prevents compose "not set" warnings; real value will come from ../.env
-  AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY:-}
+  # Fernet key sourced from Hydra configuration
+  AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY}
   _PIP_ADDITIONAL_REQUIREMENTS: "apache-airflow-providers-postgres psycopg2-binary"
 
 services:
@@ -27,7 +27,7 @@ services:
 
   airflow-init:
     image: docker.io/apache/airflow:${AIRFLOW_VERSION:-2.9.3}-python3.12
-    env_file: [./airflow.env, ../.env]
+    env_file: [./airflow.env]
     environment: *airflow-env
     user: "50000:0"
     volumes:
@@ -43,7 +43,7 @@ services:
 
   airflow-scheduler:
     image: docker.io/apache/airflow:${AIRFLOW_VERSION:-2.9.3}-python3.12
-    env_file: [./airflow.env, ../.env]
+    env_file: [./airflow.env]
     environment: *airflow-env
     user: "50000:0"
     command: ["airflow", "scheduler"]
@@ -56,7 +56,7 @@ services:
 
   airflow-webserver:
     image: docker.io/apache/airflow:${AIRFLOW_VERSION:-2.9.3}-python3.12
-    env_file: [./airflow.env, ../.env]
+    env_file: [./airflow.env]
     environment: *airflow-env
     user: "50000:0"
     command: ["airflow", "webserver"]

@@ -24,7 +24,7 @@ core:
   task_runner: "StandardTaskRunner"
   
   # Security (relaxed for development)
-  security_key: "${AIRFLOW__CORE__FERNET_KEY}"  # From cookiecutter hook
+  security_key: "temp_key_replaced_by_local_config"  # Replaced by local config override
   hide_sensitive_var_fields: false  # Show sensitive fields for debugging
 
 # Database configuration (uses local postgres)
@@ -77,8 +77,8 @@ logging:
   dag_processor_manager_log_location: "./logs/dag_processor_manager/dag_processor_manager.log"
   
   # Log formatting
-  simple_log_format: "[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
-  log_filename_template: "{{ ti.dag_id }}/{{ ti.task_id }}/{{ ts }}/{{ try_number }}.log"
+  simple_log_format: "[%(asctime)s] {% raw %}{%(filename)s:%(lineno)d}{% endraw %} %(levelname)s - %(message)s"
+  log_filename_template: "{% raw %}{{ ti.dag_id }}/{{ ti.task_id }}/{{ ts }}/{{ try_number }}.log{% endraw %}"
 
 # Development-specific features
 dev_features:

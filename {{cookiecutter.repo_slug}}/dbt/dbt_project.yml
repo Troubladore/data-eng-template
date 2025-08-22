@@ -54,7 +54,7 @@ snapshots:
 # Global variables (can be overridden by Hydra config)
 vars:
   # Environment detection
-  environment: "{{ env_var('DBT_ENVIRONMENT', 'dev') }}"
+  environment: "{% raw %}{{ env_var('DBT_ENVIRONMENT', 'dev') }}{% endraw %}"
   
   # Feature flags
   enable_data_quality_tests: true
@@ -67,7 +67,7 @@ vars:
 
 # Development hooks
 on-run-start:
-  - "{{ log('Starting dbt run for ' ~ var('environment') ~ ' environment', info=true) }}"
+  - "{% raw %}{{ log('Starting dbt run for ' ~ var('environment') ~ ' environment', info=true) }}{% endraw %}"
 
 on-run-end:
-  - "{{ log('dbt run completed successfully', info=true) }}"
+  - "{% raw %}{{ log('dbt run completed successfully', info=true) }}{% endraw %}"

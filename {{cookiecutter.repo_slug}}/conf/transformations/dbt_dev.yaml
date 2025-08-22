@@ -151,13 +151,13 @@ docs:
 
 # Development hooks
 on-run-start:
-  - "{{ log('Starting dbt run in development environment', info=true) }}"
-  - "create schema if not exists {{ target.schema }}_bronze"
-  - "create schema if not exists {{ target.schema }}_silver"  
-  - "create schema if not exists {{ target.schema }}_gold"
+  - "{% raw %}{{ log('Starting dbt run in development environment', info=true) }}{% endraw %}"
+  - "create schema if not exists {% raw %}{{ target.schema }}{% endraw %}_bronze"
+  - "create schema if not exists {% raw %}{{ target.schema }}{% endraw %}_silver"  
+  - "create schema if not exists {% raw %}{{ target.schema }}{% endraw %}_gold"
 
 on-run-end:
-  - "{{ log('dbt run completed in development environment', info=true) }}"
+  - "{% raw %}{{ log('dbt run completed in development environment', info=true) }}{% endraw %}"
 
 # Development-specific macros
 macros:

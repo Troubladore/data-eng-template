@@ -31,6 +31,10 @@ if [[ "${NEW_HASH}" != "${OLD_HASH}" ]]; then
   echo "[post-start] Dependency spec changed → running 'uv sync --frozen'..."
   uv sync --frozen
   echo "${NEW_HASH}" > "${STATE_HASH}"
+  
+  # Refresh environment variables after dependency update
+  echo "[post-start] Refreshing environment variables from Hydra..."
+  bash .devcontainer/setup-hydra-env.sh
 else
   echo "[post-start] Environment up to date; no sync needed."
 fi

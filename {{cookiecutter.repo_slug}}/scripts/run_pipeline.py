@@ -32,17 +32,21 @@ from omegaconf import DictConfig, OmegaConf
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from {{cookiecutter.repo_slug}}.config import get_settings, Settings
+from {{cookiecutter.repo_slug.replace('-', '_')}}.config import get_settings, Settings
 
 
 def setup_logging(settings: Settings) -> None:
     """Configure logging based on settings."""
+    # Ensure output directory exists
+    output_dir = Path(settings.runtime.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     logging.basicConfig(
         level=getattr(logging, settings.runtime.log_level.upper()),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
             logging.StreamHandler(),
-            logging.FileHandler(Path(settings.runtime.output_dir) / "pipeline.log")
+            logging.FileHandler(output_dir / "pipeline.log")
         ]
     )
 
@@ -148,7 +152,7 @@ def main(cfg: DictConfig) -> None:
     # Log configuration summary
     logger.info("="*50)
     logger.info(f"Starting {{cookiecutter.project_name}} Pipeline")
-    logger.info(f"Environment: {settings.transformations.target}")
+    logger.info(f"Environment: {settings.transformations.profile.target}")
     logger.info(f"Debug Mode: {settings.runtime.debug_mode}")
     logger.info(f"Dry Run: {settings.runtime.dry_run}")
     logger.info(f"Parallel Jobs: {settings.runtime.parallel_jobs}")

@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import yaml
 
-from src.{{cookiecutter.repo_slug}}.config import get_settings, Settings
+from src.{{cookiecutter.repo_slug.replace('-', '_')}}.config import get_settings, Settings
 
 
 class TestHydraConfig:
