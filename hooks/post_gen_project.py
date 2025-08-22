@@ -132,9 +132,22 @@ devcontainer_dir = pathlib.Path(".devcontainer")
 devcontainer_env_file = devcontainer_dir / ".env"
 devcontainer_env_file.write_text(compose_env_content)
 
+# Update services.yaml with generated values (cookiecutter vars already resolved)
+services_config_path = pathlib.Path(".devcontainer/services.yaml")
+if services_config_path.exists():
+    services_content = services_config_path.read_text()
+    
+    # Replace placeholders with generated values
+    services_content = services_content.replace("PLACEHOLDER_AIRFLOW_FERNET_KEY", fernet_key)
+    services_content = services_content.replace("PLACEHOLDER_AIRFLOW_WEB_USER", "admin")
+    services_content = services_content.replace("PLACEHOLDER_AIRFLOW_WEB_PASSWORD", "admin")
+    
+    services_config_path.write_text(services_content)
+
 print("Generated Hydra configuration with Fernet key.")
-print("Created environment export script: scripts/export_env.sh")
+print("Created environment export script: scripts/export_env.sh") 
 print("Created Docker Compose .env file: .devcontainer/.env")
+print("Updated DevContainer services configuration with generated values.")
 
 # Create a minimal uv.lock placeholder (users will run `uv sync`)
 pathlib.Path("uv.lock").write_text("# created on first sync\n")

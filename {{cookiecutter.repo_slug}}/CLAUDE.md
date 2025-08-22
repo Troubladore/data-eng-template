@@ -1,6 +1,30 @@
 # {{cookiecutter.project_name}} - Data Engineering Project
 
-**Generated from data-eng-template**: This is a modern data engineering project with **Hydra configuration management**, Airflow, dbt, PostgreSQL, and DevContainer using medallion architecture.
+**Generated from data-eng-template**: This is a modern data engineering project with **Hydra configuration management**, **DevContainer Service Manager**, Airflow, dbt, PostgreSQL, and DevContainer using medallion architecture.
+
+## Service Management
+
+This project uses **DevContainer Service Manager** (`dcm`) for intelligent service orchestration:
+
+- **Conflict-Free**: Automatic port conflict detection and resolution
+- **Service Reuse**: Share Postgres/Airflow across branches and projects  
+- **Health Monitoring**: Continuous service health checks with auto-repair
+- **Namespace Isolation**: Clean separation between projects
+
+### Service Commands
+
+```bash
+# Check service status
+dcm status
+
+# Restart unhealthy services
+dcm health && dcm repair --service postgres
+
+# Clean up unused services
+dcm clean --unused
+```
+
+Services are automatically started by DevContainer. See `.devcontainer/README.md` for detailed service management.
 
 ## Configuration System
 

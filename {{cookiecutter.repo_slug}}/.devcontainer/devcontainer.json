@@ -1,16 +1,14 @@
 {
-  "name": "Data Eng DevContainer (Podman)",
-  "dockerComposeFile": "compose.yaml",
-  "service": "dev",
+  "name": "Data Eng DevContainer ({{cookiecutter.repo_slug}})",
+  "image": "mcr.microsoft.com/devcontainers/python:{{cookiecutter.python_version}}",
   "workspaceFolder": "/workspaces/{{cookiecutter.repo_slug}}",
-  "runServices": ["postgres", "airflow-webserver", "airflow-scheduler"],
-  "shutdownAction": "stopCompose",
   "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/common-utils:2": {
       "username": "vscode",
       "uid": "1000",
       "gid": "1000",
-      "installZsh": true,
+      "installZsh": true
     }
   },
   "customizations": {
@@ -39,9 +37,10 @@
   "remoteEnv": {
     "AIRFLOW_HOME": "/opt/airflow"
   },
-  "forwardPorts": [8080, 5432],
+  "forwardPorts": ["8080", "5432"],
   "portsAttributes": {
     "8080": { "label": "Airflow Web UI" },
     "5432": { "label": "Postgres" }
-  }
+  },
+  "postCreateCommand": "uv sync && docker compose -f .devcontainer/compose.yaml up -d"
 }

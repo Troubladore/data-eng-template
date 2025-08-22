@@ -71,11 +71,11 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
-  # DevContainer service (what VS Code opens into)
-  devcontainer:
-    image: mcr.microsoft.com/devcontainers/python:{{cookiecutter.python_version}}
+  # Interactive dev service (what VS Code opens into)
+  dev:
+    image: docker.io/library/python:${PYTHON_VERSION:-3.12}-slim
     command: sleep infinity
-    # Ensure the service runs as the same non-root user VS Code connects as
+    # Ensure the dev service *runs* as the same non-root user VS Code connects as
     user: "1000:1000"  # Use consistent UID/GID for vscode user
     init: true
     volumes:
