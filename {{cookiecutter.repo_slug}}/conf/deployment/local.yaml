@@ -1,0 +1,133 @@
+# Local Deployment Configuration
+#
+# Optimized for local development with Docker caching and fast iterations
+
+# @package deployment
+
+# Docker build configuration
+docker:
+  # Use multi-stage Dockerfile optimized for caching
+  dockerfile: "Dockerfile.airflow"
+  
+  # Build arguments for optimization
+  build_args:
+    AIRFLOW_VERSION: "{{cookiecutter.airflow_version}}"
+    PYTHON_VERSION: "{{cookiecutter.python_version}}"
+  
+  # Docker build cache settings
+  cache:
+    enabled: true
+    # Use previous builds as cache source
+    cache_from: 
+      - "airflow-{{cookiecutter.repo_slug}}:latest"
+      - "airflow-{{cookiecutter.repo_slug}}:dev"
+    
+    # Cache mount options for multi-stage builds
+    cache_mounts:
+      - "type=cache,target=/root/.cache/pip,id=pip-cache"
+      - "type=cache,target=/root/.cache/uv,id=uv-cache"
+  
+  # Image tagging strategy
+  tags:
+    - "airflow-{{cookiecutter.repo_slug}}:latest"
+    - "airflow-{{cookiecutter.repo_slug}}:dev-${BUILD_ID:-local}"
+  
+  # Target stage for local development
+  target_stage: "development"
+
+# Deployment strategy settings
+strategy:
+  # Default deployment mode for local development
+  default: "detect"  # auto-detect changes
+  
+  # Change detection sensitivity
+  change_detection:
+    # Files/directories that trigger full rebuilds
+    full_rebuild_triggers:
+      - "pyproject.toml"
+      - "uv.lock"
+      - "airflow/requirements.txt"
+      - "Dockerfile.airflow"
+      - ".dockerignore"
+    
+    # Files/directories that only need DAG deployment
+    dag_only_triggers:
+      - "dags/"
+    
+    # Files/directories that need image rebuild but not full restart
+    image_rebuild_triggers:
+      - "airflow/plugins/"
+      - "transforms/"
+      - "conf/"
+
+# Local development optimization
+development:
+  # Enable hot-reloading for faster development
+  hot_reload: true
+  
+  # Use volume mounts instead of COPY for faster iteration
+  use_volume_mounts: true
+  
+  # Airflow development settings
+  airflow:
+    dag_dir_list_interval: 10  # Check for DAG changes every 10 seconds
+    load_examples: false
+    reload_on_plugin_change: true
+  
+  # Development server settings
+  webserver:
+    reload_on_plugin_change: true
+    expose_config: true
+    debug: true
+
+# Performance optimization settings
+performance:
+  # Parallel job limits for local development
+  max_parallel_builds: 1
+  max_parallel_deploys: 1
+  
+  # Resource limits
+  memory_limit: "2g"
+  cpu_limit: "1.0"
+  
+  # Build timeout settings
+  build_timeout: 600  # 10 minutes
+  deploy_timeout: 300  # 5 minutes
+
+# Monitoring and logging
+monitoring:
+  # Enable deployment timing
+  track_build_time: true
+  track_deploy_time: true
+  
+  # Log levels for deployment script
+  log_level: "INFO"
+  verbose_output: true
+  
+  # Health check settings
+  health_checks:
+    enabled: true
+    timeout: 30
+    retries: 3
+
+# Local service integration
+services:
+  # Database settings for local development
+  postgres:
+    host: "postgres"
+    port: 5432
+    database: "airflow"
+    
+  # Airflow service configuration
+  airflow:
+    webserver_port: 8080
+    flower_port: 5555
+    
+  # Volume mount optimization
+  volumes:
+    # Use cached mounts for better performance on macOS/Windows
+    cache_strategy: "cached"
+    
+    # Persistent volumes for development
+    persistent_logs: true
+    persistent_cache: true

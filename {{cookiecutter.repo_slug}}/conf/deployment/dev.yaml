@@ -1,0 +1,106 @@
+# Development Environment Deployment Configuration
+#
+# Optimized for development environments with CI/CD integration
+
+# @package deployment
+defaults:
+  - local  # Inherit from local configuration
+
+# Override Docker settings for dev environment
+docker:
+  # Use production-like build for development environment
+  target_stage: "runtime"
+  
+  # Tags for development environment
+  tags:
+    - "airflow-{{cookiecutter.repo_slug}}:dev-${CI_COMMIT_SHA:-latest}"
+    - "airflow-{{cookiecutter.repo_slug}}:dev"
+  
+  # Enable build cache but with registry caching
+  cache:
+    enabled: true
+    # Pull from registry cache in CI/CD
+    cache_from:
+      - "registry.example.com/airflow-{{cookiecutter.repo_slug}}:dev"
+      - "registry.example.com/airflow-{{cookiecutter.repo_slug}}:latest"
+
+# Development environment strategy
+strategy:
+  # Default to full builds in CI/CD
+  default: "full"
+  
+  # More sensitive change detection for stability
+  change_detection:
+    # Additional files that trigger full rebuild in dev
+    full_rebuild_triggers:
+      - "pyproject.toml"
+      - "uv.lock"
+      - "airflow/requirements.txt"
+      - "Dockerfile.airflow"
+      - ".dockerignore"
+      - "conf/"  # Config changes need full rebuild
+
+# Development environment specific settings
+development:
+  # Disable hot-reload in dev environment for stability
+  hot_reload: false
+  
+  # Use image-based deployment instead of volume mounts
+  use_volume_mounts: false
+  
+  # Production-like Airflow settings
+  airflow:
+    dag_dir_list_interval: 30  # Less frequent checks for stability
+    load_examples: false
+    reload_on_plugin_change: false
+
+# Performance settings for dev environment
+performance:
+  # Higher limits for CI/CD environment
+  max_parallel_builds: 2
+  max_parallel_deploys: 2
+  
+  # Higher resource limits
+  memory_limit: "4g"
+  cpu_limit: "2.0"
+  
+  # Longer timeouts for more complex builds
+  build_timeout: 900   # 15 minutes
+  deploy_timeout: 600  # 10 minutes
+
+# Enhanced monitoring for dev environment
+monitoring:
+  # Detailed tracking for optimization
+  track_build_time: true
+  track_deploy_time: true
+  track_resource_usage: true
+  
+  # Structured logging for analysis
+  log_level: "INFO"
+  verbose_output: true
+  structured_logs: true
+  
+  # Comprehensive health checks
+  health_checks:
+    enabled: true
+    timeout: 60
+    retries: 5
+    endpoints:
+      - "http://airflow-webserver:8080/health"
+
+# CI/CD integration settings
+ci_cd:
+  # Enable CI/CD specific features
+  enabled: true
+  
+  # Build artifacts
+  export_build_cache: true
+  push_to_registry: true
+  
+  # Testing integration
+  run_tests_after_build: true
+  test_timeout: 300
+  
+  # Notification settings
+  notify_on_failure: true
+  notify_on_success: false

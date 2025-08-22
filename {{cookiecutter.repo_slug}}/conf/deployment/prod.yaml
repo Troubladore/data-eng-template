@@ -1,0 +1,180 @@
+# Production Deployment Configuration
+#
+# Optimized for production deployments with security and performance
+
+# @package deployment
+
+# Production Docker configuration
+docker:
+  # Use optimized production Dockerfile
+  dockerfile: "Dockerfile.airflow"
+  
+  # Production build arguments
+  build_args:
+    AIRFLOW_VERSION: "{{cookiecutter.airflow_version}}"
+    PYTHON_VERSION: "{{cookiecutter.python_version}}"
+    BUILD_ENV: "production"
+  
+  # Production caching strategy
+  cache:
+    enabled: true
+    # Use production registry for cache
+    cache_from:
+      - "prod-registry.example.com/airflow-{{cookiecutter.repo_slug}}:latest"
+      - "prod-registry.example.com/airflow-{{cookiecutter.repo_slug}}:stable"
+  
+  # Production image tagging
+  tags:
+    - "airflow-{{cookiecutter.repo_slug}}:${RELEASE_VERSION}"
+    - "airflow-{{cookiecutter.repo_slug}}:latest"
+    - "airflow-{{cookiecutter.repo_slug}}:stable"
+  
+  # Production target stage (no debug tools)
+  target_stage: "runtime"
+
+# Production deployment strategy
+strategy:
+  # Always use full deployment in production for safety
+  default: "full"
+  
+  # Conservative change detection
+  change_detection:
+    # Everything triggers full rebuild in production
+    full_rebuild_triggers:
+      - "**/*"  # All changes require full deployment
+    
+    # Disable DAG-only deploys in production for safety
+    dag_only_triggers: []
+
+# Production environment settings
+development:
+  # Disable all development features
+  hot_reload: false
+  use_volume_mounts: false
+  
+  # Production Airflow settings
+  airflow:
+    dag_dir_list_interval: 300  # Check every 5 minutes
+    load_examples: false
+    reload_on_plugin_change: false
+
+# Production performance settings
+performance:
+  # Production resource limits
+  max_parallel_builds: 4
+  max_parallel_deploys: 2
+  
+  # Production resource allocation
+  memory_limit: "8g"
+  cpu_limit: "4.0"
+  
+  # Production timeouts
+  build_timeout: 1800  # 30 minutes
+  deploy_timeout: 900  # 15 minutes
+
+# Production monitoring
+monitoring:
+  # Comprehensive tracking for production
+  track_build_time: true
+  track_deploy_time: true
+  track_resource_usage: true
+  track_performance_metrics: true
+  
+  # Production logging
+  log_level: "WARNING"  # Less verbose
+  verbose_output: false
+  structured_logs: true
+  
+  # Strict health checks
+  health_checks:
+    enabled: true
+    timeout: 120
+    retries: 10
+    endpoints:
+      - "http://airflow-webserver:8080/health"
+      - "http://airflow-scheduler:8080/health"
+    
+    # Production-specific health checks
+    advanced_checks:
+      - "database_connection"
+      - "scheduler_heartbeat" 
+      - "dag_parsing_status"
+
+# Production security settings
+security:
+  # Enhanced security for production
+  enabled: true
+  
+  # Image scanning
+  scan_for_vulnerabilities: true
+  fail_on_high_severity: true
+  
+  # Runtime security
+  run_as_non_root: true
+  read_only_filesystem: true
+  no_new_privileges: true
+  
+  # Network security
+  network_policies: true
+  restrict_egress: true
+
+# Production deployment validation
+validation:
+  # Pre-deployment validation
+  pre_deploy_checks:
+    - "config_validation"
+    - "dag_syntax_check"
+    - "dependency_check"
+    - "security_scan"
+  
+  # Post-deployment validation
+  post_deploy_checks:
+    - "health_check"
+    - "dag_loading_test"
+    - "scheduler_status"
+    - "webserver_status"
+  
+  # Rollback settings
+  rollback:
+    enabled: true
+    automatic_on_failure: true
+    keep_previous_versions: 3
+
+# Production service configuration
+services:
+  # Production database settings
+  postgres:
+    host: "${POSTGRES_HOST}"
+    port: "${POSTGRES_PORT:-5432}"
+    database: "${POSTGRES_DB:-airflow}"
+    # Use connection pooling in production
+    pool_size: 20
+    max_overflow: 30
+    
+  # Production Airflow configuration
+  airflow:
+    webserver_port: 8080
+    # Production worker configuration
+    worker_concurrency: 16
+    celery_broker_url: "${CELERY_BROKER_URL}"
+    celery_result_backend: "${CELERY_RESULT_BACKEND}"
+
+# Production alerting
+alerting:
+  # Enable production alerting
+  enabled: true
+  
+  # Alert channels
+  channels:
+    - "slack"
+    - "email" 
+    - "pagerduty"
+  
+  # Alert conditions
+  conditions:
+    - name: "deployment_failure"
+      severity: "critical"
+    - name: "build_timeout"
+      severity: "warning"
+    - name: "health_check_failure"
+      severity: "critical"

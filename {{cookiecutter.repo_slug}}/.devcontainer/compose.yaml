@@ -7,6 +7,14 @@ x-airflow-env: &airflow-env
   AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY}
   _PIP_ADDITIONAL_REQUIREMENTS: "apache-airflow-providers-postgres psycopg2-binary"
 
+# Common volume configurations for caching optimization
+x-airflow-volumes: &airflow-volumes
+  - ../dags:/opt/airflow/dags:cached  # Use cached mount for better performance
+  - ../airflow/plugins:/opt/airflow/plugins:cached
+  - airflow_logs:/opt/airflow/logs
+  - pip_cache:/home/airflow/.cache/pip  # Cache pip downloads
+  - uv_cache:/home/airflow/.cache/uv    # Cache UV downloads
+
 services:
   postgres:
     image: docker.io/library/postgres:${POSTGRES_VERSION:-15}
@@ -30,9 +38,7 @@ services:
     env_file: [./airflow.env]
     environment: *airflow-env
     user: "50000:0"
-    volumes:
-      - ../dags:/opt/airflow/dags
-      - ../airflow/plugins:/opt/airflow/plugins
+    volumes: *airflow-volumes
     command: [
       "bash", "-c",
       "airflow db upgrade && airflow users create --username $$_AIRFLOW_WWW_USER_USERNAME --password $$_AIRFLOW_WWW_USER_PASSWORD --firstname Admin --lastname User --role Admin --email admin@example.com || true"
@@ -47,9 +53,7 @@ services:
     environment: *airflow-env
     user: "50000:0"
     command: ["airflow", "scheduler"]
-    volumes:
-      - ../dags:/opt/airflow/dags
-      - ../airflow/plugins:/opt/airflow/plugins
+    volumes: *airflow-volumes
     depends_on:
       airflow-init:
         condition: service_completed_successfully
@@ -62,9 +66,7 @@ services:
     command: ["airflow", "webserver"]
     ports:
       - "8080:8080"
-    volumes:
-      - ../dags:/opt/airflow/dags
-      - ../airflow/plugins:/opt/airflow/plugins
+    volumes: *airflow-volumes
     depends_on:
       airflow-init:
         condition: service_completed_successfully
@@ -86,3 +88,6 @@ services:
 
 volumes:
   pg_data:
+  airflow_logs:    # Persistent logs for debugging  
+  pip_cache:       # Cache pip downloads for faster builds
+  uv_cache:        # Cache UV downloads for faster dependency resolution

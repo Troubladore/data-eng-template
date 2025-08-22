@@ -1,0 +1,111 @@
+# Multi-stage Dockerfile optimized for Airflow deployment with caching
+# Inspired by Astronomer's packaged developer deployment model
+#
+# This Dockerfile is optimized for:
+# 1. Docker layer caching for faster rebuilds
+# 2. Separate dependency and application layers
+# 3. Multi-stage builds for smaller final images
+# 4. Development vs production optimization
+
+# =============================================================================
+# Dependencies Stage - Cached separately from application code
+# =============================================================================
+FROM apache/airflow:{{cookiecutter.airflow_version}}-python{{cookiecutter.python_version}} AS dependencies
+
+# Set build arguments for caching
+ARG AIRFLOW_VERSION={{cookiecutter.airflow_version}}
+ARG PYTHON_VERSION={{cookiecutter.python_version}}
+
+# Switch to airflow user for security
+USER airflow
+
+# Create workspace directory
+WORKDIR /opt/airflow
+
+# Copy dependency files first for better caching
+# Only these files changing will bust the dependency cache
+COPY pyproject.toml uv.lock ./
+COPY airflow/requirements.txt ./airflow/
+
+# Install UV for faster dependency management (if not present)
+USER root
+RUN pip install --no-cache-dir uv
+
+# Switch back to airflow user and install dependencies
+USER airflow
+
+# Install Python dependencies using UV for speed
+# This layer will be cached unless dependencies change
+RUN uv pip install --system --no-cache -r airflow/requirements.txt
+
+# Install project dependencies
+RUN uv sync --no-dev
+
+# =============================================================================
+# Runtime Stage - Application code and configurations
+# =============================================================================
+FROM dependencies AS runtime
+
+# Copy application code (this will change more frequently)
+# Separated from dependencies for optimal caching
+COPY --chown=airflow:root dags/ ./dags/
+COPY --chown=airflow:root airflow/plugins/ ./plugins/
+COPY --chown=airflow:root transforms/ ./transforms/
+COPY --chown=airflow:root scripts/ ./scripts/
+
+# Copy configuration files
+COPY --chown=airflow:root conf/ ./conf/
+
+# Set environment variables for Airflow
+ENV AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
+ENV AIRFLOW__CORE__PLUGINS_FOLDER=/opt/airflow/plugins
+ENV PYTHONPATH=/opt/airflow
+
+# Create necessary directories and set permissions
+USER root
+RUN mkdir -p /opt/airflow/logs /opt/airflow/config \
+    && chown -R airflow:root /opt/airflow/logs /opt/airflow/config
+
+# Switch back to airflow user
+USER airflow
+
+# Health check for the Airflow installation
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD airflow db check || exit 1
+
+# Default command (can be overridden in docker-compose)
+CMD ["airflow", "webserver"]
+
+# =============================================================================
+# Development Stage - Optimized for local development
+# =============================================================================
+FROM runtime AS development
+
+USER root
+
+# Install development dependencies
+RUN uv pip install --system --no-cache \
+    pytest \
+    pytest-cov \
+    black \
+    ruff \
+    mypy
+
+# Install debugging tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    vim \
+    curl \
+    wget \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to airflow user
+USER airflow
+
+# Set development-specific environment variables
+ENV AIRFLOW__CORE__LOAD_EXAMPLES=False
+ENV AIRFLOW__WEBSERVER__RELOAD_ON_PLUGIN_CHANGE=True
+ENV AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL=10
+
+# Development command (interactive shell)
+CMD ["bash"]
