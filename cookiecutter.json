@@ -1,9 +1,13 @@
 {
   "project_name": "Awesome Data Project",
   "repo_slug": "awesome-data-project",
+  "author_name": "Data Engineering Team",
   "python_version": "3.12",
   "airflow_version": "2.9.3",
   "postgres_version": "16",
   "airflow_executor": ["LocalExecutor", "SequentialExecutor"],
+  "db_name": "{{ cookiecutter.repo_slug.replace('-', '_') }}",
+  "db_user": "postgres",
+  "db_password": "postgres",
   "license": ["Proprietary", "MIT", "Apache-2.0"]
 }

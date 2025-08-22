@@ -1,226 +1,230 @@
-# claude.md — Guidance for Working in This Repo
+# Data Engineering Cookiecutter Template - Template Development Guide
 
-This repository is a **cookiecutter-based template** for reproducible, modern **data engineering projects**.  
-It integrates Airflow, Postgres, dbt, and a VS Code DevContainer with opinionated defaults.
+This is the **outer layer** guidance for Claude when working on the **cookiecutter template itself**. 
 
-**IMPORTANT**: This repository contains template files with `{{cookiecutter.*}}` placeholders and should **not** be used directly. Users must first generate a project from this template using `cookiecutter .` before using the DevContainer.
-
-Claude should follow these guidelines when answering questions, writing code, or suggesting changes:
+**IMPORTANT**: This repository is a cookiecutter template, not a working data engineering project. Users generate projects from this template using `cookiecutter .`
 
 ---
 
-## Experience Objectives
+## Template Responsibilities
 
-1. **Zero-warning startup**  
-   - DevContainers must start cleanly with no Compose deprecation warnings, missing env variables, or brittle defaults.  
-   - Ports should not collide on host; use environment variables or dynamic host ports when necessary.
+This outer layer handles:
+- **Cookiecutter mechanics**: Template structure, variables, generation process
+- **DevContainer configuration**: Docker Compose, environment setup, tool installation
+- **Template-level tooling**: Bootstrap scripts, post-generation hooks
+- **Cross-cutting architecture**: Tool selection, integration patterns
+- **Template maintenance**: Updates, testing, documentation
 
-2. **Developer convenience without hidden magic**  
-   - The template should “just work” on first open, and keep working after branch switches.  
-   - Routine tasks like `uv sync` (for Python deps) run automatically on container start, but **installation of tools (e.g. uv)** is not handled ad-hoc. Those are managed declaratively by Ansible.
-
-3. **Professional defaults, easy overrides**  
-   - Sensible defaults for Postgres (v16), Airflow, Python (3.12).  
-   - All overridable via `.env`, with `cookiecutter.json` defining initial defaults.  
-   - Avoid hard-coding values in `compose.yaml` that can live in `.env`.
-
-4. **Modern Python tooling**  
-   - Use `uv` as the resolver/installer.  
-   - Use `ruff` for linting + formatting.  
-   - Prefer `psycopg` v3 for app code, but retain `psycopg2` in Airflow’s provider chain until upstream moves.  
-   - No black/isort; ruff replaces both.
-
-5. **Transparency over hidden state**  
-   - Scripts should warn/exit if required tools are missing, not auto-install.  
-   - Ansible governs base state; DevContainer scripts just check and sync.
-
-6. **Composable services**  
-   - Airflow + Postgres run as services for dev only.  
-   - Developers can connect from host to Postgres, so conflicts are avoided by dynamic host port binding.  
-   - Airflow installs lightweight extras via `_PIP_ADDITIONAL_REQUIREMENTS` only for dev convenience.
+**NOT handled here**: Domain-specific data engineering patterns (those go in inner layer guidance files)
 
 ---
 
-## Repo Layout
+## Cookiecutter Template Structure
 
-- **.devcontainer/** → container config (`compose.yaml`, `devcontainer.json`, env files, bootstrap/post-start scripts)  
-- **dags/** → Airflow DAGs  
-- **dbt/** → dbt project with bronze/silver/gold modeling convention  
-- **transforms/** → app-level SQLModel/Pydantic models  
-- **scripts/** → helper scripts (`airflow-cli.sh`, `psql.sh`)  
-- **hooks/** → cookiecutter hook (`post_gen_project.py`) that writes `.env` with Fernet key etc.  
-- **pyproject.toml** → Python deps, uv + ruff config  
-- **Makefile** → dev shortcuts (psql, tests, etc.)  
-
----
-
-## DevContainer Behavior
-
-- Defined in `.devcontainer/devcontainer.json`:
-  - Services: `postgres`, `airflow-webserver`, `airflow-scheduler`
-  - User: `vscode`
-  - Ports: 8080 (Airflow UI), 5432 (Postgres, dynamic override allowed)
-  - Lifecycle:
-    - `postCreateCommand`: runs `bootstrap-dev.sh` (idempotent setup)  
-    - `postStartCommand`: runs `post-start.sh` (dependency sync via `uv`)  
-
-- **post-start.sh**:  
-  - Verifies `uv` is installed.  
-  - Runs `uv sync --frozen` only when lockfile changed.  
-  - Exits with warning if uv missing (installation managed elsewhere).
+```
+data-eng-template/
+├── cookiecutter.json                    # Template variables and defaults
+├── hooks/
+│   └── post_gen_project.py             # Post-generation setup (Fernet keys, .env)
+├── CLAUDE.md                           # THIS FILE - template development guidance
+└── {{cookiecutter.repo_slug}}/         # Generated project content
+    ├── CLAUDE.md                       # Inner layer - project guidance
+    ├── dags/CLAUDE.md                  # Inner layer - Airflow guidance
+    ├── dbt/CLAUDE.md                   # Inner layer - dbt guidance
+    ├── transforms/CLAUDE.md            # Inner layer - SQLModel guidance
+    ├── .devcontainer/                  # DevContainer configuration
+    │   ├── compose.yaml               # Services: Postgres, Airflow
+    │   └── devcontainer.json          # VS Code integration
+    └── [project files...]
+```
 
 ---
 
-## How to Interact with Claude
+## Experience Objectives for Generated Projects
 
-When asking Claude for help:
-- Prefer **concrete changes** (diffs to `compose.yaml`, `pyproject.toml`, etc.).  
-- Preserve the separation of responsibilities:
-  - `cookiecutter.json` defines project defaults.  
-  - `post_gen_project.py` seeds `.env` with Fernet key + defaults.  
-  - DevContainer scripts sync the venv but don’t mutate system state.  
-- Always assume **clean, professional, reproducible** is the target outcome.
-
-Claude should:
-- Suggest updates in terms of cookiecutter, `.env`, and scripts—not host hacks.  
-- Flag deprecated/brittle constructs (like Compose `version:` keys).  
-- Default to the **simplest, maintainable pattern** that minimizes surprises for developers.
+1. **Zero-warning startup**: DevContainers start cleanly, no deprecation warnings or missing variables
+2. **Developer convenience**: Template "just works" after generation, survives branch switches
+3. **Professional defaults**: Postgres 16, Airflow, Python 3.12, modern tooling
+4. **Composable services**: Airflow + Postgres as dev services, host connectivity
+5. **Transparent operation**: No hidden state, explicit dependencies
 
 ---
 
-## File Editing Notes
+## Template Development Workflow
 
-**Issue**: Auto-formatters (likely Ruff) may modify files between Read and Edit operations, causing Edit tool failures.
+### Working on Template Mechanics
+When modifying cookiecutter structure, DevContainer config, or generation process:
 
-**Workaround**: If Edit tool consistently fails with "file has been modified" errors:
-1. Use bash commands for file modifications: `sed`, `cat >>`, `echo >>`
-2. For complex changes, create new file and `mv` over original
-3. Clean up any `.bak` or temp files created during the process
+1. **Test generation frequently**: `cookiecutter . --no-input` to verify template works
+2. **Validate DevContainer**: Generated projects must start without errors
+3. **Check variable propagation**: Ensure `{{cookiecutter.*}}` variables resolve correctly
+4. **Test hook execution**: Verify `post_gen_project.py` creates proper `.env` files
+
+### Cross-Cutting Architectural Changes
+When updating tool versions, adding new services, or changing integration patterns:
+
+1. **Update cookiecutter.json**: Add new variables with sensible defaults
+2. **Modify DevContainer**: Update `compose.yaml` and `devcontainer.json`
+3. **Update inner guidance**: Ensure generated CLAUDE.md files reflect changes
+4. **Test end-to-end**: Generate project → start DevContainer → verify functionality
+
+---
+
+## DevContainer Configuration Principles
+
+### Service Management
+- **Postgres**: Version 16, dynamic host port, persistent volumes
+- **Airflow**: Webserver + Scheduler, lightweight dev configuration
+- **Port conflicts**: Use environment variables for host port mapping
+- **Dependencies**: Services start in correct order with health checks
+
+### Environment Variables
+- **Template defaults**: Set in `cookiecutter.json`
+- **Generated secrets**: Created by `post_gen_project.py` (Fernet keys, passwords)  
+- **Override capability**: All values configurable via `.env` in generated project
+- **No hardcoding**: Avoid fixed values in `compose.yaml`
+
+### Tool Integration
+- **uv**: Python package management, lockfile-based
+- **ruff**: Linting and formatting (replaces black/isort)
+- **psycopg3**: Application code database connectivity
+- **Modern defaults**: Latest stable versions with conservative fallbacks
+
+---
+
+## Template Testing Strategy
+
+### Generation Testing
+```bash
+# Test basic generation
+cookiecutter . --no-input
+
+# Test with custom values
+cookiecutter . --config-file test-config.yaml
+
+# Verify no template syntax errors
+find . -name "*.py" -exec python -m py_compile {} \;
+```
+
+### DevContainer Testing  
+```bash
+# In generated project
+devcontainer up --workspace-folder .
+devcontainer exec --workspace-folder . bash -c "make test"
+```
+
+### Integration Testing
+1. Generate project with various configurations
+2. Start DevContainer services
+3. Verify Airflow UI accessibility
+4. Test database connectivity
+5. Run sample dbt commands
+
+---
+
+## File Editing Considerations
+
+### Auto-formatter Interference
+**Issue**: Ruff/other formatters modify files between Read and Edit operations
+
+**Workaround approaches**:
+1. Use bash commands: `sed`, `cat >>`, `echo >>`
+2. Create new file and `mv` over original for complex changes
+3. Clean up `.bak` files after modifications
 
 **Example**:
 ```bash
-# Instead of Edit tool:
+# Instead of Edit tool for complex additions
 cat >> hooks/post_gen_project.py << 'EOF'
-# new code here
+# New functionality here
+EOF
+```
 
-
----
-
-## File Editing Notes
-
-**Issue**: Auto-formatters (likely Ruff) may modify files between Read and Edit operations, causing Edit tool failures.
-
-**Workaround**: If Edit tool consistently fails with "file has been modified" errors:
-1. Use bash commands for file modifications: `sed`, `cat >>`, `echo >>`
-2. For complex changes, create new file and `mv` over original  
-3. Clean up any `.bak` or temp files created during the process
-
-**Example**: Use `cat >> file.py << 'EOF'` instead of Edit tool for appending code.
-
-
-**EOF Issues**: When using heredoc syntax, avoid complex quoting. Use simple echo or printf instead:
-- ❌ `cat >> file << 'EOF'` with nested quotes/backticks  
-- ✅ `echo "content" >> file` or `printf "content" >> file`
-
+### Cookiecutter Template Escaping
+- **dbt conflicts**: Use `{% raw %}{{ ref('model') }}{% endraw %}` for dbt Jinja
+- **Variable conflicts**: Escape nested template syntax carefully
+- **Testing**: Validate template renders correctly with test generation
 
 ---
 
-## Lessons Learned from Template Development
+## Cookiecutter Best Practices
 
-### Key Issues Encountered and Solutions
+### Variable Design
+```json
+{
+    "repo_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-').replace('_', '-') }}",
+    "postgres_version": "16",
+    "python_version": "3.12",
+    "airflow_version": "2.8.0"
+}
+```
 
-1. **Cookiecutter Template Structure**
-   - **Problem**:  - cookiecutter couldn't find template directories
-   - **Root Cause**: Files were in repo root instead of  directory
-   - **Solution**: Move all project files into  directory
-   - **Lesson**: Cookiecutter requires specific directory structure with templated folder name
+### Hook Implementation
+- **Idempotent operations**: Hooks can run multiple times safely
+- **Error handling**: Graceful failures with helpful messages
+- **Secret generation**: Create secure random values (Fernet keys, passwords)
+- **Environment setup**: Generate complete `.env` files
 
-2. **dbt Jinja Template Conflicts**  
-   - **Problem**:  - cookiecutter tried to process dbt's  syntax
-   - **Root Cause**: Both cookiecutter and dbt use  syntax, causing conflicts
-   - **Solution**: Escape dbt syntax with 
-   - **Lesson**: Always escape nested template languages when using cookiecutter
+### Directory Structure
+- **Templated folder names**: Use `{{cookiecutter.repo_slug}}/`
+- **Conditional inclusion**: Use `{% if cookiecutter.feature_flag %}` for optional features
+- **File permissions**: Ensure executable scripts have correct permissions
 
-3. **Missing Environment Variables**
-   - **Problem**:  failed with missing  and 
-   - **Root Cause**:  didn't generate required Airflow admin credentials  
-   - **Solution**: Add missing variables to the .env generation in post-generation hook
-   - **Lesson**: Ensure all environment dependencies are documented and generated
+---
 
-4. **Docker Compose Command Parsing**
-   - **Problem**: Complex bash commands in  field being parsed as individual arguments
-   - **Root Cause**: YAML multiline syntax and entrypoint/command interaction
-   - **Multiple attempts**: , , , 
-   - **Working solution**:  + 
-   - **Lesson**: Docker Compose YAML syntax is very specific about string vs array parsing
+## ChatGPT Collaboration Workflow
 
-5. **File Modification Detection Issues**
-   - **Problem**: Edit tool failing with "file has been modified" errors
-   - **Root Cause**: Auto-formatters (likely Ruff) modifying files between Read and Edit operations  
-   - **Solution**: Use bash commands (, , ) instead of Edit tool
-   - **Lesson**: Document workarounds for auto-formatter interference
+### Template Development Collaboration
+When working on template architecture, use ChatGPT for:
+- **Tool selection decisions**: Compare alternatives, assess trade-offs
+- **Configuration validation**: Review complex Docker Compose setups
+- **Integration patterns**: How to best connect Airflow, dbt, Postgres
+- **Best practice consultation**: Industry standards for data engineering tooling
 
-6. **Environment-Specific Testing Challenges**
-   - **Problem**: Different behavior between Docker Desktop vs Podman, snap confinement issues
-   - **Root Cause**: Testing environment didn't match user environment
-   - **Solution**: Test with actual tools user will use (devcontainer CLI, not just docker-compose)
-   - **Lesson**: Always test in the target environment, not just isolated components
+### Design Discussion Patterns
+1. **Context setting**: Always specify "cookiecutter template for data engineering"
+2. **Constraint clarification**: Mention DevContainer, tool version constraints
+3. **Scope limitation**: Focus on template mechanics vs domain patterns
+4. **Implementation details**: Request concrete configuration examples
+
+### Collaboration Tools Available
+- `run_chatgpt(message)` - Basic chat interaction
+- `create_persistent_chat(message, title, project_name)` - Named conversations
+- `continue_conversation(chat_name, message, project_name)` - Continue existing chats
+- Project: "Data Eng Template" - Use for template development discussions
+
+---
+
+## Template Evolution Strategy
+
+### Version Management
+- **Semantic versioning**: Major.Minor.Patch for template releases
+- **Changelog maintenance**: Document breaking changes, new features
+- **Backward compatibility**: Consider impact on existing generated projects
+- **Migration guides**: Help users update to new template versions
+
+### Feature Addition Process
+1. **Requirements gathering**: What problem does this solve?
+2. **Architecture design**: How does it integrate with existing tools?
+3. **Implementation planning**: Template changes, hook updates, documentation
+4. **Testing strategy**: How to validate the feature works correctly?
+5. **Documentation updates**: Both template and generated project guidance
+
+---
+
+## Lessons Learned
+
+### Critical Template Issues Resolved
+1. **Cookiecutter structure**: Files must be in `{{cookiecutter.repo_slug}}/` directory
+2. **Template conflicts**: Escape dbt Jinja syntax to avoid cookiecutter conflicts
+3. **Environment variables**: Generate all required secrets in post-generation hook
+4. **Docker Compose syntax**: Use `entrypoint + command` pattern for complex commands
+5. **Testing environments**: Always test with actual target tools (devcontainer CLI)
 
 ### Development Workflow Insights
+- **Iterative testing**: Generate and test frequently during development
+- **Environment awareness**: Snap vs traditional packages affect paths
+- **Documentation as code**: Keep guidance files synchronized with implementation
+- **Template complexity**: Multiple template engines require careful coordination
 
-- **Test iteratively**: Don't assume fixes work - validate each change end-to-end
-- **Document as you go**: File editing workarounds, YAML syntax gotchas, etc.
-- **Environment matters**: Snap packages, Podman vs Docker, auto-formatters all affect behavior
-- **Template complexity**: Multiple template engines (cookiecutter + dbt) require careful escaping
-- **Dependencies cascade**: Missing env vars cause container failures which cause devcontainer failures
-
----
-
-## Lessons Learned from Template Development
-
-### Key Issues Encountered and Solutions
-
-1. **Cookiecutter Template Structure**
-   - **Problem**: `NonTemplatedInputDirException` - cookiecutter couldn't find template directories
-   - **Root Cause**: Files were in repo root instead of `{{cookiecutter.repo_slug}}/` directory
-   - **Solution**: Move all project files into `{{cookiecutter.repo_slug}}/` directory
-   - **Lesson**: Cookiecutter requires specific directory structure with templated folder name
-
-2. **dbt Jinja Template Conflicts**  
-   - **Problem**: `'ref' is undefined` - cookiecutter tried to process dbt's `{{ ref() }}` syntax
-   - **Root Cause**: Both cookiecutter and dbt use `{{ }}` syntax, causing conflicts
-   - **Solution**: Escape dbt syntax with `{% raw %}{{ ref('model') }}{% endraw %}`
-   - **Lesson**: Always escape nested template languages when using cookiecutter
-
-3. **Missing Environment Variables**
-   - **Problem**: `airflow-init` failed with missing `_AIRFLOW_WWW_USER_USERNAME` and `_AIRFLOW_WWW_USER_PASSWORD`
-   - **Root Cause**: `post_gen_project.py` didn't generate required Airflow admin credentials  
-   - **Solution**: Add missing variables to the .env generation in post-generation hook
-   - **Lesson**: Ensure all environment dependencies are documented and generated
-
-4. **Docker Compose Command Parsing**
-   - **Problem**: Complex bash commands in `command:` field being parsed as individual arguments
-   - **Root Cause**: YAML multiline syntax and entrypoint/command interaction
-   - **Multiple attempts**: `command: >`, `command: |`, `command: "string"`, `command: ["sh", "-c", "..."]`
-   - **Working solution**: `entrypoint: ["sh", "-c"]` + `command: "single string"`
-   - **Lesson**: Docker Compose YAML syntax is very specific about string vs array parsing
-
-5. **File Modification Detection Issues**
-   - **Problem**: Edit tool failing with "file has been modified" errors
-   - **Root Cause**: Auto-formatters (likely Ruff) modifying files between Read and Edit operations  
-   - **Solution**: Use bash commands (`sed`, `cat >>`, `echo >>`) instead of Edit tool
-   - **Lesson**: Document workarounds for auto-formatter interference
-
-6. **Environment-Specific Testing Challenges**
-   - **Problem**: Different behavior between Docker Desktop vs Podman, snap confinement issues
-   - **Root Cause**: Testing environment didn't match user environment
-   - **Solution**: Test with actual tools user will use (devcontainer CLI, not just docker-compose)
-   - **Lesson**: Always test in the target environment, not just isolated components
-
-### Development Workflow Insights
-
-- **Test iteratively**: Don't assume fixes work - validate each change end-to-end
-- **Document as you go**: File editing workarounds, YAML syntax gotchas, etc.
-- **Environment matters**: Snap packages, Podman vs Docker, auto-formatters all affect behavior
-- **Template complexity**: Multiple template engines (cookiecutter + dbt) require careful escaping
-- **Dependencies cascade**: Missing env vars cause container failures which cause devcontainer failures
+This outer layer guidance focuses purely on template mechanics and generation concerns. Domain-specific data engineering guidance belongs in the inner layer CLAUDE.md files within the generated project structure.

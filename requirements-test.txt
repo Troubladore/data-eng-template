@@ -1,0 +1,32 @@
+# Testing dependencies for data-eng-template
+
+# Core testing framework
+pytest>=7.0.0
+pytest-xdist>=3.0.0  # Parallel test execution
+pytest-cov>=4.0.0    # Coverage reporting
+pytest-timeout>=2.1.0  # Test timeouts
+
+# Template testing
+cookiecutter>=2.1.0   # Template generation
+
+# File and directory testing
+pathlib2>=2.3.0; python_version < '3.4'  # Backport for older Python
+
+# Subprocess testing
+subprocess32>=3.5.4; python_version < '3.2'  # Backport for older Python
+
+# YAML parsing for configuration testing  
+PyYAML>=6.0
+
+# JSON schema validation
+jsonschema>=4.0.0
+
+# Text processing for guidance testing
+regex>=2023.0.0
+
+# Development utilities
+pre-commit>=3.0.0     # Code quality hooks
+black>=23.0.0         # Code formatting
+isort>=5.12.0         # Import sorting
+flake8>=6.0.0         # Linting
+mypy>=1.0.0           # Type checking
