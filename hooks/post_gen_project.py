@@ -102,8 +102,39 @@ env_script_path.parent.mkdir(exist_ok=True)
 env_script_path.write_text(env_script_content)
 env_script_path.chmod(0o755)  # Make executable
 
+# Create Docker Compose .env file for variable substitution
+# This ensures environment variables are available when services start
+compose_env_content = f"""# Docker Compose environment variables
+# Generated automatically by cookiecutter hook - do not edit manually
+
+# Airflow configuration
+AIRFLOW__CORE__FERNET_KEY={fernet_key}
+AIRFLOW__CORE__EXECUTOR=LocalExecutor
+AIRFLOW__CORE__LOAD_EXAMPLES=False
+
+# Airflow admin user
+_AIRFLOW_WWW_USER_USERNAME=admin
+_AIRFLOW_WWW_USER_PASSWORD=admin
+
+# Database configuration  
+POSTGRES_DB=airflow
+POSTGRES_USER=airflow
+POSTGRES_PASSWORD=airflow
+
+# Version configuration from cookiecutter
+PYTHON_VERSION={{cookiecutter.python_version}}
+AIRFLOW_VERSION={{cookiecutter.airflow_version}}
+POSTGRES_VERSION={{cookiecutter.postgres_version}}
+"""
+
+# Create .devcontainer/.env file
+devcontainer_dir = pathlib.Path(".devcontainer")
+devcontainer_env_file = devcontainer_dir / ".env"
+devcontainer_env_file.write_text(compose_env_content)
+
 print("Generated Hydra configuration with Fernet key.")
 print("Created environment export script: scripts/export_env.sh")
+print("Created Docker Compose .env file: .devcontainer/.env")
 
 # Create a minimal uv.lock placeholder (users will run `uv sync`)
 pathlib.Path("uv.lock").write_text("# created on first sync\n")
