@@ -2,7 +2,7 @@
   "name": "Data Eng DevContainer (Podman)",
   "dockerComposeFile": "compose.yaml",
   "service": "dev",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "workspaceFolder": "/workspaces/{{cookiecutter.repo_slug}}",
   "runServices": ["postgres", "airflow-webserver", "airflow-scheduler"],
   "shutdownAction": "stopCompose",
   "features": {
@@ -44,6 +44,6 @@
     "8080": { "label": "Airflow Web UI" },
     "5432": { "label": "Postgres" }
   },
-  "postCreateCommand": "bash .devcontainer/setup-hydra-env.sh && bash .devcontainer/bootstrap-dev.sh",
+  "postCreateCommand": "bash .devcontainer/bootstrap-dev.sh",
   "postStartCommand": "bash .devcontainer/post-start.sh"
 }

@@ -46,4 +46,50 @@ fi
 # Make sure .env file is readable
 chmod 644 .env
 
+# Also populate Docker Compose environment files
+echo "Updating Docker Compose environment files..."
+
+# Extract values from .env for use in compose env files
+if [ -f ".env" ]; then
+    # Read the .env file and extract necessary variables
+    # Convert export format to plain format and source it
+    sed 's/^export //' .env | sed "s/'//g" > .env.tmp
+    source .env.tmp 2>/dev/null || true
+    rm -f .env.tmp
+    
+    # Update Airflow environment file
+    cat > .devcontainer/airflow.env << AIRFLOWEOF
+AIRFLOW_UID=50000
+AIRFLOW_GID=0
+PIP_USER=false
+AIRFLOW__CORE__FERNET_KEY=${AIRFLOW__CORE__FERNET_KEY:-}
+_AIRFLOW_WWW_USER_USERNAME=${_AIRFLOW_WWW_USER_USERNAME:-admin}
+_AIRFLOW_WWW_USER_PASSWORD=${_AIRFLOW_WWW_USER_PASSWORD:-admin}
+AIRFLOWEOF
+
+    # Update Postgres environment file
+    cat > .devcontainer/postgres.env << POSTGRESEOF
+POSTGRES_DB=${POSTGRES_DB:-airflow}
+POSTGRES_USER=${POSTGRES_USER:-airflow}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-airflow}
+POSTGRESEOF
+
+    # Create Docker Compose .env file (for variable substitution in compose.yaml)
+    cat > .devcontainer/.env << COMPOSEEOF
+AIRFLOW__CORE__FERNET_KEY=${AIRFLOW__CORE__FERNET_KEY:-}
+AIRFLOW__CORE__EXECUTOR=${AIRFLOW__CORE__EXECUTOR:-LocalExecutor}
+AIRFLOW__CORE__LOAD_EXAMPLES=${AIRFLOW__CORE__LOAD_EXAMPLES:-False}
+POSTGRES_USER=${POSTGRES_USER:-airflow}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-airflow}
+POSTGRES_DB=${POSTGRES_DB:-airflow}
+PYTHON_VERSION=${PYTHON_VERSION:-3.12}
+POSTGRES_VERSION=${POSTGRES_VERSION:-16}
+AIRFLOW_VERSION=${AIRFLOW_VERSION:-2.9.3}
+COMPOSEEOF
+
+    echo "Updated Docker Compose environment files"
+else
+    echo "Warning: .env file not found, using defaults in compose env files"
+fi
+
 echo "DevContainer environment setup complete!"

@@ -76,11 +76,11 @@ services:
     image: docker.io/library/python:${PYTHON_VERSION:-3.12}-slim
     command: sleep infinity
     # Ensure the dev service *runs* as the same non-root user VS Code connects as
-    user: "${REMOTE_USER:-vscode}"
+    user: "1000:1000"  # Use consistent UID/GID for vscode user
     init: true
     volumes:
-      - ..:/workspaces/${COMPOSE_PROJECT_NAME}
-    working_dir: /workspaces/${COMPOSE_PROJECT_NAME}
+      - ..:/workspaces/{{cookiecutter.repo_slug}}
+    working_dir: /workspaces/{{cookiecutter.repo_slug}}
     depends_on:
       - airflow-webserver
       - airflow-scheduler
