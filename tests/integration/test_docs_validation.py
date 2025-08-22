@@ -339,8 +339,111 @@ class TestDocumentationCompleteness:
             return False
 
 
-class TestDocumentationQuality:
-    """Test documentation quality and consistency."""
+class TestDocumentationUsability:
+    """Test documentation usability - links work, expected files exist, etc."""
+    
+    def test_all_documentation_links_are_valid(self, template_dir: Path, temp_dir: Path, default_cookiecutter_config: Dict[str, Any]):
+        """Test that all links in documentation files are valid and point to existing files."""
+        # Generate project
+        cmd = [
+            'cookiecutter', str(template_dir),
+            '--output-dir', str(temp_dir),
+            '--no-input'
+        ]
+        
+        for key, value in default_cookiecutter_config.items():
+            cmd.append(f"{key}={value}")
+        
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        assert result.returncode == 0
+        
+        project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
+        
+        # Find all Markdown files
+        markdown_files = list(project_dir.rglob("*.md"))
+        
+        broken_links = []
+        
+        for md_file in markdown_files:
+            try:
+                content = md_file.read_text()
+                
+                # Extract all markdown links
+                links = re.findall(r'\[([^\]]*)\]\(([^)]+)\)', content)
+                
+                for link_text, link_url in links:
+                    # Skip external URLs (http/https)
+                    if link_url.startswith(('http://', 'https://')):
+                        continue
+                    
+                    # Skip anchor links within same document
+                    if link_url.startswith('#'):
+                        continue
+                        
+                    # Resolve relative path
+                    try:
+                        linked_file = (md_file.parent / link_url).resolve()
+                        if not linked_file.exists():
+                            broken_links.append(f"{md_file.name}: Broken link '{link_text}' -> {link_url}")
+                    except (OSError, ValueError):
+                        broken_links.append(f"{md_file.name}: Invalid link path '{link_text}' -> {link_url}")
+                        
+            except UnicodeDecodeError:
+                continue  # Skip binary files
+        
+        assert not broken_links, f"Found broken links in documentation: {broken_links}"
+    
+    def test_expected_project_files_exist(self, template_dir: Path, temp_dir: Path, default_cookiecutter_config: Dict[str, Any]):
+        """Test that all files expected to be in the project actually exist."""
+        # Generate project
+        cmd = [
+            'cookiecutter', str(template_dir),
+            '--output-dir', str(temp_dir),
+            '--no-input'
+        ]
+        
+        for key, value in default_cookiecutter_config.items():
+            cmd.append(f"{key}={value}")
+        
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        assert result.returncode == 0
+        
+        project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
+        
+        # Expected files that should exist in every generated project
+        expected_files = [
+            "LICENSE",
+            "CONTRIBUTING.md", 
+            "README.md",
+            "CLAUDE.md",
+            "Makefile",
+            "pyproject.toml",
+            ".gitignore",
+            "conf/config.yaml",
+            "dags/CLAUDE.md",
+            "dags/example_dag.py", 
+            "dbt/CLAUDE.md",
+            "dbt/dbt_project.yml",
+            "scripts/CLAUDE.md",
+            "scripts/run_pipeline.py",
+            "scripts/export_env.sh",
+            "transforms/CLAUDE.md",
+            "transforms/README.md",
+            "docs/index.md",
+            "docs/getting-started.md",
+            "docs/directory_structure.md",
+            ".devcontainer/devcontainer.json",
+            ".devcontainer/compose.yaml"
+        ]
+        
+        missing_files = []
+        
+        for expected_file in expected_files:
+            file_path = project_dir / expected_file
+            if not file_path.exists():
+                missing_files.append(expected_file)
+        
+        assert not missing_files, f"Expected files missing from generated project: {missing_files}"
     
     def test_markdown_files_have_proper_structure(self, template_dir: Path, temp_dir: Path, default_cookiecutter_config: Dict[str, Any]):
         """Test that Markdown files follow consistent structure."""
@@ -376,7 +479,7 @@ class TestDocumentationQuality:
                     continue
                 
                 # Should have at least one heading
-                if not re.search(r'^#', content, re.MULTILINE):
+                if not re.search(r'^#\s+', content, re.MULTILINE):
                     issues.append(f"{md_file.name}: No headings found")
                 
                 # Should not have broken relative links (basic check)

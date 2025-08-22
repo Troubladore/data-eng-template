@@ -10,5 +10,6 @@
   "db_name": "{{ cookiecutter.repo_slug.replace('-', '_') }}",
   "db_user": "postgres",
   "db_password": "postgres",
-  "license": ["Proprietary", "MIT", "Apache-2.0"]
+  "license": ["MIT", "Proprietary", "Apache-2.0"],
+  "year": "2025"
 }
