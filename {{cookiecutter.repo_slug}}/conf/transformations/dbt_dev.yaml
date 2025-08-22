@@ -1,0 +1,167 @@
+# dbt Development Configuration
+#
+# Configuration for dbt transformations in development environment.
+# Optimized for fast iteration, debugging, and testing with sample data.
+
+# @package transformations
+
+# dbt project settings
+project:
+  name: "{{cookiecutter.repo_slug}}"
+  version: "1.0.0"
+  profile: "{{cookiecutter.repo_slug}}"
+  
+  # Development-specific paths
+  model_paths: ["models"]
+  analysis_paths: ["analysis"]
+  test_paths: ["tests"]
+  seed_paths: ["seeds"]
+  macro_paths: ["macros"]
+  snapshot_paths: ["snapshots"]
+  
+  # Output configuration
+  target_path: "target"
+  clean_targets: ["target", "dbt_packages"]
+  log_path: "logs"
+
+# Profile configuration for development
+profile:
+  target: "dev"  # Default target for development
+  
+  outputs:
+    dev:
+      type: "postgres"
+      host: "postgres"  # Docker service name
+      port: 5432
+      user: "{{cookiecutter.db_user}}"
+      password: "{{cookiecutter.db_password}}"
+      dbname: "{{cookiecutter.db_name}}"
+      schema: "{{cookiecutter.repo_slug}}_dev"  # Development schema
+      threads: 2  # Lower thread count for local development
+      keepalives_idle: 0
+      search_path: "{{cookiecutter.repo_slug}}_dev,public"
+      sslmode: "disable"  # SSL disabled for local development
+
+# Model configuration
+models:
+  "{{cookiecutter.repo_slug}}":
+    # Bronze layer (raw data ingestion)
+    bronze:
+      +materialized: table  # Tables for faster development iteration
+      +schema: "bronze"
+      +tags: ["bronze", "raw"]
+      +full_refresh: false  # Preserve data between runs
+      
+    # Silver layer (cleaned and normalized)
+    silver:
+      +materialized: view  # Views for faster compilation
+      +schema: "silver"
+      +tags: ["silver", "clean"]
+      +full_refresh: false
+      
+    # Gold layer (business logic and aggregations)
+    gold:
+      +materialized: table  # Tables for complex business logic
+      +schema: "gold"
+      +tags: ["gold", "business"]
+      +full_refresh: false
+
+# Development-specific dbt settings
+dev_settings:
+  # Compilation and execution
+  use_fast_fail: true  # Fail fast on first error
+  warn_error: false  # Don't treat warnings as errors in dev
+  partial_parse: true  # Enable partial parsing for speed
+  static_parser: true  # Enable static parser for speed
+  
+  # Debugging features
+  debug: true  # Enable debug mode
+  log_level: "debug"  # Verbose logging
+  use_experimental_parser: true  # Try experimental features
+  
+  # Development convenience
+  use_colors: true  # Colored output
+  printer_width: 80  # Terminal width for output formatting
+
+# Test configuration (relaxed for development)
+tests:
+  # Test execution
+  store_failures: true  # Store test failures for debugging
+  warn_error: false  # Don't fail on test warnings
+  
+  # Test selection
+  full_refresh: false  # Don't refresh test tables by default
+  
+  # Severity levels (relaxed for development)
+  severity:
+    warn: "warn"  # Warnings don't fail builds
+    error: "error"  # Errors still fail builds
+
+# Seed configuration
+seeds:
+  "{{cookiecutter.repo_slug}}":
+    +schema: "seeds"
+    +materialized: table
+    +full_refresh: true  # Always refresh seeds
+    +tags: ["seed", "reference"]
+    
+    # Quote columns that might be reserved words
+    quote_columns: true
+
+# Snapshot configuration
+snapshots:
+  "{{cookiecutter.repo_slug}}":
+    +target_schema: "snapshots"
+    +strategy: "timestamp"  # Default snapshot strategy
+    +unique_key: "id"  # Default unique key
+    +updated_at: "updated_at"  # Default timestamp field
+
+# Macro and variable configuration
+vars:
+  # Development-specific variables
+  environment: "dev"
+  full_refresh: false
+  
+  # Data sampling (use smaller datasets in development)
+  enable_sampling: true
+  sample_percentage: 10  # Use 10% of data for faster development
+  
+  # Date ranges (shorter ranges for development)
+  default_lookback_days: 30  # 30 days instead of full history
+  
+  # Feature flags for development
+  enable_data_quality_tests: true
+  enable_performance_tests: false  # Skip performance tests in dev
+  enable_experimental_models: true
+
+# Package management
+packages:
+  # Common dbt packages for data engineering
+  - package: "dbt-labs/dbt_utils"
+    version: "1.1.1"
+  - package: "calogica/dbt_expectations"
+    version: "0.10.1"
+  - package: "dbt-labs/codegen"
+    version: "0.12.1"
+
+# Documentation settings
+docs:
+  generate: true  # Generate documentation in development
+  serve_port: 8081  # Different port to avoid conflicts
+
+# Development hooks
+on-run-start:
+  - "{{ log('Starting dbt run in development environment', info=true) }}"
+  - "create schema if not exists {{ target.schema }}_bronze"
+  - "create schema if not exists {{ target.schema }}_silver"  
+  - "create schema if not exists {{ target.schema }}_gold"
+
+on-run-end:
+  - "{{ log('dbt run completed in development environment', info=true) }}"
+
+# Development-specific macros
+macros:
+  # Enable debugging macros
+  dispatch:
+    - macro_namespace: "dbt_utils"
+      search_order: ["{{cookiecutter.repo_slug}}", "dbt_utils"]

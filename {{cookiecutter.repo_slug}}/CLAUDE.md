@@ -1,6 +1,41 @@
 # {{cookiecutter.project_name}} - Data Engineering Project
 
-**Generated from data-eng-template**: This is a modern data engineering project with Airflow, dbt, PostgreSQL, and DevContainer using medallion architecture.
+**Generated from data-eng-template**: This is a modern data engineering project with **Hydra configuration management**, Airflow, dbt, PostgreSQL, and DevContainer using medallion architecture.
+
+## Configuration System
+
+This project uses **Hydra** for unified configuration management, providing:
+
+- **Hierarchical Configuration**: Compose configs from multiple sources
+- **Type Safety**: Pydantic validation with IDE support  
+- **Environment Management**: Dev/staging/prod with automatic overrides
+- **Command-Line Overrides**: Change any setting without editing files
+- **Self-Documenting**: All config options include inline documentation
+
+### Quick Start
+
+```bash
+# Run with default (development) configuration
+python scripts/run_pipeline.py
+
+# Run with production environment
+python scripts/run_pipeline.py environment=prod
+
+# Override specific settings
+python scripts/run_pipeline.py database.host=prod-db.example.com runtime.parallel_jobs=8
+
+# Dry run mode (preview without execution)
+python scripts/run_pipeline.py runtime.dry_run=true
+```
+
+### Configuration Structure
+
+- `conf/config.yaml` - Main configuration with sensible defaults
+- `conf/environment/` - Environment-specific settings (dev/staging/prod)
+- `conf/database/` - Database provider configurations
+- `conf/orchestration/` - Airflow and orchestration settings
+- `conf/transformations/` - dbt and transformation settings
+- `conf/compute/` - Resource allocation and processing framework configs
 
 ---
 

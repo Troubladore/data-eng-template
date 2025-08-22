@@ -1,0 +1,158 @@
+# Local Compute Configuration
+#
+# Configuration for local compute resources, optimized for development
+# on a single machine with conservative resource allocation.
+
+# @package compute
+
+# Resource allocation for local development
+resources:
+  # CPU allocation
+  max_cpu_cores: 4  # Maximum CPU cores to use
+  cpu_utilization_target: 70  # Target CPU utilization percentage
+  
+  # Memory allocation  
+  max_memory_gb: 8  # Maximum memory to use (GB)
+  memory_buffer_gb: 2  # Reserve memory for system
+  
+  # Disk I/O
+  temp_storage_gb: 10  # Temporary storage allocation
+  temp_directory: "./temp"  # Local temporary directory
+
+# Process management
+processes:
+  # Parallel execution
+  max_parallel_jobs: 2  # Conservative parallelism for local development
+  max_threads_per_job: 2  # Threads per individual job
+  
+  # Job scheduling
+  scheduler_type: "local"  # Simple local scheduler
+  job_queue_size: 10  # Maximum queued jobs
+  
+  # Timeouts
+  default_job_timeout: 1800  # 30 minutes default timeout
+  long_job_timeout: 3600  # 1 hour for long-running jobs
+
+# Data processing frameworks
+frameworks:
+  # Pandas configuration (primary for local development)
+  pandas:
+    enable: true
+    chunksize: 10000  # Process data in 10k row chunks
+    low_memory: true  # Optimize for memory efficiency
+    
+  # Spark configuration (optional for local development)
+  spark:
+    enable: false  # Disabled by default for local development
+    mode: "local"  # Local mode if enabled
+    driver_memory: "2g"
+    executor_memory: "1g"
+    cores: 2
+    
+  # Polars configuration (alternative to pandas)
+  polars:
+    enable: false  # Optional high-performance alternative
+    lazy_evaluation: true
+    streaming: false  # Streaming disabled for local development
+
+# File I/O configuration
+io:
+  # File formats
+  default_format: "parquet"  # Efficient columnar format
+  compression: "snappy"  # Good balance of speed and compression
+  
+  # Batch sizes
+  read_batch_size: 50000  # Rows per read batch
+  write_batch_size: 10000  # Rows per write batch
+  
+  # Caching
+  enable_file_cache: true
+  cache_directory: "./cache"
+  cache_size_gb: 2  # 2GB cache for local development
+
+# Database connectivity
+database:
+  # Connection pooling for local operations
+  connection_pool_size: 3  # Small pool for local development
+  connection_timeout: 30  # 30 second timeout
+  
+  # Query optimization
+  enable_query_cache: true
+  query_cache_size: 100  # Cache 100 queries
+  
+  # Batch operations
+  insert_batch_size: 1000  # Insert 1000 rows at a time
+  bulk_load_threshold: 10000  # Use bulk load for >10k rows
+
+# Monitoring and observability
+monitoring:
+  # Resource monitoring
+  monitor_resources: true
+  resource_check_interval: 60  # Check every minute
+  
+  # Performance tracking
+  track_job_performance: true
+  performance_log_path: "./logs/performance.log"
+  
+  # Memory profiling
+  enable_memory_profiling: false  # Disabled by default (overhead)
+  profile_memory_threshold_mb: 1000  # Profile if using >1GB
+
+# Development features
+development:
+  # Debugging
+  enable_debug_mode: true
+  verbose_logging: true
+  
+  # Auto-reloading
+  watch_file_changes: true
+  auto_restart_on_change: false  # Manual restart for stability
+  
+  # Development helpers
+  enable_data_sampling: true
+  default_sample_size: 1000  # Sample 1000 rows for quick testing
+  enable_dry_run_mode: true  # Support dry runs
+
+# Error handling and recovery
+error_handling:
+  # Retry configuration
+  max_retries: 2  # Conservative retry count
+  retry_delay: 30  # 30 seconds between retries
+  exponential_backoff: false  # Linear delays for predictability
+  
+  # Failure handling
+  fail_fast: true  # Stop on first error in development
+  partial_failure_threshold: 0.1  # Allow 10% failures before stopping
+  
+  # Cleanup on failure
+  cleanup_temp_files: true
+  preserve_debug_data: true  # Keep data for debugging
+
+# Local integration
+integration:
+  # Docker integration
+  use_docker_for_isolation: false  # Run directly on host for simplicity
+  docker_network: "data-eng-template_default"
+  
+  # File system integration
+  watch_directories: ["./data", "./models", "./dags"]
+  ignore_patterns: ["*.pyc", "*.log", ".git/*"]
+  
+  # Environment integration
+  load_env_file: true
+  env_file_path: "./.env"
+
+# Testing configuration
+testing:
+  # Test data management
+  use_test_data: true
+  test_data_path: "./data/test"
+  generate_synthetic_data: true
+  
+  # Test execution
+  parallel_test_execution: false  # Sequential for easier debugging
+  test_timeout: 300  # 5 minutes per test
+  
+  # Test reporting
+  generate_test_reports: true
+  test_report_path: "./reports/tests"

@@ -1,0 +1,85 @@
+# Data Engineering Pipeline Configuration
+# 
+# This is the main configuration file that orchestrates all aspects of the data pipeline.
+# It uses Hydra for hierarchical configuration management, allowing you to:
+# - Override any setting via command line: python run.py database.host=prod-db.example.com
+# - Switch entire configuration groups: python run.py environment=prod
+# - Compose configurations: python run.py database=snowflake orchestration=prefect
+#
+# For more information on Hydra configuration, see: https://hydra.cc/docs/intro/
+
+defaults:
+  - environment: dev
+  - database: postgres_local  
+  - orchestration: airflow_local
+  - transformations: dbt_dev
+  - compute: local
+  - _self_
+
+# Project metadata (populated by cookiecutter template)
+project:
+  name: "{{cookiecutter.project_name}}"
+  slug: "{{cookiecutter.repo_slug}}"
+  author: "{{cookiecutter.author_name}}"
+  description: "{{cookiecutter.description}}"
+  python_version: "{{cookiecutter.python_version}}"
+  
+# Runtime configuration
+runtime:
+  # Logging configuration
+  log_level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  debug_mode: false  # Enable debug features and verbose logging
+  dry_run: false  # Preview changes without executing them
+  
+  # Execution settings
+  parallel_jobs: 4  # Number of parallel jobs for compute-intensive operations
+  timeout_seconds: 3600  # Default timeout for long-running operations
+  retry_attempts: 3  # Number of retry attempts for failed operations
+  
+  # Output settings
+  output_dir: "./outputs"  # Directory for pipeline outputs and artifacts
+  temp_dir: "./temp"  # Temporary directory for intermediate files
+  
+# Data pipeline configuration
+pipeline:
+  # Data validation settings
+  data_quality:
+    enable_checks: true  # Enable data quality validation
+    fail_on_error: true  # Fail pipeline on data quality errors
+    sample_size: 10000  # Number of rows to sample for quality checks
+    
+  # Incremental loading settings
+  incremental:
+    enable: true  # Enable incremental data loading
+    lookback_days: 1  # Number of days to look back for incremental updates
+    checkpoint_table: "pipeline_checkpoints"  # Table to store incremental checkpoints
+    
+  # Data lineage and metadata
+  metadata:
+    enable_lineage: true  # Track data lineage
+    enable_profiling: true  # Profile data during pipeline execution
+    
+# Security and secrets management
+security:
+  # Secret management approach
+  secrets_backend: "environment"  # Options: environment, file, vault
+  
+  # Database security
+  require_ssl: true  # Require SSL for database connections
+  connection_pool_size: 5  # Database connection pool size
+  
+# Monitoring and observability
+monitoring:
+  # Metrics collection
+  enable_metrics: true  # Enable metrics collection
+  metrics_endpoint: null  # Endpoint for metrics (e.g., Prometheus)
+  
+  # Alerting configuration
+  enable_alerts: false  # Enable alerting (requires additional setup)
+  alert_channels: []  # Alert channels (email, slack, etc.)
+  
+# Override behavior (useful for CI/CD and testing)
+overrides:
+  enable_env_overrides: true  # Allow environment variable overrides
+  env_prefix: "DATA_ENG"  # Environment variable prefix (e.g., DATA_ENG_DATABASE_HOST)
+  allow_command_line: true  # Allow command line overrides

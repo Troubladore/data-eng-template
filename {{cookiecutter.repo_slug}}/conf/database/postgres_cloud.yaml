@@ -1,0 +1,157 @@
+# Cloud PostgreSQL Configuration
+#
+# Configuration for cloud-hosted PostgreSQL (AWS RDS, Google Cloud SQL, Azure Database, etc.).
+# Optimized for production workloads with security and performance best practices.
+
+# @package database
+
+# Connection settings (typically from environment variables or secrets)
+host: "${DB_HOST}"  # e.g., mydb.cluster-xyz.us-east-1.rds.amazonaws.com
+port: 5432
+name: "${DB_NAME}"
+user: "${DB_USER}"  
+password: "${DB_PASSWORD}"  # Should be from secure secret management
+
+# Connection pool settings (optimized for cloud)
+pool:
+  size: 20  # Larger pool for production workloads
+  max_overflow: 30
+  timeout: 60  # Longer timeout for potential network latency
+  recycle: 1800  # 30 minutes
+  pre_ping: true  # Verify connections before use
+
+# PostgreSQL-specific settings for cloud
+postgres:
+  # Version (typically managed by cloud provider)
+  version: "15"  # Cloud providers usually offer recent stable versions
+  
+  # Connection options
+  sslmode: "require"  # SSL required for cloud connections
+  connect_timeout: 30  # Longer timeout for cloud
+  
+  # Cloud-optimized settings
+  synchronous_commit: "on"  # Durability required in production
+  fsync: "on"  # Data integrity critical
+  
+  # Schema management
+  schema: "{{cookiecutter.repo_slug}}"  # Dedicated schema for this project
+  search_path: "{{cookiecutter.repo_slug}},public"
+  
+  # Character encoding
+  encoding: "UTF-8"
+  timezone: "UTC"
+
+# Cloud database initialization
+init:
+  # Database creation (usually handled by cloud provider)
+  create_if_missing: false  # Assume database exists
+  
+  # Schema creation
+  create_schema_if_missing: true
+  
+  # Migration handling
+  auto_migrate: false  # Controlled migration process in production
+  
+  # No sample data in cloud environments
+  load_sample_data: false
+
+# Production features
+prod_features:
+  # Query logging (careful with volume in production)
+  log_queries: false  # Disabled by default for performance
+  log_slow_queries: true
+  slow_query_threshold_ms: 5000  # 5 seconds for production
+  
+  # Performance monitoring
+  enable_query_profiling: true
+  track_query_plans: true
+
+# Backup and maintenance (cloud-managed)
+maintenance:
+  # Automatic maintenance (handled by cloud provider)
+  auto_vacuum: true
+  auto_analyze: true
+  
+  # Custom backup settings (in addition to cloud provider backups)
+  backup:
+    enable: true
+    frequency: "daily"  # In addition to cloud provider continuous backup
+    retention_days: 30
+    path: "s3://{{cookiecutter.repo_slug}}-backups/"
+    
+  # Maintenance windows
+  maintenance_window: "Sun:03:00-Sun:04:00"  # Sunday 3-4 AM UTC
+
+# Migration settings (production-safe)
+migrations:
+  table: "{{cookiecutter.repo_slug}}_migrations"  # Project-specific migration table
+  directory: "./migrations"
+  
+  # Conservative rollback behavior
+  enable_rollback: true
+  rollback_on_failure: false  # Manual rollback in production
+  require_confirmation: true  # Require explicit confirmation for migrations
+
+# Extensions (cloud provider dependent)
+extensions:
+  # Core extensions (usually available)
+  - name: "uuid-ossp"
+    required: true
+  - name: "pg_stat_statements"
+    required: true  # Essential for production monitoring
+  
+  # Optional extensions (check cloud provider support)
+  - name: "pg_trgm"
+    required: false
+  - name: "pgcrypto"  # Encryption functions
+    required: false
+
+# Security settings
+security:
+  # SSL configuration
+  ssl_cert_path: "/etc/ssl/certs/client-cert.pem"
+  ssl_key_path: "/etc/ssl/private/client-key.pem"
+  ssl_ca_path: "/etc/ssl/certs/ca-cert.pem"
+  
+  # Connection security
+  require_ssl: true
+  ssl_verify_full: true
+  
+  # Authentication
+  password_encryption: "scram-sha-256"
+
+# Monitoring (comprehensive for production)
+monitoring:
+  # Connection monitoring
+  log_connections: false  # Usually handled by cloud provider
+  log_disconnections: false
+  
+  # Performance monitoring
+  track_io_timing: true
+  track_functions: "pl"  # Track stored procedures
+  track_activity_query_size: 4096
+  
+  # Lock and wait monitoring
+  log_lock_waits: true
+  deadlock_timeout: 2000  # 2 seconds
+  
+  # Statement statistics
+  pg_stat_statements:
+    max: 10000  # Track top 10k queries
+    track: "all"
+    save: true
+
+# High availability and disaster recovery
+ha:
+  # Read replica configuration
+  read_replicas:
+    enable: true
+    count: 2
+    regions: ["us-east-1", "us-west-2"]  # Multi-region for DR
+  
+  # Failover settings
+  automatic_failover: true
+  failover_timeout: 60  # seconds
+  
+  # Point-in-time recovery
+  pitr_retention_days: 35  # 5 weeks of point-in-time recovery

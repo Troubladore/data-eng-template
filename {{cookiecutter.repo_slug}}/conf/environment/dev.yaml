@@ -1,0 +1,68 @@
+# Development Environment Configuration
+#
+# This configuration is optimized for local development with minimal resource usage
+# and maximum debugging capabilities. It prioritizes developer experience over performance.
+
+# @package _global_
+
+# Runtime overrides for development
+runtime:
+  log_level: DEBUG
+  debug_mode: true
+  dry_run: false
+  parallel_jobs: 2  # Lower parallelism for easier debugging
+  timeout_seconds: 1800  # 30 minutes - longer for debugging
+
+# Development-specific pipeline settings
+pipeline:
+  data_quality:
+    enable_checks: true
+    fail_on_error: false  # Don't fail pipeline in dev - log warnings instead
+    sample_size: 1000  # Smaller sample for faster iteration
+    
+  incremental:
+    enable: true
+    lookback_days: 7  # Longer lookback for dev testing
+    
+  metadata:
+    enable_lineage: true
+    enable_profiling: true  # Full profiling in dev
+
+# Development security settings
+security:
+  secrets_backend: "environment"  # Use .env files in dev
+  require_ssl: false  # Allow non-SSL for local databases
+  connection_pool_size: 2  # Smaller pool for local dev
+
+# Development monitoring (minimal)
+monitoring:
+  enable_metrics: true  # Collect metrics for debugging
+  metrics_endpoint: null  # No external metrics in dev
+  enable_alerts: false  # No alerts in dev
+  
+# Development-specific data sources and targets
+data:
+  # Use smaller datasets in development
+  use_sample_data: true
+  sample_percentage: 10  # Use 10% of production data volume
+  
+  # Local file paths for development
+  raw_data_path: "./data/raw"
+  processed_data_path: "./data/processed"
+  
+# Development compute resources
+compute:
+  # Conservative resource limits for local development
+  max_memory_gb: 4
+  max_cpu_cores: 2
+  
+  # Development-friendly settings
+  enable_local_spark: false  # Use pandas instead of Spark in dev
+  enable_distributed_compute: false
+
+# Development feature flags
+features:
+  # Enable experimental features in development
+  enable_experimental_transforms: true
+  enable_ml_pipeline: false  # Disable resource-intensive ML by default
+  enable_real_time_processing: false  # Disable real-time for simplicity

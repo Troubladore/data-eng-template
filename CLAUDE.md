@@ -19,6 +19,94 @@ This outer layer handles:
 
 ---
 
+## Unified Configuration System
+
+This template now uses **Hydra** for configuration management, replacing the fragmented `.env`/Docker env/hardcoded approach with a single, hierarchical system.
+
+### Key Benefits
+
+- **Single Source of Truth**: All configuration in `conf/` directory
+- **Type Safety**: Pydantic validation with IDE support
+- **Environment Awareness**: Automatic dev/staging/prod handling
+- **Command-line Flexibility**: Override any setting without editing files
+- **Self-Documenting**: Every option includes inline documentation
+- **Migration Path**: Backwards compatible with existing `.env` setups
+
+### Implementation Architecture
+
+**Configuration Files** (in generated projects):
+```
+{{cookiecutter.repo_slug}}/
+├── conf/
+│   ├── config.yaml                 # Main config with defaults
+│   ├── environment/                # Environment-specific overrides
+│   │   ├── dev.yaml               # Development (debug, local resources)
+│   │   ├── staging.yaml           # Staging (production-like testing) 
+│   │   └── prod.yaml              # Production (performance, monitoring)
+│   ├── database/                   # Database provider configs
+│   │   ├── postgres_local.yaml    # Local PostgreSQL (DevContainer)
+│   │   ├── postgres_cloud.yaml    # Cloud PostgreSQL (RDS/Cloud SQL)
+│   │   └── snowflake.yaml         # Snowflake data warehouse
+│   ├── orchestration/              # Orchestrator configs
+│   │   ├── airflow_local.yaml     # Local Airflow (DevContainer)
+│   │   ├── airflow_k8s.yaml       # Kubernetes Airflow
+│   │   └── prefect.yaml           # Alternative orchestrator
+│   ├── transformations/            # dbt/transformation configs  
+│   │   ├── dbt_dev.yaml           # Development dbt settings
+│   │   └── dbt_prod.yaml          # Production dbt settings
+│   └── compute/                    # Compute resource configs
+│       ├── local.yaml             # Local development resources
+│       └── distributed.yaml       # Distributed compute (Ray/Dask)
+```
+
+**Python Integration**:
+- `src/config/settings.py` - Pydantic settings classes with full type safety
+- `scripts/run_pipeline.py` - Hydra-integrated pipeline runner
+- `scripts/migrate_config.py` - Migration tool from old `.env` files
+
+### Usage Examples
+
+```bash
+# Default (development) configuration
+python scripts/run_pipeline.py
+
+# Production environment
+python scripts/run_pipeline.py environment=prod
+
+# Override specific settings
+python scripts/run_pipeline.py database.host=prod-db.example.com runtime.parallel_jobs=8
+
+# Combine environment and overrides
+python scripts/run_pipeline.py environment=staging orchestration.parallelism=16
+
+# Dry run (preview without execution)
+python scripts/run_pipeline.py runtime.dry_run=true
+
+# Environment variable overrides
+export DATA_ENG_DATABASE_HOST=localhost
+export DATA_ENG_RUNTIME_DEBUG_MODE=true
+python scripts/run_pipeline.py
+```
+
+### Template Development Guidelines
+
+When adding new configuration options:
+
+1. **Add to appropriate section** in `conf/config.yaml` with documentation
+2. **Define Pydantic model** in `src/config/settings.py` with validation
+3. **Create environment-specific values** in `conf/environment/` files
+4. **Add command-line example** to guidance documentation
+5. **Test with different environments** and override scenarios
+
+**Configuration Principles**:
+- **Sensible defaults**: Work out-of-the-box for development
+- **Environment-appropriate**: Production configs emphasize performance/monitoring
+- **Type-safe**: All config options validated by Pydantic
+- **Self-documenting**: Every option includes description and examples
+- **Override-friendly**: Any setting changeable via command line or env vars
+
+---
+
 ## Cookiecutter Template Structure
 
 ```

@@ -1,0 +1,117 @@
+# Local PostgreSQL Configuration
+#
+# Configuration for PostgreSQL running locally (typically in DevContainer or Docker Compose).
+# Optimized for development with sensible defaults that work out of the box.
+
+# @package database
+
+# Connection settings
+host: "postgres"  # Docker service name in DevContainer
+port: 5432
+name: "{{cookiecutter.db_name}}"
+user: "{{cookiecutter.db_user}}"
+password: "{{cookiecutter.db_password}}"
+
+# Connection pool settings
+pool:
+  size: 5  # Small pool for local development
+  max_overflow: 10
+  timeout: 30
+  recycle: 3600  # 1 hour
+
+# PostgreSQL-specific settings
+postgres:
+  # Version compatibility
+  version: "{{cookiecutter.postgres_version}}"
+  
+  # Connection options
+  sslmode: "disable"  # SSL disabled for local development
+  connect_timeout: 10
+  
+  # Local optimization settings
+  synchronous_commit: "off"  # Faster for development
+  fsync: "off"  # Faster for development (data loss risk acceptable locally)
+  
+  # Schema and search path
+  schema: "public"
+  search_path: "public"
+  
+  # Encoding
+  encoding: "UTF-8"
+  timezone: "UTC"
+
+# Database initialization
+init:
+  # Whether to create database if it doesn't exist
+  create_if_missing: true
+  
+  # Whether to run migrations on startup
+  auto_migrate: true
+  
+  # Sample data loading
+  load_sample_data: true
+  sample_data_path: "./data/samples"
+
+# Development-specific features
+dev_features:
+  # Enable query logging for debugging
+  log_queries: true
+  log_slow_queries: true
+  slow_query_threshold_ms: 1000
+  
+  # Development tools
+  enable_pgadmin: true  # Enable pgAdmin in DevContainer
+  enable_query_profiling: true
+
+# Backup and maintenance (minimal for local)
+maintenance:
+  # Automatic vacuum (disabled for development)
+  auto_vacuum: false
+  
+  # Statistics collection
+  auto_analyze: true
+  
+  # Local backup settings (optional)
+  backup:
+    enable: false  # Usually not needed for local dev
+    frequency: "daily"
+    retention_days: 7
+    path: "./backups"
+
+# Migration settings
+migrations:
+  # Migration table name
+  table: "schema_migrations"
+  
+  # Migration file locations
+  directory: "./migrations"
+  
+  # Rollback behavior
+  enable_rollback: true
+  rollback_on_failure: true
+
+# Extensions and features
+extensions:
+  # Common PostgreSQL extensions for data engineering
+  - name: "uuid-ossp"    # UUID generation
+    required: true
+  - name: "pg_stat_statements"  # Query statistics
+    required: false
+  - name: "pg_trgm"      # Trigram matching for text search
+    required: false
+  - name: "hstore"       # Key-value store
+    required: false
+
+# Monitoring (basic for local development)
+monitoring:
+  # Connection monitoring
+  log_connections: true
+  log_disconnections: true
+  
+  # Performance monitoring
+  track_io_timing: true
+  track_functions: "all"
+  
+  # Lock monitoring
+  log_lock_waits: true
+  deadlock_timeout: 1000  # 1 second

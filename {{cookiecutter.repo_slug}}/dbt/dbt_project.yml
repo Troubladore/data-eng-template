@@ -1,10 +1,73 @@
 name: "{{cookiecutter.repo_slug}}"
 version: "1.0.0"
 profile: "{{cookiecutter.repo_slug}}"
+
+# dbt project configuration managed by Hydra
+# See conf/transformations/ for environment-specific settings
+
 model-paths: ["models"]
+analysis-paths: ["analysis"] 
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+log-path: "logs"
+
+# Model configuration
 models:
   {{cookiecutter.repo_slug}}:
+    # Bronze layer - raw data ingestion
+    bronze:
+      +materialized: table
+      +schema: bronze
+      +tags: ["bronze", "raw"]
+      
+    # Silver layer - cleaned and normalized  
     silver:
       +materialized: view
+      +schema: silver
+      +tags: ["silver", "clean"]
+      
+    # Gold layer - business logic and aggregations
     gold:
       +materialized: table
+      +schema: gold  
+      +tags: ["gold", "business"]
+
+# Seed configuration
+seeds:
+  {{cookiecutter.repo_slug}}:
+    +schema: seeds
+    +materialized: table
+
+# Snapshot configuration  
+snapshots:
+  {{cookiecutter.repo_slug}}:
+    +target_schema: snapshots
+    +strategy: timestamp
+    +unique_key: id
+    +updated_at: updated_at
+
+# Global variables (can be overridden by Hydra config)
+vars:
+  # Environment detection
+  environment: "{{ env_var('DBT_ENVIRONMENT', 'dev') }}"
+  
+  # Feature flags
+  enable_data_quality_tests: true
+  enable_experimental_models: false
+  
+  # Data processing settings
+  default_lookback_days: 30
+  enable_sampling: false
+  sample_percentage: 100
+
+# Development hooks
+on-run-start:
+  - "{{ log('Starting dbt run for ' ~ var('environment') ~ ' environment', info=true) }}"
+
+on-run-end:
+  - "{{ log('dbt run completed successfully', info=true) }}"

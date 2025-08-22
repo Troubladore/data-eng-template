@@ -1,0 +1,99 @@
+# Production Environment Configuration
+#
+# This configuration is optimized for production deployment with high availability,
+# performance, and reliability. It includes comprehensive monitoring and strict data quality controls.
+
+# @package _global_
+
+# Runtime overrides for production
+runtime:
+  log_level: INFO  # Less verbose logging in production
+  debug_mode: false
+  dry_run: false
+  parallel_jobs: 16  # Higher parallelism for performance
+  timeout_seconds: 7200  # 2 hours for large batch jobs
+
+# Production pipeline settings
+pipeline:
+  data_quality:
+    enable_checks: true
+    fail_on_error: true  # Strict data quality enforcement
+    sample_size: 100000  # Larger sample for comprehensive validation
+    
+  incremental:
+    enable: true
+    lookback_days: 1  # Minimal lookback for efficiency
+    
+  metadata:
+    enable_lineage: true
+    enable_profiling: false  # Disable profiling for performance (unless needed)
+
+# Production security settings
+security:
+  secrets_backend: "vault"  # Use secure secret management
+  require_ssl: true  # Enforce SSL connections
+  connection_pool_size: 20  # Larger pool for concurrent operations
+
+# Production monitoring (comprehensive)
+monitoring:
+  enable_metrics: true
+  metrics_endpoint: "http://prometheus:9090"  # Production metrics collection
+  enable_alerts: true
+  alert_channels:
+    - type: "slack"
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+    - type: "email"
+      recipients: ["ops@company.com"]
+  
+# Production data settings
+data:
+  use_sample_data: false  # Use full production datasets
+  
+  # Production data paths (typically cloud storage)
+  raw_data_path: "s3://prod-data-bucket/raw"
+  processed_data_path: "s3://prod-data-bucket/processed"
+  
+  # Data retention policies
+  retention_days: 2555  # 7 years retention
+  archive_after_days: 365  # Archive after 1 year
+
+# Production compute resources
+compute:
+  # Production-scale resource allocation
+  max_memory_gb: 64
+  max_cpu_cores: 32
+  
+  # Production compute features
+  enable_local_spark: false
+  enable_distributed_compute: true  # Use distributed processing
+  
+  # Auto-scaling configuration
+  auto_scaling:
+    enable: true
+    min_nodes: 2
+    max_nodes: 20
+    target_cpu_utilization: 70
+
+# Production feature flags
+features:
+  # Conservative feature enablement in production
+  enable_experimental_transforms: false
+  enable_ml_pipeline: true
+  enable_real_time_processing: true
+  
+  # Production-specific features
+  enable_disaster_recovery: true
+  enable_cross_region_backup: true
+
+# Production-specific SLAs and performance targets
+sla:
+  # Pipeline execution SLAs
+  max_pipeline_duration_hours: 6
+  max_acceptable_delay_hours: 1
+  
+  # Data freshness requirements
+  max_data_age_hours: 24
+  
+  # Availability targets
+  uptime_percentage: 99.9
+  max_downtime_minutes_per_month: 43
