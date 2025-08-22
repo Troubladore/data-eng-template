@@ -58,5 +58,37 @@ Reproducible data engineering template with:
 > Airflow image installs lightweight extras on boot via `_PIP_ADDITIONAL_REQUIREMENTS` for dev only.
 > For heavier deps, build a custom image later.
 
+## 🚀 Deployment Features
+
+This template includes **Astronomer-inspired deployment optimizations**:
+
+### ⚡ Fast DAG-Only Deployments
+- **5-15 second deployments** vs 5+ minute full rebuilds
+- Perfect for iterative DAG development
+- Automatic change detection with SHA256 hashing
+
+```bash
+make deploy-dags    # Deploy only DAG files (fastest)
+make deploy         # Auto-detect changes and choose optimal strategy
+make deploy-full    # Full rebuild (dependencies + code)
+```
+
+### 🐳 Docker Layer Caching
+- **Multi-stage builds** with dependency separation
+- **60-80% faster rebuilds** with intelligent caching
+- Persistent pip/uv caches in development
+
+### 🔍 Intelligent Change Detection
+- Automatically detects what changed (DAGs, dependencies, code)
+- Chooses optimal deployment strategy
+- Performance monitoring with timing metrics
+
+### 📊 Performance Optimizations
+- Volume mount caching for local development
+- Hot-reload configuration (10-second DAG scanning)
+- GitHub Actions CI/CD with registry caching
+
+**See full deployment guide**: [`docs/deployment/README.md`]({{cookiecutter.repo_slug}}/docs/deployment/README.md)
+
 ## Layout
 See repository tree in this README's template generation.
