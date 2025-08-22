@@ -149,8 +149,7 @@ print("Created environment export script: scripts/export_env.sh")
 print("Created Docker Compose .env file: .devcontainer/.env")
 print("Updated DevContainer services configuration with generated values.")
 
-# Create a minimal uv.lock placeholder (users will run `uv sync`)
-pathlib.Path("uv.lock").write_text("# created on first sync\n")
+# uv.lock will be created when users run `uv sync`
 
 # Initialize git repository with professional defaults
 try:
