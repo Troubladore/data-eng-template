@@ -10,7 +10,7 @@ Reproducible data engineering template with:
 
 ## Prereqs
 - Podman **with Docker API socket** enabled (or Docker), macOS/Linux/WSL2.
-- VS Code + Dev Containers extension.
+- DevContainer CLI: `npm install -g @devcontainers/cli` (or VS Code + Dev Containers extension)
 - Cookiecutter: `pipx install cookiecutter`
 - (Optional) `pyenv` on host; `.python-version` is respected.
 
@@ -48,8 +48,8 @@ Reproducible data engineering template with:
    ```
 
 3. **Start DevContainer**:
+   - **CLI** (recommended): `devcontainer up --workspace-folder .`
    - **VS Code**: Open project → **Reopen in Container** (services auto-start)
-   - **CLI**: `devcontainer up --workspace-folder .`
 
 4. **Access services**:
    - **Airflow**: http://localhost:8080 (admin/admin)

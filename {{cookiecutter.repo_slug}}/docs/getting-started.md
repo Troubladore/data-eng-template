@@ -5,25 +5,25 @@ This guide will get you up and running with the {{cookiecutter.project_name}} da
 ## Prerequisites
 
 - **Docker** and **Docker Compose** installed
-- **VS Code** with the DevContainers extension
+- **DevContainer CLI** installed: `npm install -g @devcontainers/cli`
 - **Git** configured with your credentials
 
 ## Quick Start (Recommended)
 
-### 1. Open in DevContainer
+### 1. Start with DevContainer CLI
 
-The fastest way to start is using VS Code DevContainers:
+The most reliable way to start is using the DevContainer CLI:
 
 ```bash
 # Clone the repo
 git clone <your-repo-url>
 cd {{cookiecutter.repo_slug}}
 
-# Open in VS Code
-code .
+# Start the DevContainer
+devcontainer up --workspace-folder .
 
-# When prompted, click "Reopen in Container"
-# Or use Command Palette: "Dev Containers: Reopen in Container"
+# The container is now running! Connect to it:
+devcontainer exec --workspace-folder . bash
 ```
 
 The DevContainer will automatically:
@@ -52,45 +52,43 @@ make airflow-ui
 make test
 ```
 
-## Manual Setup (Alternative)
+## VS Code DevContainers (Alternative)
 
-If you prefer not to use DevContainers:
+If you prefer using VS Code with the DevContainers extension:
 
-### 1. Install Dependencies
-
-```bash
-# Install uv (Python package manager)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Install Python dependencies
-uv sync
-
-# Generate environment variables
-./scripts/export_env.sh > .env
-```
-
-### 2. Start Services
+### 1. Open in VS Code
 
 ```bash
-# Start PostgreSQL and Airflow
-docker-compose -f .devcontainer/compose.yaml up -d
+# Clone the repo
+git clone <your-repo-url>
+cd {{cookiecutter.repo_slug}}
 
-# Initialize Airflow database
-docker-compose -f .devcontainer/compose.yaml exec airflow-webserver airflow db upgrade
+# Open in VS Code
+code .
+
+# When prompted, click "Reopen in Container"
+# Or use Command Palette: "Dev Containers: Reopen in Container"
 ```
+
+### 2. Manual DevContainer Setup
+
+If the automatic prompt doesn't appear:
+
+1. Open VS Code Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+2. Search for "Dev Containers: Reopen in Container"
+3. Select it and wait for the container to build and start
 
 ### 3. Verify Setup
 
-```bash
-# Activate Python environment
-source .venv/bin/activate
+Once VS Code reopens in the container, use the integrated terminal to verify:
 
+```bash
 # Test configuration
 python scripts/run_pipeline.py runtime.dry_run=true
 
 # Check services
-curl http://localhost:8080/health  # Airflow
-psql postgresql://postgres:postgres@localhost:5432/postgres -c "SELECT 1;"
+make psql  # Test database
+# Visit http://localhost:8080 for Airflow UI (admin/admin)
 ```
 
 ## Configuration Overview
