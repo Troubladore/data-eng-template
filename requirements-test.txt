@@ -24,6 +24,9 @@ jsonschema>=4.0.0
 # Text processing for guidance testing
 regex>=2023.0.0
 
+# HTTP client for authentication testing
+requests>=2.28.0
+
 # Development utilities
 pre-commit>=3.0.0     # Code quality hooks
 black>=23.0.0         # Code formatting
