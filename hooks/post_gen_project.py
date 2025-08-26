@@ -132,6 +132,31 @@ devcontainer_dir = pathlib.Path(".devcontainer")
 devcontainer_env_file = devcontainer_dir / ".env"
 devcontainer_env_file.write_text(compose_env_content)
 
+# Update .devcontainer/airflow.env file with admin credentials
+airflow_env_file = devcontainer_dir / "airflow.env"
+if airflow_env_file.exists():
+    airflow_env_content = airflow_env_file.read_text()
+    
+    # Check if admin credentials are already present
+    if "_AIRFLOW_WWW_USER_USERNAME" not in airflow_env_content:
+        # Append admin credentials to existing airflow.env content
+        airflow_env_content += "_AIRFLOW_WWW_USER_USERNAME=admin\n"
+        airflow_env_content += "_AIRFLOW_WWW_USER_PASSWORD=admin\n"
+        airflow_env_file.write_text(airflow_env_content)
+        print("Updated .devcontainer/airflow.env with admin credentials.")
+    else:
+        print("Admin credentials already present in airflow.env.")
+else:
+    # Create airflow.env if it doesn't exist
+    airflow_env_content = """AIRFLOW_UID=50000
+AIRFLOW_GID=0
+PIP_USER=false
+_AIRFLOW_WWW_USER_USERNAME=admin
+_AIRFLOW_WWW_USER_PASSWORD=admin
+"""
+    airflow_env_file.write_text(airflow_env_content)
+    print("Created .devcontainer/airflow.env with admin credentials.")
+
 # Update services.yaml with generated values (cookiecutter vars already resolved)
 services_config_path = pathlib.Path(".devcontainer/services.yaml")
 if services_config_path.exists():

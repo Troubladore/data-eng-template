@@ -135,9 +135,9 @@ class TestHookExecution:
         # Check that hook created expected artifacts
         project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
         
-        # Hook should create .env file
-        env_file = project_dir / ".env"
-        assert env_file.exists(), "Post-generation hook should create .env file"
+        # Hook should create .devcontainer/.env file
+        env_file = project_dir / ".devcontainer" / ".env"
+        assert env_file.exists(), "Post-generation hook should create .devcontainer/.env file"
         
         # .env should contain expected variables
         env_content = env_file.read_text()
@@ -153,6 +153,43 @@ class TestHookExecution:
         
         for var in expected_env_vars:
             assert var in env_content, f"Environment variable {var} should be in .env file"
+    
+    def test_airflow_credentials_in_both_env_files(self, template_dir: Path, temp_dir: Path, default_cookiecutter_config: Dict[str, Any]):
+        """Test that Airflow admin credentials are present in both .env and airflow.env files."""
+        # Build cookiecutter command with variables
+        cmd = [
+            'cookiecutter', str(template_dir),
+            '--output-dir', str(temp_dir),
+            '--no-input'
+        ]
+        
+        # Add each config variable as command line argument
+        for key, value in default_cookiecutter_config.items():
+            cmd.append(f"{key}={value}")
+        
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        
+        assert result.returncode == 0, f"Template generation failed: {result.stderr}"
+        
+        project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
+        
+        # Check .devcontainer/.env file
+        env_file = project_dir / ".devcontainer" / ".env"
+        assert env_file.exists(), ".devcontainer/.env should exist"
+        env_content = env_file.read_text()
+        assert "_AIRFLOW_WWW_USER_USERNAME=admin" in env_content, "Admin username should be in .devcontainer/.env"
+        assert "_AIRFLOW_WWW_USER_PASSWORD=admin" in env_content, "Admin password should be in .devcontainer/.env"
+        
+        # Check .devcontainer/airflow.env file (this is what compose.yaml uses)
+        airflow_env_file = project_dir / ".devcontainer" / "airflow.env"
+        assert airflow_env_file.exists(), ".devcontainer/airflow.env should exist"
+        airflow_env_content = airflow_env_file.read_text()
+        assert "_AIRFLOW_WWW_USER_USERNAME=admin" in airflow_env_content, "Admin username should be in airflow.env"
+        assert "_AIRFLOW_WWW_USER_PASSWORD=admin" in airflow_env_content, "Admin password should be in airflow.env"
+        
+        # Verify other required airflow.env variables
+        assert "AIRFLOW_UID=50000" in airflow_env_content, "AIRFLOW_UID should be set"
+        assert "AIRFLOW_GID=0" in airflow_env_content, "AIRFLOW_GID should be set"
     
     def test_git_repository_initialized(self, template_dir: Path, temp_dir: Path, default_cookiecutter_config: Dict[str, Any]):
         """Test that git repository is initialized by hook."""
