@@ -117,9 +117,9 @@ _AIRFLOW_WWW_USER_USERNAME=admin
 _AIRFLOW_WWW_USER_PASSWORD=admin
 
 # Database configuration  
-POSTGRES_DB=airflow
-POSTGRES_USER=airflow
-POSTGRES_PASSWORD=airflow
+POSTGRES_DB={{cookiecutter.db_name}}
+POSTGRES_USER={{cookiecutter.db_user}}
+POSTGRES_PASSWORD={{cookiecutter.db_password}}
 
 # Version configuration from cookiecutter
 PYTHON_VERSION={{cookiecutter.python_version}}
