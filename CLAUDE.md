@@ -120,9 +120,9 @@ data-eng-template/
     ├── dags/CLAUDE.md                  # Inner layer - Airflow guidance
     ├── dbt/CLAUDE.md                   # Inner layer - dbt guidance
     ├── transforms/CLAUDE.md            # Inner layer - SQLModel guidance
-    ├── .devcontainer/                  # DevContainer configuration
-    │   ├── compose.yaml               # Services: Postgres, Airflow
-    │   └── devcontainer.json          # VS Code integration
+    ├── .devcontainer/                  # Modern DevContainer configuration
+    │   ├── compose.yaml               # Modern Docker Compose using custom Airflow image
+    │   └── devcontainer.json          # VS Code integration with .venv support
     └── [project files...]
 ```
 
@@ -160,11 +160,12 @@ When updating tool versions, adding new services, or changing integration patter
 
 ## DevContainer Configuration Principles
 
-### Service Management
+### Modern Service Management
+- **Custom Airflow Image**: Generated projects use `{{cookiecutter.repo_slug}}-airflow-dev` with project dependencies
 - **Postgres**: Version 16, dynamic host port, persistent volumes
-- **Airflow**: Webserver + Scheduler, lightweight dev configuration
-- **Port conflicts**: Use environment variables for host port mapping
+- **Port Mapping**: Airflow UI on port 8081 to avoid conflicts, Postgres on dynamic port
 - **Dependencies**: Services start in correct order with health checks
+- **Project Naming**: Docker Compose projects named `{{cookiecutter.repo_slug}}-modern` to avoid conflicts
 
 ### Environment Variables
 - **Template defaults**: Set in `cookiecutter.json`
@@ -173,9 +174,10 @@ When updating tool versions, adding new services, or changing integration patter
 - **No hardcoding**: Avoid fixed values in `compose.yaml`
 
 ### Tool Integration
-- **uv**: Python package management, lockfile-based
+- **uv**: Python package management with fallback for missing lockfiles
 - **ruff**: Linting and formatting (replaces black/isort)
-- **psycopg3**: Application code database connectivity
+- **VS Code Integration**: Auto .venv detection with `python.defaultInterpreterPath`
+- **DevContainer CLI Support**: Full `devcontainer up --workspace-folder` compatibility
 - **Modern defaults**: Latest stable versions with conservative fallbacks
 
 ---
@@ -196,17 +198,23 @@ find . -name "*.py" -exec python -m py_compile {} \;
 
 ### DevContainer Testing  
 ```bash
-# In generated project
+# In generated project directory
+# Start with DevContainer CLI (builds image automatically)
 devcontainer up --workspace-folder .
 devcontainer exec --workspace-folder . bash -c "make test"
+
+# Or start manually for testing (builds image automatically)
+cd .devcontainer
+docker compose up -d
 ```
 
 ### Integration Testing
 1. Generate project with various configurations
-2. Start DevContainer services
-3. Verify Airflow UI accessibility
-4. Test database connectivity
-5. Run sample dbt commands
+2. Start DevContainer services (auto-builds custom image via Docker Compose)
+3. Verify Airflow UI accessible on port 8081
+4. Verify .venv integration in VS Code
+5. Test database connectivity
+6. Run sample dbt commands
 
 ---
 

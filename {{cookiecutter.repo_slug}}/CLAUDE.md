@@ -1,30 +1,38 @@
 # {{cookiecutter.project_name}} - Data Engineering Project
 
-**Generated from data-eng-template**: This is a modern data engineering project with **Hydra configuration management**, **DevContainer Service Manager**, Airflow, dbt, PostgreSQL, and DevContainer using medallion architecture.
+**Generated from data-eng-template**: This is a modern data engineering project with **Hydra configuration management**, **Custom Airflow Integration**, **Dependency Isolation**, PostgreSQL, and DevContainer using medallion architecture.
 
 ## Service Management
 
-This project uses **DevContainer Service Manager** (`dcm`) for intelligent service orchestration:
+This project uses **Docker Compose** with a custom Airflow image for clean, reliable service orchestration:
 
-- **Conflict-Free**: Automatic port conflict detection and resolution
-- **Service Reuse**: Share Postgres/Airflow across branches and projects  
-- **Health Monitoring**: Continuous service health checks with auto-repair
-- **Namespace Isolation**: Clean separation between projects
+- **Custom Airflow Image**: Built with your project dependencies at `{{cookiecutter.repo_slug}}-airflow-dev`
+- **Modern Unified Stack**: Airflow 3.0.6 with SQLAlchemy 2.0+ throughout (no isolation needed)
+- **Modern Port Management**: Airflow UI on port 8081, Postgres on dynamic port
+- **Clean Dependencies**: Services start in correct order with health checks
+- **Project Isolation**: Named compose project prevents conflicts
 
 ### Service Commands
 
 ```bash
+# Start all services (builds custom Airflow image automatically)
+cd .devcontainer
+docker compose up -d
+
+# Stop services
+docker compose down
+
+# Restart from clean state
+docker compose down -v && docker compose up -d
+
 # Check service status
-dcm status
-
-# Restart unhealthy services
-dcm health && dcm repair --service postgres
-
-# Clean up unused services
-dcm clean --unused
+docker compose ps
 ```
 
-Services are automatically started by DevContainer. See `.devcontainer/README.md` for detailed service management.
+**Key Points:**
+- Docker Compose automatically builds the custom Airflow image on first run
+- No manual Docker build commands needed
+- Services are automatically started by DevContainer via `postCreateCommand`
 
 ## Configuration System
 
@@ -78,6 +86,41 @@ The DevContainer is fully integrated with the Hydra configuration system:
 
 ---
 
+## Modern Airflow 3.0+ Unified Stack
+
+This project uses **Airflow 3.0.6** with **unified modern dependencies**, eliminating historical SQLAlchemy version conflicts:
+
+### Modern Architecture
+
+- **Unified Environment**: SQLAlchemy 2.0+ throughout Airflow core and data processing
+- **Modern Database Drivers**: psycopg3 with full SQLAlchemy 2.0+ support
+- **Latest Data Stack**: Polars, Pandas 2.0+, modern Pydantic, all in one environment
+- **Simplified Development**: No isolation complexity or environment switching
+
+### Standard Usage
+
+```python
+from airflow.operators.python import PythonOperator
+
+# Standard PythonOperator with modern dependencies
+task = PythonOperator(
+    task_id='process_data_modern',
+    python_callable=my_data_processing_function,
+    dag=dag
+)
+```
+
+### Key Advantages
+
+- **No Version Conflicts**: Airflow 3.0+ fully supports SQLAlchemy 2.0+
+- **Modern Performance**: Latest database drivers and data processing libraries
+- **Simplified Architecture**: Single unified environment for all tasks
+- **Future-Proof**: Built on the latest stable Airflow architecture
+
+See `dags/example_modern_airflow.py` for a complete working example with the unified modern stack.
+
+---
+
 ## Project Structure
 
 - **dags/**: Airflow DAG definitions (see `dags/CLAUDE.md` for specific guidance)
@@ -93,7 +136,7 @@ The DevContainer is fully integrated with the Hydra configuration system:
 
 ## Development Environment
 
-- **Airflow UI**: http://localhost:8080 (admin/admin)
+- **Airflow UI**: http://localhost:8081 (admin/admin)
 - **Database**: PostgreSQL on localhost:5432
 - **Author**: {{cookiecutter.author_name}}
 
