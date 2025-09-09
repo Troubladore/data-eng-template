@@ -16,6 +16,21 @@ python_package_exists() {
     python -c "import $1" 2>/dev/null
 }
 
+
+# Setup Docker BuildKit for faster builds
+if command_exists docker; then
+    echo "🔧 Configuring Docker BuildKit for faster builds..."
+    if ! grep -q "DOCKER_BUILDKIT=1" ~/.bashrc 2>/dev/null; then
+        echo 'export DOCKER_BUILDKIT=1' >> ~/.bashrc
+        echo "✅ Added DOCKER_BUILDKIT=1 to ~/.bashrc"
+    else
+        echo "✅ Docker BuildKit already configured"
+    fi
+    export DOCKER_BUILDKIT=1
+else
+    echo "⚠️ Docker not found - BuildKit configuration skipped"
+fi
+
 # Install enhanced service manager if not available
 if ! command_exists dcm-setup; then
     echo "📦 Installing devcontainer-service-manager with workstation optimization..."
@@ -61,6 +76,7 @@ if dcm-setup install --profile data-engineering; then
 else
     echo "⚠️ Some workstation optimizations failed - continuing anyway"
 fi
+
 
 # Configure project-specific caching
 echo "💾 Configuring project caching..."

@@ -12,6 +12,7 @@ Modern cookiecutter template for data engineering projects with:
 
 ### Required
 - **Docker** or **Podman** with Docker API socket enabled (macOS/Linux/WSL2)
+  - **Recommended**: Enable BuildKit for faster builds: `export DOCKER_BUILDKIT=1`
 - **DevContainer CLI**: `npm install -g @devcontainers/cli` (or VS Code + Dev Containers extension)
 - **Cookiecutter**: `pipx install cookiecutter`
 
@@ -150,12 +151,17 @@ pipx install devcontainer-service-manager[workstation]
 
 # 4. One-time workstation optimization
 dcm-setup install --profile data-engineering
+
+# 5. Enable Docker BuildKit for faster builds (recommended)
+echo 'export DOCKER_BUILDKIT=1' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 ### Performance Tips
 - **File Location**: Keep repositories in WSL2 filesystem (`~/repos/`) for 10x faster I/O
 - **Docker Desktop**: Enable WSL2 integration in Docker Desktop settings  
 - **Resource Allocation**: Allocate 8GB+ memory to Docker Desktop for optimal performance
+- **BuildKit**: Enable `DOCKER_BUILDKIT=1` for significantly faster Docker builds (automatic in template setup)
 
 ### Troubleshooting
 ```bash
@@ -168,5 +174,34 @@ dcm-setup troubleshoot
 # Check if you're in the right filesystem
 pwd  # Should show /home/username/... not /mnt/c/...
 ```
+
+### Complete DCM Uninstall (For Testing/Reinstall)
+
+For iterative testing or when you need to completely reinstall DCM:
+
+```bash
+# Navigate to generated project
+cd your-project-name
+
+# Complete uninstall (stops services, removes containers, uninstalls packages)
+./scripts/uninstall-dcm.sh
+
+# Validate cleanup
+./scripts/validate-dcm-cleanup.sh
+
+# Fresh reinstall
+pipx install devcontainer-service-manager[workstation]
+./scripts/setup-development.sh
+```
+
+**What the uninstall script does:**
+- ✅ Stops all running DCM services and containers
+- ✅ Removes Docker images, volumes, and networks created by DCM
+- ✅ Shuts down and removes the DCM cache registry
+- ✅ Uninstalls DCM packages (via pipx, uv, or pip)
+- ✅ Cleans configuration files and directories
+- ✅ Validates complete removal
+
+This ensures a clean slate for testing new DCM versions or troubleshooting installation issues.
 
 ## 📁 Template Structure

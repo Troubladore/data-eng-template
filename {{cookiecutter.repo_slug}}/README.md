@@ -121,7 +121,34 @@ make test
 
 # Generate documentation
 cd dbt && dbt docs generate && dbt docs serve
+
+# Complete DCM uninstall (for testing/reinstall)
+./scripts/uninstall-dcm.sh
+
+# Validate DCM cleanup
+./scripts/validate-dcm-cleanup.sh
 ```
+
+## 🗑️ Complete Environment Reset
+
+For testing or when you need to completely reset the development environment:
+
+```bash
+# Step 1: Complete DCM uninstall
+./scripts/uninstall-dcm.sh
+
+# Step 2: Validate cleanup
+./scripts/validate-dcm-cleanup.sh
+
+# Step 3: Restart shell to clear environment
+exec $SHELL
+
+# Step 4: Fresh installation
+pipx install devcontainer-service-manager[workstation]
+./scripts/setup-development.sh
+```
+
+This process ensures a completely clean environment for reliable testing and development.
 
 ## 🗂️ Project Structure
 
