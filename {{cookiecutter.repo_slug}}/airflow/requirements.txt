@@ -1,2 +1,9 @@
+# Use Airflow constraints for reliable installation
+--constraint https://raw.githubusercontent.com/apache/airflow/constraints-{{cookiecutter.airflow_version}}/constraints-{{cookiecutter.python_version}}.txt
+
+# Core Airflow with providers
+apache-airflow[postgres]=={{cookiecutter.airflow_version}}
 apache-airflow-providers-postgres
-psycopg2-binary>=2.9
+
+# Modern database drivers compatible with SQLAlchemy 2.0
+psycopg[binary]>=3.0

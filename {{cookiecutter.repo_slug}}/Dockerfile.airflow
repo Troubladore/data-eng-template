@@ -24,22 +24,19 @@ WORKDIR /opt/airflow
 
 # Copy dependency files first for better caching
 # Only these files changing will bust the dependency cache
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml ./
 COPY airflow/requirements.txt ./airflow/
 
-# Install UV for faster dependency management (if not present)
-USER root
+# Install UV as airflow user within Airflow's virtual environment
 RUN pip install --no-cache-dir uv
-
-# Switch back to airflow user and install dependencies
-USER airflow
 
 # Install Python dependencies using UV for speed
 # This layer will be cached unless dependencies change
-RUN uv pip install --system --no-cache -r airflow/requirements.txt
+RUN uv pip install --no-cache -r airflow/requirements.txt
 
-# Install project dependencies
-RUN uv sync --no-dev
+# Install project dependencies (editable for development)
+# With Airflow 3.0+, SQLAlchemy 2.0+ is fully supported - no isolation needed
+RUN uv pip install --no-cache -e .
 
 # =============================================================================
 # Runtime Stage - Application code and configurations
@@ -83,8 +80,8 @@ FROM runtime AS development
 
 USER root
 
-# Install development dependencies
-RUN uv pip install --system --no-cache \
+# Install development dependencies using UV
+RUN uv pip install --no-cache \
     pytest \
     pytest-cov \
     black \
