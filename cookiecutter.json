@@ -4,7 +4,7 @@
   "author_name": "Data Engineering Team",
   "description": "Modern data engineering project with Airflow, dbt, and Hydra configuration",
   "python_version": "3.12",
-  "airflow_version": "2.9.3",
+  "airflow_version": "3.0.6",
   "postgres_version": "16",
   "airflow_executor": ["LocalExecutor", "SequentialExecutor"],
   "db_name": "{{ cookiecutter.repo_slug.replace('-', '_') }}",
