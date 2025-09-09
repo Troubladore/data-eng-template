@@ -24,6 +24,8 @@
       ],
       "settings": {
         "python.analysis.typeCheckingMode": "basic",
+        "python.defaultInterpreterPath": "./.venv/bin/python",
+        "python.terminal.activateEnvironment": true,
         "ruff.importStrategy": "fromEnvironment",
         "python.formatting.provider": "none",
         "editor.formatOnSave": true,
@@ -37,9 +39,9 @@
   "remoteEnv": {
     "AIRFLOW_HOME": "/opt/airflow"
   },
-  "forwardPorts": ["8080", "5432"],
+  "forwardPorts": ["8081", "5432"],
   "portsAttributes": {
-    "8080": { "label": "Airflow Web UI" },
+    "8081": { "label": "Airflow Web UI" },
     "5432": { "label": "Postgres" }
   },
   "postCreateCommand": "uv sync && docker compose -f .devcontainer/compose.yaml up -d"
