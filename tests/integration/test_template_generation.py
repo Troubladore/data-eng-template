@@ -144,9 +144,9 @@ class TestHookExecution:
         expected_env_vars = [
             "AIRFLOW__CORE__FERNET_KEY",
             "AIRFLOW__CORE__LOAD_EXAMPLES=False",
-            "POSTGRES_DB=airflow",
-            "POSTGRES_USER=airflow",
-            "POSTGRES_PASSWORD=airflow",
+            "POSTGRES_DB=test_data_project",
+            "POSTGRES_USER=postgres",
+            "POSTGRES_PASSWORD=postgres",
             "_AIRFLOW_WWW_USER_USERNAME=admin",
             "_AIRFLOW_WWW_USER_PASSWORD=admin"
         ]

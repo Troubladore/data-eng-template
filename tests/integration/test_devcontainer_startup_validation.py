@@ -87,7 +87,7 @@ class TestDevContainerStartupValidation:
             
             # Wait for services to be available
             print("⏳ Waiting for Airflow to be available...")
-            airflow_ready = wait_for_port("localhost", 8080, timeout=60)
+            airflow_ready = wait_for_port("localhost", 8081, timeout=60)
             assert airflow_ready, "Airflow webserver did not start within 60 seconds"
             print("✅ Airflow is accessible")
             
@@ -99,7 +99,7 @@ class TestDevContainerStartupValidation:
             # Test that we can connect to Airflow UI
             try:
                 response = requests.get(
-                    "http://localhost:8080/health",
+                    "http://localhost:8081/health",
                     timeout=10,
                     auth=("admin", "admin")
                 )
@@ -121,26 +121,17 @@ class TestDevContainerStartupValidation:
             print("✅ DevContainer exec works")
             
         finally:
-            # Clean up - stop DevContainer
-            try:
-                stop_cmd = [
-                    "devcontainer", "down",
-                    "--workspace-folder", str(project_dir)
-                ]
-                subprocess.run(stop_cmd, timeout=60)
-                print("✅ DevContainer stopped")
-            except:
-                # Try alternative cleanup
-                try:
-                    compose_cmd = [
-                        "docker", "compose",
-                        "-f", str(project_dir / ".devcontainer" / "compose.yaml"),
-                        "down", "--volumes"
-                    ]
-                    subprocess.run(compose_cmd, timeout=60)
-                    print("✅ Services stopped via docker compose")
-                except:
-                    print("⚠️ Warning: Could not stop services cleanly")
+            # Clean up using robust cleanup system
+            from tests.helpers.cleanup import cleanup_project
+            
+            cleanup_success = cleanup_project(project_dir, timeout=60)
+            if cleanup_success:
+                print("✅ DevContainer cleaned up successfully")
+            else:
+                print("⚠️ Warning: Cleanup issues detected")
+                # Try emergency cleanup as fallback
+                from tests.helpers.cleanup import emergency_cleanup
+                emergency_cleanup()
     
     def test_environment_variables_are_populated_correctly(self, template_dir: Path, temp_dir: Path):
         """Test that environment variables are correctly generated and accessible."""
@@ -254,7 +245,7 @@ class TestDevContainerRestart:
             assert result.returncode == 0, f"First startup failed: {result.stderr}"
             
             # Verify services work
-            assert wait_for_port("localhost", 8080, timeout=60), "Airflow not available after first start"
+            assert wait_for_port("localhost", 8081, timeout=60), "Airflow not available after first start"
             print("✅ First startup successful")
             
             # Stop
@@ -272,13 +263,10 @@ class TestDevContainerRestart:
             assert result.returncode == 0, f"Second startup failed: {result.stderr}"
             
             # Verify services still work
-            assert wait_for_port("localhost", 8080, timeout=60), "Airflow not available after restart"
+            assert wait_for_port("localhost", 8081, timeout=60), "Airflow not available after restart"
             print("✅ Restart cycle successful")
             
         finally:
-            # Cleanup
-            try:
-                stop_cmd = ["devcontainer", "down", "--workspace-folder", str(project_dir)]
-                subprocess.run(stop_cmd, timeout=60)
-            except:
-                pass
+            # Cleanup using robust system
+            from tests.helpers.cleanup import cleanup_project
+            cleanup_project(project_dir, timeout=60)

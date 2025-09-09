@@ -1,0 +1,37 @@
+# Fast test Dockerfile using pre-built base image
+# This dramatically speeds up testing by avoiding repeated downloads
+
+FROM data-eng-template-test-base:latest
+
+# Copy project files
+COPY pyproject.toml ./
+COPY airflow/requirements.txt ./airflow/
+
+# Only install project-specific dependencies (base deps already installed)
+# Check if there are any additional requirements beyond the base
+RUN set -e; \
+    base_reqs="/tmp/base-requirements.txt"; \
+    project_reqs="./airflow/requirements.txt"; \
+    comm -23 <(sort "$project_reqs") <(sort "/home/eru-admin/repos/data-eng-template/tests/docker/requirements-test-base.txt") > /tmp/additional-reqs.txt; \
+    if [ -s /tmp/additional-reqs.txt ]; then \
+        echo "Installing additional project requirements..."; \
+        uv pip install --no-cache -r /tmp/additional-reqs.txt; \
+    else \
+        echo "No additional requirements beyond base image"; \
+    fi
+
+# Install project in editable mode
+RUN uv pip install --no-cache -e .
+
+# Copy project source code and configurations  
+COPY . .
+
+# Set proper permissions
+USER root
+RUN chown -R airflow:root /opt/airflow
+USER airflow
+
+# Development target - same as original but much faster to build
+FROM base AS development
+
+# All development tools already installed in base image

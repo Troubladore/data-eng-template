@@ -1,0 +1,79 @@
+# Fast test Docker Compose using pre-built base image
+# Significantly faster than compose.yaml for testing scenarios
+name: {{cookiecutter.repo_slug}}-test-fast
+
+x-airflow-env: &airflow-env
+  AIRFLOW__CORE__EXECUTOR: LocalExecutor
+  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:admin@postgres:5432/{{cookiecutter.db_name}}
+  AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+  AIRFLOW__CORE__FERNET_KEY: "TEST_FERNET_KEY_FOR_FAST_TESTING_ONLY"
+  _AIRFLOW_WWW_USER_USERNAME: "admin"
+  _AIRFLOW_WWW_USER_PASSWORD: "admin"
+
+x-airflow-volumes: &airflow-volumes
+  - ../dags:/opt/airflow/dags:cached
+  - ../transforms:/opt/airflow/transforms:cached
+  - ../scripts:/opt/airflow/scripts:cached
+  - ../conf:/opt/airflow/conf:cached
+  - airflow_logs:/opt/airflow/logs
+
+services:
+  postgres:
+    image: postgres:{{cookiecutter.postgres_version}}
+    environment:
+      POSTGRES_DB: "{{cookiecutter.db_name}}"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Use fast test Dockerfile that builds on pre-built base
+  airflow-init:
+    build:
+      context: ..
+      dockerfile: Dockerfile.airflow.fast-test
+      target: development
+    image: {{cookiecutter.repo_slug}}-airflow-fast-test
+    environment: *airflow-env
+    user: "50000:0"
+    volumes: *airflow-volumes
+    entrypoint: ["/bin/bash"]
+    command:
+      - -c
+      - "airflow db init && airflow users create --username admin --firstname Admin --lastname User --email admin@example.com --role Admin --password admin"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  airflow-scheduler:
+    image: {{cookiecutter.repo_slug}}-airflow-fast-test
+    environment: *airflow-env
+    user: "50000:0"
+    command: ["airflow", "scheduler"]
+    volumes: *airflow-volumes
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-webserver:
+    image: {{cookiecutter.repo_slug}}-airflow-fast-test
+    environment: *airflow-env
+    user: "50000:0"
+    command: ["airflow", "webserver"]
+    ports:
+      - "8081:8080"
+    volumes: *airflow-volumes
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+
+volumes:
+  pg_data:
+  airflow_logs:

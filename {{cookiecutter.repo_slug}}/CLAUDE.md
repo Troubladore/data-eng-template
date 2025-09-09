@@ -86,38 +86,45 @@ The DevContainer is fully integrated with the Hydra configuration system:
 
 ---
 
-## Modern Airflow 3.0+ Unified Stack
+## Dual-Environment Architecture for Modern Data Processing
 
-This project uses **Airflow 3.0.6** with **unified modern dependencies**, eliminating historical SQLAlchemy version conflicts:
+This project uses **Airflow 3.0.6** with **intelligent dependency isolation** to provide both stability and modern capabilities:
 
-### Modern Architecture
+### Architecture Overview
 
-- **Unified Environment**: SQLAlchemy 2.0+ throughout Airflow core and data processing
-- **Modern Database Drivers**: psycopg3 with full SQLAlchemy 2.0+ support
-- **Latest Data Stack**: Polars, Pandas 2.0+, modern Pydantic, all in one environment
-- **Simplified Development**: No isolation complexity or environment switching
+- **Airflow Core**: Uses SQLAlchemy 1.4.x for proven stability and compatibility
+- **Data Processing**: Isolated containers with SQLAlchemy 2.0+ and modern stack
+- **Smart Caching**: Fingerprint-based Docker image caching across repos/branches
+- **Flexible Execution**: Choose between in-process or isolated execution per task
 
-### Standard Usage
+### Execution Patterns
 
 ```python
-from airflow.operators.python import PythonOperator
+# Option 1: Simple tasks in Airflow context (SQLAlchemy 1.4.x)
+simple_task = PythonOperator(
+    task_id='simple_processing',
+    python_callable=simple_function,
+    dag=dag
+)
 
-# Standard PythonOperator with modern dependencies
-task = PythonOperator(
-    task_id='process_data_modern',
-    python_callable=my_data_processing_function,
+# Option 2: Modern data processing in isolated container (SQLAlchemy 2.0+)
+modern_task = DockerOperator(
+    task_id='modern_data_processing',
+    image='{{cookiecutter.repo_slug}}-data-processing',
+    command=['python', 'transforms/modern_processing.py'],
     dag=dag
 )
 ```
 
 ### Key Advantages
 
-- **No Version Conflicts**: Airflow 3.0+ fully supports SQLAlchemy 2.0+
-- **Modern Performance**: Latest database drivers and data processing libraries
-- **Simplified Architecture**: Single unified environment for all tasks
-- **Future-Proof**: Built on the latest stable Airflow architecture
+- **Best of Both Worlds**: Stable Airflow + modern data processing
+- **No Version Conflicts**: Complete dependency isolation when needed
+- **Performance**: Modern SQLAlchemy 2.0+, Polars, async support in data tasks
+- **Cross-Repo Caching**: Smart build system minimizes Docker build times
+- **Gradual Migration**: Use modern stack where beneficial, keep stability elsewhere
 
-See `dags/example_modern_airflow.py` for a complete working example with the unified modern stack.
+See `dags/example_isolated_data_processing.py` for complete patterns.
 
 ---
 
