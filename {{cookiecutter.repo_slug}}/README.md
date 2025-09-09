@@ -2,7 +2,7 @@
 
 A modern data engineering project with Airflow, dbt, PostgreSQL, and Hydra configuration management.
 
-**Generated from**: [Data Engineering Template](https://github.com/your-org/data-eng-template)  
+**Generated from**: [Data Engineering Template](https://github.com/Troubladore/data-eng-template)  
 **Author**: {{cookiecutter.author_name}}
 
 ## 🚀 Quick Start

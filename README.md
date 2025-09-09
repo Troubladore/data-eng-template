@@ -45,7 +45,7 @@ Modern cookiecutter template for data engineering projects with:
    - `project_name`: "My Awesome Data Project" 
    - `repo_slug`: "my-awesome-data-project" (auto-generated from project name)
    - `python_version`: "3.12" (default)
-   - `airflow_version`: "2.9.3" (default)
+   - `airflow_version`: "3.0.6" (default)
    - `airflow_executor`: Choose execution model
      - **LocalExecutor** (default): Runs tasks in parallel using separate processes
      - **SequentialExecutor**: Runs tasks one at a time (for testing/lightweight setups)
@@ -64,8 +64,8 @@ Modern cookiecutter template for data engineering projects with:
    - **VS Code**: Open project → **Reopen in Container** (services auto-start)
 
 4. **Access services**:
-   - **Airflow**: http://localhost:8080 (admin/admin)
-   - **Postgres**: `make psql`
+   - **Airflow**: http://localhost:8081 (admin/admin)
+   - **Postgres**: localhost:5432 (postgres/postgres)
 
 > Airflow image installs lightweight extras on boot via `_PIP_ADDITIONAL_REQUIREMENTS` for dev only.
 > For heavier deps, build a custom image later.
@@ -118,7 +118,7 @@ Generated projects include an optimized setup script that provides:
 ./scripts/setup-development.sh
 ```
 
-This automatically installs and configures [`devcontainer-service-manager`](https://github.com/your-org/devcontainer-service-manager) with workstation optimization features.
+This automatically installs and configures [`devcontainer-service-manager`](https://github.com/Troubladore/devcontainer-service-manager) with workstation optimization features.
 
 ### Manual Installation
 ```bash
@@ -130,6 +130,43 @@ dcm-setup install --profile data-engineering
 
 # Validate setup
 dcm-setup validate
+```
+
+## 🪟 **Windows/WSL2 Users**
+
+For optimal performance on Windows:
+
+### Setup Steps
+```bash
+# 1. Ensure you're in WSL2 filesystem (not /mnt/c/)
+cd ~  # Or mkdir -p ~/repos && cd ~/repos
+
+# 2. Clone template to WSL2 filesystem  
+git clone https://github.com/Troubladore/data-eng-template.git
+
+# 3. Install prerequisites in WSL2
+pipx install cookiecutter
+pip install devcontainer-service-manager[workstation]
+
+# 4. One-time workstation optimization
+dcm-setup install --profile data-engineering
+```
+
+### Performance Tips
+- **File Location**: Keep repositories in WSL2 filesystem (`~/repos/`) for 10x faster I/O
+- **Docker Desktop**: Enable WSL2 integration in Docker Desktop settings  
+- **Resource Allocation**: Allocate 8GB+ memory to Docker Desktop for optimal performance
+
+### Troubleshooting
+```bash
+# Validate WSL2 setup
+dcm-setup validate
+
+# Fix common issues automatically
+dcm-setup troubleshoot
+
+# Check if you're in the right filesystem
+pwd  # Should show /home/username/... not /mnt/c/...
 ```
 
 ## 📁 Template Structure
