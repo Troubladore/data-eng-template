@@ -24,8 +24,8 @@ npm install -g @devcontainers/cli
 
 ### Step 1: Install Enhanced Development Tools
 ```bash
-# Install with workstation optimization features
-pip install devcontainer-service-manager[workstation]
+# Install with workstation optimization features (globally available)
+pipx install devcontainer-service-manager[workstation]
 ```
 
 ### Step 2: One-Time Workstation Optimization  

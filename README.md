@@ -18,7 +18,7 @@ Modern cookiecutter template for data engineering projects with:
 ### For Optimal Performance
 - **Enhanced Development Tools** (optional but recommended):
   ```bash
-  pip install devcontainer-service-manager[workstation]
+  pipx install devcontainer-service-manager[workstation]
   ```
   Provides 149x faster builds, WSL2 optimizations, and cross-repository caching
 
@@ -122,8 +122,8 @@ This automatically installs and configures [`devcontainer-service-manager`](http
 
 ### Manual Installation
 ```bash
-# Install enhanced development tools
-pip install devcontainer-service-manager[workstation]
+# Install enhanced development tools (globally available)
+pipx install devcontainer-service-manager[workstation]
 
 # One-time workstation optimization
 dcm-setup install --profile data-engineering
@@ -146,7 +146,7 @@ git clone https://github.com/Troubladore/data-eng-template.git
 
 # 3. Install prerequisites in WSL2
 pipx install cookiecutter
-pip install devcontainer-service-manager[workstation]
+pipx install devcontainer-service-manager[workstation]
 
 # 4. One-time workstation optimization
 dcm-setup install --profile data-engineering

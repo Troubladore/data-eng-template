@@ -20,12 +20,34 @@ python_package_exists() {
 if ! command_exists dcm-setup; then
     echo "📦 Installing devcontainer-service-manager with workstation optimization..."
     
-    # Try pip install with workstation extras
-    if python -m pip install "devcontainer-service-manager[workstation]" --quiet; then
-        echo "✅ Enhanced service manager installed"
+    # Try pipx first (preferred), fall back to uv
+    if command_exists pipx; then
+        if pipx install "devcontainer-service-manager[workstation]" --quiet; then
+            echo "✅ Enhanced service manager installed via pipx"
+        else
+            echo "⚠️ pipx install failed, trying uv..."
+            if command_exists uv && uv pip install --system "devcontainer-service-manager[workstation]" --quiet; then
+                echo "✅ Enhanced service manager installed via uv"
+            else
+                echo "❌ Installation failed. Please install manually:"
+                echo "   pipx install devcontainer-service-manager[workstation]"
+                echo "   # OR: uv pip install --system devcontainer-service-manager[workstation]"
+                exit 1
+            fi
+        fi
+    elif command_exists uv; then
+        if uv pip install --system "devcontainer-service-manager[workstation]" --quiet; then
+            echo "✅ Enhanced service manager installed via uv"
+        else
+            echo "❌ uv install failed. Please install pipx and try manually:"
+            echo "   python -m pip install --user pipx && pipx ensurepath"
+            echo "   pipx install devcontainer-service-manager[workstation]"
+            exit 1
+        fi
     else
-        echo "⚠️ Failed to install enhanced service manager"
-        echo "💡 Try manually: pip install devcontainer-service-manager[workstation]"
+        echo "❌ Neither pipx nor uv found. Please install pipx first:"
+        echo "   python -m pip install --user pipx && pipx ensurepath"
+        echo "   pipx install devcontainer-service-manager[workstation]"
         exit 1
     fi
 else
