@@ -2,6 +2,29 @@
 
 Modern cookiecutter template for data engineering projects with enterprise-grade capabilities:
 
+## Template Development Setup
+
+**For contributors/testers working on the template itself:**
+
+```bash
+# Clone and set up development environment
+git clone https://github.com/Troubladore/data-eng-template.git
+cd data-eng-template
+
+# Install dependencies and create virtual environment with uv (fast & modern)
+uv sync
+
+# Activate virtual environment
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+
+# Run validation (after setup)
+python scripts/validate-dcsm-integration.py --quick --no-docker
+```
+
+**Note**: This template uses `uv` exclusively for consistency with generated projects.
+
+---
+
 ## Core Features
 - **Docker Compose**: Airflow 3.0.6 + Postgres 16 + Custom Multi-Stage Images
 - **VS Code DevContainer**: One-click development environment with full service orchestration
@@ -83,7 +106,7 @@ Modern cookiecutter template for data engineering projects with enterprise-grade
    - **VS Code**: Open project → **Reopen in Container** (services auto-start)
 
 4. **Access services**:
-   - **Airflow**: http://localhost:8081 (admin/admin)
+   - **Airflow**: http://localhost:8080 (admin/admin)
    - **Postgres**: localhost:5432 (postgres/postgres)
 
 > Airflow image installs lightweight extras on boot via `_PIP_ADDITIONAL_REQUIREMENTS` for dev only.

@@ -1,0 +1,51 @@
+[project]
+name = "data-eng-template"
+version = "0.1.0"
+requires-python = ">=3.11"
+description = "Cookiecutter template for modern data engineering projects"
+dependencies = [
+    # Required for validation script
+    "PyYAML>=6.0.0",
+    
+    # For cookiecutter template generation testing
+    "cookiecutter>=2.1.0",
+    
+    # Testing framework
+    "pytest>=7.0.0",
+    "pytest-xdist>=3.0.0",  # Parallel test execution
+    
+    # For integration tests
+    "requests>=2.25.0",
+    "docker>=6.0.0",  # Docker API client
+]
+
+[project.optional-dependencies]
+dev = [
+    # Optional: for linting template files  
+    "ruff>=0.1.0",
+    
+    # Development utilities
+    "rich>=13.7.0",  # Better console output
+]
+
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv]
+# Use uv for dependency resolution and installation
+dev-dependencies = []
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+fix = true
+unsafe-fixes = true
+
+[tool.ruff.lint]
+extend-select = ["I", "E", "F", "UP"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+addopts = "-q"
+testpaths = ["tests"]

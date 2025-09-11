@@ -419,7 +419,7 @@ class TestAirflowAuthentication:
                 while time.time() - start_time < max_wait_time:
                     try:
                         response = requests.get(
-                            "http://localhost:8081/health", timeout=5
+                            "http://localhost:8080/health", timeout=5
                         )
                         if response.status_code == 200:
                             break
@@ -431,7 +431,7 @@ class TestAirflowAuthentication:
 
                 # Test authentication with custom built image
                 session = requests.Session()
-                login_page = session.get("http://localhost:8081/login/", timeout=10)
+                login_page = session.get("http://localhost:8080/login/", timeout=10)
                 assert login_page.status_code == 200, "Should access login page"
 
                 # Extract CSRF token if present
@@ -449,7 +449,7 @@ class TestAirflowAuthentication:
                     login_data["csrf_token"] = csrf_token
 
                 login_result = session.post(
-                    "http://localhost:8081/login/",
+                    "http://localhost:8080/login/",
                     data=login_data,
                     allow_redirects=False,
                     timeout=10,

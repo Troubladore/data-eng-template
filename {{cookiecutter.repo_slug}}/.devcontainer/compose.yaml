@@ -6,6 +6,9 @@ x-airflow-env: &airflow-env
   # Fernet key sourced from Hydra configuration
   AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY}
   _PIP_ADDITIONAL_REQUIREMENTS: "apache-airflow-providers-postgres psycopg2-binary"
+  # Authentication credentials for Airflow admin user
+  _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-admin}
+  _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-admin}
 
 # Common volume configurations for caching optimization
 x-airflow-volumes: &airflow-volumes
@@ -34,7 +37,13 @@ services:
       retries: 5
 
   airflow-init:
-    image: docker.io/apache/airflow:${AIRFLOW_VERSION:-2.9.3}-python3.12
+    build:
+      context: ..
+      dockerfile: Dockerfile.airflow
+      target: development
+      args:
+        AIRFLOW_VERSION: ${AIRFLOW_VERSION:-2.9.3}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.12}
     env_file: [./airflow.env]
     environment: *airflow-env
     user: "50000:0"
@@ -48,7 +57,13 @@ services:
         condition: service_healthy
 
   airflow-scheduler:
-    image: docker.io/apache/airflow:${AIRFLOW_VERSION:-2.9.3}-python3.12
+    build:
+      context: ..
+      dockerfile: Dockerfile.airflow
+      target: development
+      args:
+        AIRFLOW_VERSION: ${AIRFLOW_VERSION:-2.9.3}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.12}
     env_file: [./airflow.env]
     environment: *airflow-env
     user: "50000:0"
@@ -59,7 +74,13 @@ services:
         condition: service_completed_successfully
 
   airflow-webserver:
-    image: docker.io/apache/airflow:${AIRFLOW_VERSION:-2.9.3}-python3.12
+    build:
+      context: ..
+      dockerfile: Dockerfile.airflow
+      target: development
+      args:
+        AIRFLOW_VERSION: ${AIRFLOW_VERSION:-2.9.3}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.12}
     env_file: [./airflow.env]
     environment: *airflow-env
     user: "50000:0"

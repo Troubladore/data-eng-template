@@ -187,7 +187,7 @@ class TestDCSMCustomBuildIntegration:
                 while time.time() - start_time < max_wait_time:
                     try:
                         response = requests.get(
-                            "http://localhost:8081/health", timeout=5
+                            "http://localhost:8080/health", timeout=5
                         )
                         if response.status_code == 200:
                             print(
@@ -242,7 +242,7 @@ class TestDCSMCustomBuildIntegration:
 
                 # Test basic authentication to ensure custom image works correctly
                 session = requests.Session()
-                login_page = session.get("http://localhost:8081/login/", timeout=10)
+                login_page = session.get("http://localhost:8080/login/", timeout=10)
                 assert (
                     login_page.status_code == 200
                 ), "Should be able to access login page"

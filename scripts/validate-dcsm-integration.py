@@ -21,7 +21,15 @@ import sys
 import time
 from pathlib import Path
 from typing import List
-import yaml
+
+try:
+    import yaml
+except ImportError:
+    print("❌ PyYAML is required for this validation script.")
+    print("📋 Install dependencies with uv: uv sync")
+    print("📋 Or install PyYAML directly: uv add PyYAML")
+    print("📋 (This template uses uv exclusively for package management)")
+    sys.exit(1)
 
 
 class ValidationError(Exception):
