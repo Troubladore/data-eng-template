@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+data_eng_template.egg-info/PKG-INFO
+data_eng_template.egg-info/SOURCES.txt
+data_eng_template.egg-info/dependency_links.txt
+data_eng_template.egg-info/requires.txt
+data_eng_template.egg-info/top_level.txt
+hooks/post_gen_project.py

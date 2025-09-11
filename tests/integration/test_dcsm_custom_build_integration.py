@@ -14,10 +14,11 @@ Key test scenarios:
 import subprocess
 import tempfile
 import time
-import requests
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
+
 import pytest
+import requests
 import yaml
 
 
@@ -26,7 +27,7 @@ class TestDCSMCustomBuildIntegration:
 
     @pytest.mark.slow
     def test_dcsm_custom_build_with_existing_dockerfile(
-        self, template_dir: Path, default_cookiecutter_config: Dict[str, Any]
+        self, template_dir: Path, default_cookiecutter_config: dict[str, Any]
     ):
         """Test DCSM can handle our existing custom build configuration.
 
@@ -53,9 +54,7 @@ class TestDCSMCustomBuildIntegration:
                 cmd.append(f"{key}={value}")
 
             result = subprocess.run(cmd, capture_output=True, text=True)
-            assert (
-                result.returncode == 0
-            ), f"Template generation failed: {result.stderr}"
+            assert result.returncode == 0, f"Template generation failed: {result.stderr}"
 
             project_dir = temp_path / default_cookiecutter_config["repo_slug"]
             devcontainer_dir = project_dir / ".devcontainer"
@@ -73,9 +72,7 @@ class TestDCSMCustomBuildIntegration:
             ]
             for service in airflow_services:
                 service_config = compose_data["services"][service]
-                assert (
-                    "build" in service_config
-                ), f"{service} should have build configuration"
+                assert "build" in service_config, f"{service} should have build configuration"
 
                 build_config = service_config["build"]
                 assert (
@@ -89,9 +86,7 @@ class TestDCSMCustomBuildIntegration:
                 ), f"{service} should target development stage"
 
                 # Verify custom image name
-                expected_image = (
-                    f"{default_cookiecutter_config['repo_slug']}-airflow-dev"
-                )
+                expected_image = f"{default_cookiecutter_config['repo_slug']}-airflow-dev"
                 assert (
                     service_config["image"] == expected_image
                 ), f"{service} should use custom image name"
@@ -107,13 +102,9 @@ class TestDCSMCustomBuildIntegration:
             assert (
                 "FROM apache/airflow" in dockerfile_content
             ), "Should use official Airflow base image"
-            assert (
-                "AS dependencies" in dockerfile_content
-            ), "Should have dependencies stage"
+            assert "AS dependencies" in dockerfile_content, "Should have dependencies stage"
             assert "AS runtime" in dockerfile_content, "Should have runtime stage"
-            assert (
-                "AS development" in dockerfile_content
-            ), "Should have development stage"
+            assert "AS development" in dockerfile_content, "Should have development stage"
 
             # Test actual Docker build (simulates what DCSM would do)
             build_cmd = [
@@ -157,11 +148,13 @@ class TestDCSMCustomBuildIntegration:
             # Cached build should be significantly faster (less than 50% of original)
             if cache_build_time < build_time * 0.5:
                 print(
-                    f"✅ Docker layer caching effective: {cache_build_time:.1f}s vs {build_time:.1f}s"
+                    f"✅ Docker layer caching effective: {cache_build_time:.1f}s "
+                    f"vs {build_time:.1f}s"
                 )
             else:
                 print(
-                    f"⚠️ Docker caching may not be optimal: {cache_build_time:.1f}s vs {build_time:.1f}s"
+                    f"⚠️ Docker caching may not be optimal: {cache_build_time:.1f}s "
+                    f"vs {build_time:.1f}s"
                 )
 
             # Test full service startup with custom image
@@ -172,9 +165,7 @@ class TestDCSMCustomBuildIntegration:
 
             if startup_result.returncode != 0:
                 print(f"Service startup failed: {startup_result.stderr}")
-                pytest.skip(
-                    "Service startup failed - may indicate DCSM integration issues"
-                )
+                pytest.skip("Service startup failed - may indicate DCSM integration issues")
 
             try:
                 # Wait for Airflow to be ready
@@ -186,12 +177,11 @@ class TestDCSMCustomBuildIntegration:
 
                 while time.time() - start_time < max_wait_time:
                     try:
-                        response = requests.get(
-                            "http://localhost:8080/health", timeout=5
-                        )
+                        response = requests.get("http://localhost:8080/health", timeout=5)
                         if response.status_code == 200:
                             print(
-                                f"✅ Custom Airflow image services ready after {time.time() - start_time:.1f}s"
+                                f"✅ Custom Airflow image services ready after "
+                                f"{time.time() - start_time:.1f}s"
                             )
                             airflow_ready = True
                             break
@@ -200,9 +190,7 @@ class TestDCSMCustomBuildIntegration:
 
                     time.sleep(5)
 
-                assert (
-                    airflow_ready
-                ), "Custom Airflow services should start successfully"
+                assert airflow_ready, "Custom Airflow services should start successfully"
 
                 # Verify we're actually using the custom image
                 ps_cmd = [
@@ -227,13 +215,9 @@ class TestDCSMCustomBuildIntegration:
                         if line.strip()
                     ]
 
-                    airflow_services = [
-                        s for s in services_info if "airflow" in s["Service"]
-                    ]
+                    airflow_services = [s for s in services_info if "airflow" in s["Service"]]
                     for service in airflow_services:
-                        expected_image = (
-                            f"{default_cookiecutter_config['repo_slug']}-airflow-dev"
-                        )
+                        expected_image = f"{default_cookiecutter_config['repo_slug']}-airflow-dev"
                         assert (
                             expected_image in service["Image"]
                         ), f"Service {service['Service']} should use custom image"
@@ -243,9 +227,7 @@ class TestDCSMCustomBuildIntegration:
                 # Test basic authentication to ensure custom image works correctly
                 session = requests.Session()
                 login_page = session.get("http://localhost:8080/login/", timeout=10)
-                assert (
-                    login_page.status_code == 200
-                ), "Should be able to access login page"
+                assert login_page.status_code == 200, "Should be able to access login page"
 
                 print("✅ Custom Airflow image functional test passed")
 
@@ -275,7 +257,7 @@ class TestDCSMCustomBuildIntegration:
                     print("✅ Services and custom images cleaned up")
 
     def test_dcsm_build_args_support(
-        self, template_dir: Path, default_cookiecutter_config: Dict[str, Any]
+        self, template_dir: Path, default_cookiecutter_config: dict[str, Any]
     ):
         """Test that DCSM correctly handles build arguments in custom builds.
 
@@ -298,21 +280,15 @@ class TestDCSMCustomBuildIntegration:
                 cmd.append(f"{key}={value}")
 
             result = subprocess.run(cmd, capture_output=True, text=True)
-            assert (
-                result.returncode == 0
-            ), f"Template generation failed: {result.stderr}"
+            assert result.returncode == 0, f"Template generation failed: {result.stderr}"
 
             project_dir = temp_path / default_cookiecutter_config["repo_slug"]
             dockerfile_path = project_dir / "Dockerfile.airflow"
 
             # Verify Dockerfile accepts build arguments (needed for Windows auth)
             dockerfile_content = dockerfile_path.read_text()
-            assert (
-                "ARG AIRFLOW_VERSION=" in dockerfile_content
-            ), "Should accept AIRFLOW_VERSION arg"
-            assert (
-                "ARG PYTHON_VERSION=" in dockerfile_content
-            ), "Should accept PYTHON_VERSION arg"
+            assert "ARG AIRFLOW_VERSION=" in dockerfile_content, "Should accept AIRFLOW_VERSION arg"
+            assert "ARG PYTHON_VERSION=" in dockerfile_content, "Should accept PYTHON_VERSION arg"
 
             # Test build with custom args (simulates DCSM build args feature)
             build_cmd = [
@@ -323,9 +299,9 @@ class TestDCSMCustomBuildIntegration:
                 "--target",
                 "development",
                 "--build-arg",
-                f'AIRFLOW_VERSION={default_cookiecutter_config["airflow_version"]}',
+                f"AIRFLOW_VERSION={default_cookiecutter_config['airflow_version']}",
                 "--build-arg",
-                f'PYTHON_VERSION={default_cookiecutter_config["python_version"]}',
+                f"PYTHON_VERSION={default_cookiecutter_config['python_version']}",
                 "--build-arg",
                 "ENABLE_WINDOWS_AUTH=false",  # Future Windows auth arg
                 "-t",
@@ -350,11 +326,12 @@ class TestDCSMCustomBuildIntegration:
             else:
                 # Don't fail test if Docker unavailable, but log the issue
                 print(
-                    f"⚠️ Build args test skipped - Docker may not be available: {build_result.stderr}"
+                    f"⚠️ Build args test skipped - Docker may not be available: "
+                    f"{build_result.stderr}"
                 )
 
     def test_dcsm_services_yaml_readiness(
-        self, template_dir: Path, default_cookiecutter_config: Dict[str, Any]
+        self, template_dir: Path, default_cookiecutter_config: dict[str, Any]
     ):
         """Test that our compose.yaml structure is compatible with DCSM services.yaml format.
 
@@ -377,9 +354,7 @@ class TestDCSMCustomBuildIntegration:
                 cmd.append(f"{key}={value}")
 
             result = subprocess.run(cmd, capture_output=True, text=True)
-            assert (
-                result.returncode == 0
-            ), f"Template generation failed: {result.stderr}"
+            assert result.returncode == 0, f"Template generation failed: {result.stderr}"
 
             project_dir = temp_path / default_cookiecutter_config["repo_slug"]
             compose_file = project_dir / ".devcontainer" / "compose.yaml"
@@ -403,31 +378,19 @@ class TestDCSMCustomBuildIntegration:
                     if "build" in service_config:
                         build_config = service_config["build"]
                         # DCSM BuildConfig model fields
-                        assert (
-                            "context" in build_config
-                        ), f"{service_name} build needs context"
+                        assert "context" in build_config, f"{service_name} build needs context"
                         assert (
                             "dockerfile" in build_config
                         ), f"{service_name} build needs dockerfile"
-                        assert (
-                            "target" in build_config
-                        ), f"{service_name} build needs target"
+                        assert "target" in build_config, f"{service_name} build needs target"
 
                         # These fields are optional but DCSM supports them
-                        print(
-                            f"✅ Service {service_name} has DCSM-compatible build config"
-                        )
+                        print(f"✅ Service {service_name} has DCSM-compatible build config")
 
             # Verify environment variables are properly structured
             airflow_env_anchor = compose_data.get("x-airflow-env", {})
-            assert (
-                len(airflow_env_anchor) > 0
-            ), "Should have Airflow environment variables"
-            assert (
-                "_AIRFLOW_WWW_USER_USERNAME" in airflow_env_anchor
-            ), "Should have admin username"
-            assert (
-                "_AIRFLOW_WWW_USER_PASSWORD" in airflow_env_anchor
-            ), "Should have admin password"
+            assert len(airflow_env_anchor) > 0, "Should have Airflow environment variables"
+            assert "_AIRFLOW_WWW_USER_USERNAME" in airflow_env_anchor, "Should have admin username"
+            assert "_AIRFLOW_WWW_USER_PASSWORD" in airflow_env_anchor, "Should have admin password"
 
             print("✅ Compose structure is DCSM-compatible for Phase 2 integration")

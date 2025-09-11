@@ -16,11 +16,10 @@ Usage:
 
 import argparse
 import subprocess
-import tempfile
 import sys
+import tempfile
 import time
 from pathlib import Path
-from typing import List
 
 try:
     import yaml
@@ -44,8 +43,8 @@ class DCSMValidator:
     def __init__(self, quick_mode: bool = False, no_docker: bool = False):
         self.quick_mode = quick_mode
         self.no_docker = no_docker
-        self.errors: List[str] = []
-        self.warnings: List[str] = []
+        self.errors: list[str] = []
+        self.warnings: list[str] = []
 
         # Default cookiecutter configuration for testing
         self.test_config = {
@@ -117,9 +116,7 @@ class DCSMValidator:
         """Validate Dockerfile.airflow structure for DCSM custom builds."""
         print("\\n🐳 Validating Dockerfile.airflow structure...")
 
-        dockerfile_path = (
-            Path.cwd() / "{{cookiecutter.repo_slug}}" / "Dockerfile.airflow"
-        )
+        dockerfile_path = Path.cwd() / "{{cookiecutter.repo_slug}}" / "Dockerfile.airflow"
 
         if not dockerfile_path.exists():
             self.log_error("Dockerfile.airflow not found")
@@ -141,9 +138,7 @@ class DCSMValidator:
             if f"ARG {arg}=" in content:
                 self.log_success(f"Found required build arg: {arg}")
             else:
-                self.log_warning(
-                    f"Missing build arg: {arg} (may affect DCSM integration)"
-                )
+                self.log_warning(f"Missing build arg: {arg} (may affect DCSM integration)")
 
         # Check for proper base image
         if "FROM apache/airflow:" in content:
@@ -155,9 +150,7 @@ class DCSMValidator:
         """Validate Docker Compose configuration for DCSM compatibility."""
         print("\\n🔧 Validating Docker Compose configuration...")
 
-        compose_path = (
-            Path.cwd() / "{{cookiecutter.repo_slug}}" / ".devcontainer" / "compose.yaml"
-        )
+        compose_path = Path.cwd() / "{{cookiecutter.repo_slug}}" / ".devcontainer" / "compose.yaml"
 
         if not compose_path.exists():
             self.log_error("compose.yaml not found")
@@ -283,15 +276,11 @@ class DCSMValidator:
 
         try:
             start_time = time.time()
-            result = subprocess.run(
-                build_cmd, capture_output=True, text=True, timeout=600
-            )
+            result = subprocess.run(build_cmd, capture_output=True, text=True, timeout=600)
             build_time = time.time() - start_time
 
             if result.returncode == 0:
-                self.log_success(
-                    f"Docker build completed successfully in {build_time:.1f}s"
-                )
+                self.log_success(f"Docker build completed successfully in {build_time:.1f}s")
 
                 # Test build caching
                 self.log_success("Testing Docker layer caching...")
@@ -308,7 +297,8 @@ class DCSMValidator:
                         )
                     else:
                         self.log_warning(
-                            f"Docker caching may be suboptimal: {cache_time:.1f}s vs {build_time:.1f}s"
+                            f"Docker caching may be suboptimal: {cache_time:.1f}s "
+                            f"vs {build_time:.1f}s"
                         )
 
                 # Clean up test image
@@ -388,15 +378,9 @@ class DCSMValidator:
                         if line.strip()
                     ]
 
-                    running_services = [
-                        s for s in services_info if s.get("State") == "running"
-                    ]
-                    if (
-                        len(running_services) >= 3
-                    ):  # postgres, scheduler, webserver minimum
-                        self.log_success(
-                            f"Found {len(running_services)} running services"
-                        )
+                    running_services = [s for s in services_info if s.get("State") == "running"]
+                    if len(running_services) >= 3:  # postgres, scheduler, webserver minimum
+                        self.log_success(f"Found {len(running_services)} running services")
                     else:
                         self.log_warning(
                             f"Only {len(running_services)} services running, expected at least 3"
@@ -413,9 +397,7 @@ class DCSMValidator:
         finally:
             # Clean up services
             cleanup_cmd = ["docker", "compose", "-f", str(compose_file), "down", "-v"]
-            subprocess.run(
-                cleanup_cmd, capture_output=True, text=True, cwd=compose_file.parent
-            )
+            subprocess.run(cleanup_cmd, capture_output=True, text=True, cwd=compose_file.parent)
 
     def run_validation(self) -> bool:
         """Run complete validation suite."""
@@ -445,9 +427,7 @@ class DCSMValidator:
 
         # Step 6: Service startup test
         if not self.test_service_startup(project_path):
-            self.log_warning(
-                "Service startup test failed - may affect end-to-end functionality"
-            )
+            self.log_warning("Service startup test failed - may affect end-to-end functionality")
 
         # Summary
         self.print_summary()
@@ -476,7 +456,8 @@ class DCSMValidator:
 
         print("\\n📋 Next Steps for Human Tester:")
         print(
-            "1. Run full integration tests: pytest tests/integration/test_dcsm_custom_build_integration.py -v"
+            "1. Run full integration tests: "
+            "pytest tests/integration/test_dcsm_custom_build_integration.py -v"
         )
         print("2. Test DCSM custom build with actual DCSM installation")
         print("3. Validate Windows authentication preparation")
@@ -486,12 +467,8 @@ class DCSMValidator:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Validate DCSM integration readiness")
-    parser.add_argument(
-        "--quick", action="store_true", help="Skip slow integration tests"
-    )
-    parser.add_argument(
-        "--no-docker", action="store_true", help="Skip Docker-dependent tests"
-    )
+    parser.add_argument("--quick", action="store_true", help="Skip slow integration tests")
+    parser.add_argument("--no-docker", action="store_true", help="Skip Docker-dependent tests")
 
     args = parser.parse_args()
 

@@ -6,10 +6,11 @@ Extended to validate DCSM integration scenarios for Windows authentication roadm
 import subprocess
 import tempfile
 import time
-import requests
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
+
 import pytest
+import requests
 import yaml
 
 
@@ -18,7 +19,7 @@ class TestAirflowAuthentication:
 
     @pytest.mark.slow
     def test_airflow_login_with_admin_credentials(
-        self, template_dir: Path, default_cookiecutter_config: Dict[str, Any]
+        self, template_dir: Path, default_cookiecutter_config: dict[str, Any]
     ):
         """Test that admin/admin credentials work for Airflow login in generated project.
 
@@ -46,20 +47,14 @@ class TestAirflowAuthentication:
                 cmd.append(f"{key}={value}")
 
             result = subprocess.run(cmd, capture_output=True, text=True)
-            assert (
-                result.returncode == 0
-            ), f"Template generation failed: {result.stderr}"
+            assert result.returncode == 0, f"Template generation failed: {result.stderr}"
 
             project_dir = temp_path / default_cookiecutter_config["repo_slug"]
             devcontainer_dir = project_dir / ".devcontainer"
 
             # Verify files exist before starting services
-            assert (
-                devcontainer_dir / "compose.yaml"
-            ).exists(), "compose.yaml should exist"
-            assert (
-                devcontainer_dir / "airflow.env"
-            ).exists(), "airflow.env should exist"
+            assert (devcontainer_dir / "compose.yaml").exists(), "compose.yaml should exist"
+            assert (devcontainer_dir / "airflow.env").exists(), "airflow.env should exist"
 
             # Start Docker Compose services
             compose_cmd = [
@@ -76,7 +71,8 @@ class TestAirflowAuthentication:
 
             if startup_result.returncode != 0:
                 pytest.skip(
-                    f"Docker Compose startup failed (Docker may not be available): {startup_result.stderr}"
+                    f"Docker Compose startup failed (Docker may not be available): "
+                    f"{startup_result.stderr}"
                 )
 
             try:
@@ -90,12 +86,11 @@ class TestAirflowAuthentication:
                 while time.time() - start_time < max_wait_time:
                     try:
                         # Check if Airflow webserver is responding
-                        response = requests.get(
-                            "http://localhost:8080/health", timeout=5
-                        )
+                        response = requests.get("http://localhost:8080/health", timeout=5)
                         if response.status_code == 200:
                             print(
-                                f"✅ Airflow health endpoint responding after {time.time() - start_time:.1f}s"
+                                f"✅ Airflow health endpoint responding after "
+                                f"{time.time() - start_time:.1f}s"
                             )
                             airflow_ready = True
                             break
@@ -103,9 +98,7 @@ class TestAirflowAuthentication:
                         pass
 
                     time.sleep(5)
-                    print(
-                        f"Still waiting for Airflow... ({time.time() - start_time:.1f}s elapsed)"
-                    )
+                    print(f"Still waiting for Airflow... ({time.time() - start_time:.1f}s elapsed)")
 
                 if not airflow_ready:
                     # Get container logs for debugging
@@ -121,13 +114,12 @@ class TestAirflowAuthentication:
                         logs_cmd, capture_output=True, text=True, cwd=devcontainer_dir
                     )
                     pytest.fail(
-                        f"Airflow did not become ready within {max_wait_time}s. Webserver logs:\n{logs_result.stdout}\n{logs_result.stderr}"
+                        f"Airflow did not become ready within {max_wait_time}s. "
+                        f"Webserver logs:\n{logs_result.stdout}\n{logs_result.stderr}"
                     )
 
                 # Test login page access
-                login_response = requests.get(
-                    "http://localhost:8080/login/", timeout=10
-                )
+                login_response = requests.get("http://localhost:8080/login/", timeout=10)
                 assert (
                     login_response.status_code == 200
                 ), f"Login page should be accessible, got {login_response.status_code}"
@@ -140,9 +132,7 @@ class TestAirflowAuthentication:
 
                 # Get login page to extract CSRF token
                 login_page = session.get("http://localhost:8080/login/", timeout=10)
-                assert (
-                    login_page.status_code == 200
-                ), "Should be able to access login page"
+                assert login_page.status_code == 200, "Should be able to access login page"
 
                 # Extract CSRF token from login form
                 csrf_token = None
@@ -169,9 +159,10 @@ class TestAirflowAuthentication:
                 )
 
                 # Successful login should redirect (302) or return 200
-                assert (
-                    login_attempt.status_code in [200, 302]
-                ), f"Login attempt failed with status {login_attempt.status_code}: {login_attempt.text[:500]}"
+                assert login_attempt.status_code in [200, 302], (
+                    f"Login attempt failed with status {login_attempt.status_code}: "
+                    f"{login_attempt.text[:500]}"
+                )
 
                 # Follow redirect if present and verify we reach the dashboard
                 if login_attempt.status_code == 302:
@@ -190,8 +181,7 @@ class TestAirflowAuthentication:
                         "dag" in dashboard_content or "airflow" in dashboard_content
                     ), "Should be on Airflow dashboard"
                     assert (
-                        "login" not in dashboard_content
-                        or "logout" in dashboard_content
+                        "login" not in dashboard_content or "logout" in dashboard_content
                     ), "Should not be on login page"
 
                     print("✅ Successfully logged in and accessed Airflow dashboard")
@@ -221,14 +211,15 @@ class TestAirflowAuthentication:
                             content = endpoint_response.text.lower()
                             if "dag" in content or "airflow" in content:
                                 authenticated = True
-                                print(
-                                    f"✅ Successfully accessed protected endpoint: {endpoint}"
-                                )
+                                print(f"✅ Successfully accessed protected endpoint: {endpoint}")
                                 break
                     except (requests.ConnectionError, requests.Timeout):
                         continue
 
-                assert authenticated, "Should be able to access at least one protected Airflow endpoint when authenticated"
+                assert authenticated, (
+                    "Should be able to access at least one protected Airflow endpoint "
+                    "when authenticated"
+                )
 
                 print("✅ End-to-end Airflow authentication test passed!")
 
@@ -252,7 +243,7 @@ class TestAirflowAuthentication:
                     print("✅ Docker containers cleaned up successfully")
 
     def test_airflow_login_rejects_wrong_credentials(
-        self, template_dir: Path, default_cookiecutter_config: Dict[str, Any]
+        self, template_dir: Path, default_cookiecutter_config: dict[str, Any]
     ):
         """Test that Airflow properly rejects incorrect credentials."""
         # This is a lighter test that can run without full Docker Compose setup
@@ -273,9 +264,7 @@ class TestAirflowAuthentication:
                 cmd.append(f"{key}={value}")
 
             result = subprocess.run(cmd, capture_output=True, text=True)
-            assert (
-                result.returncode == 0
-            ), f"Template generation failed: {result.stderr}"
+            assert result.returncode == 0, f"Template generation failed: {result.stderr}"
 
             project_dir = temp_path / default_cookiecutter_config["repo_slug"]
 
@@ -306,7 +295,7 @@ class TestAirflowAuthentication:
 
     @pytest.mark.slow
     def test_airflow_auth_with_custom_build_system(
-        self, template_dir: Path, default_cookiecutter_config: Dict[str, Any]
+        self, template_dir: Path, default_cookiecutter_config: dict[str, Any]
     ):
         """Test authentication works with DCSM custom build system integration.
 
@@ -330,9 +319,7 @@ class TestAirflowAuthentication:
                 cmd.append(f"{key}={value}")
 
             result = subprocess.run(cmd, capture_output=True, text=True)
-            assert (
-                result.returncode == 0
-            ), f"Template generation failed: {result.stderr}"
+            assert result.returncode == 0, f"Template generation failed: {result.stderr}"
 
             project_dir = temp_path / default_cookiecutter_config["repo_slug"]
             devcontainer_dir = project_dir / ".devcontainer"
@@ -353,26 +340,18 @@ class TestAirflowAuthentication:
 
                 # Should have custom build config
                 assert "build" in service_config, f"{service} should use custom build"
-                assert (
-                    "image" in service_config
-                ), f"{service} should specify custom image name"
+                assert "image" in service_config, f"{service} should specify custom image name"
 
                 # Should inherit auth environment
-                assert (
-                    "environment" in service_config
-                ), f"{service} should have auth environment"
+                assert "environment" in service_config, f"{service} should have auth environment"
                 env_ref = service_config["environment"]
 
                 # Environment should reference auth anchor
                 if isinstance(env_ref, str) and env_ref.startswith("*"):
                     # Verify auth anchor contains required auth variables
                     auth_env = compose_data.get("x-airflow-env", {})
-                    assert (
-                        "_AIRFLOW_WWW_USER_USERNAME" in auth_env
-                    ), "Auth env should have username"
-                    assert (
-                        "_AIRFLOW_WWW_USER_PASSWORD" in auth_env
-                    ), "Auth env should have password"
+                    assert "_AIRFLOW_WWW_USER_USERNAME" in auth_env, "Auth env should have username"
+                    assert "_AIRFLOW_WWW_USER_PASSWORD" in auth_env, "Auth env should have password"
                     assert (
                         auth_env["_AIRFLOW_WWW_USER_USERNAME"] == "admin"
                     ), "Username should be admin"
@@ -418,9 +397,7 @@ class TestAirflowAuthentication:
 
                 while time.time() - start_time < max_wait_time:
                     try:
-                        response = requests.get(
-                            "http://localhost:8080/health", timeout=5
-                        )
+                        response = requests.get("http://localhost:8080/health", timeout=5)
                         if response.status_code == 200:
                             break
                     except (requests.ConnectionError, requests.Timeout):
@@ -472,9 +449,7 @@ class TestAirflowAuthentication:
                     "down",
                     "-v",
                 ]
-                subprocess.run(
-                    cleanup_cmd, capture_output=True, text=True, cwd=devcontainer_dir
-                )
+                subprocess.run(cleanup_cmd, capture_output=True, text=True, cwd=devcontainer_dir)
 
                 # Clean up custom image
                 image_cleanup_cmd = [
@@ -485,7 +460,7 @@ class TestAirflowAuthentication:
                 subprocess.run(image_cleanup_cmd, capture_output=True, text=True)
 
     def test_dcsm_windows_auth_preparation(
-        self, template_dir: Path, default_cookiecutter_config: Dict[str, Any]
+        self, template_dir: Path, default_cookiecutter_config: dict[str, Any]
     ):
         """Test that current authentication system is ready for Windows auth integration.
 
@@ -511,9 +486,7 @@ class TestAirflowAuthentication:
                 cmd.append(f"{key}={value}")
 
             result = subprocess.run(cmd, capture_output=True, text=True)
-            assert (
-                result.returncode == 0
-            ), f"Template generation failed: {result.stderr}"
+            assert result.returncode == 0, f"Template generation failed: {result.stderr}"
 
             project_dir = temp_path / default_cookiecutter_config["repo_slug"]
             compose_file = project_dir / ".devcontainer" / "compose.yaml"
@@ -525,18 +498,12 @@ class TestAirflowAuthentication:
             auth_env = compose_data.get("x-airflow-env", {})
 
             # Current basic auth variables should be present
-            assert (
-                "_AIRFLOW_WWW_USER_USERNAME" in auth_env
-            ), "Should have username config"
-            assert (
-                "_AIRFLOW_WWW_USER_PASSWORD" in auth_env
-            ), "Should have password config"
+            assert "_AIRFLOW_WWW_USER_USERNAME" in auth_env, "Should have username config"
+            assert "_AIRFLOW_WWW_USER_PASSWORD" in auth_env, "Should have password config"
 
             # Verify database connection supports authentication
             db_conn = auth_env.get("AIRFLOW__DATABASE__SQL_ALCHEMY_CONN", "")
-            assert (
-                "postgresql+psycopg2://" in db_conn
-            ), "Should use PostgreSQL with auth support"
+            assert "postgresql+psycopg2://" in db_conn, "Should use PostgreSQL with auth support"
 
             # Verify Dockerfile structure supports auth extensions
             dockerfile = project_dir / "Dockerfile.airflow"
@@ -559,31 +526,21 @@ class TestAirflowAuthentication:
             services = compose_data["services"]
 
             # Airflow services should depend on auth-ready state
-            assert (
-                "airflow-init" in services
-            ), "Should have initialization service for auth setup"
+            assert "airflow-init" in services, "Should have initialization service for auth setup"
 
             init_service = services["airflow-init"]
             assert "depends_on" in init_service, "Init should have dependencies"
-            assert (
-                "postgres" in init_service["depends_on"]
-            ), "Init should wait for database"
+            assert "postgres" in init_service["depends_on"], "Init should wait for database"
 
             # Other services should wait for init (where auth is set up)
             for service_name in ["airflow-scheduler", "airflow-webserver"]:
                 service = services[service_name]
-                assert (
-                    "depends_on" in service
-                ), f"{service_name} should have dependencies"
+                assert "depends_on" in service, f"{service_name} should have dependencies"
                 assert (
                     "airflow-init" in service["depends_on"]
                 ), f"{service_name} should wait for auth init"
 
-            print(
-                "✅ Current authentication system is ready for Windows auth extensions"
-            )
+            print("✅ Current authentication system is ready for Windows auth extensions")
             print("✅ Service dependency chain supports auth validation steps")
-            print(
-                "✅ Environment variable structure supports LDAP/Kerberos configuration"
-            )
+            print("✅ Environment variable structure supports LDAP/Kerberos configuration")
             print("✅ Docker image stages can accommodate auth package installation")

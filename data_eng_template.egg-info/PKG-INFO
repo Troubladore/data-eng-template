@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: data-eng-template
+Version: 0.1.0
+Summary: Cookiecutter template for modern data engineering projects
+Requires-Python: >=3.11
+Requires-Dist: PyYAML>=6.0.0
+Requires-Dist: cookiecutter>=2.1.0
+Requires-Dist: pytest>=7.0.0
+Requires-Dist: pytest-xdist>=3.0.0
+Requires-Dist: requests>=2.25.0
+Requires-Dist: docker>=6.0.0
+Provides-Extra: dev
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Requires-Dist: rich>=13.7.0; extra == "dev"
