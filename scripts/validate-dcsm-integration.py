@@ -146,14 +146,27 @@ class DCSMValidator:
         else:
             self.log_error("Does not use official Airflow base image")
 
-    def validate_compose_configuration(self) -> None:
+    def validate_compose_configuration(self, project_path: Path = None) -> None:
         """Validate Docker Compose configuration for DCSM compatibility."""
         print("\\n🔧 Validating Docker Compose configuration...")
 
-        compose_path = Path.cwd() / "{{cookiecutter.repo_slug}}" / ".devcontainer" / "compose.yaml"
+        if project_path:
+            # Validate generated project compose.yaml
+            compose_path = project_path / ".devcontainer" / "compose.yaml"
+        else:
+            # Just check template file exists (don't parse it due to cookiecutter syntax)
+            compose_path = (
+                Path.cwd() / "{{cookiecutter.repo_slug}}" / ".devcontainer" / "compose.yaml"
+            )
+            if compose_path.exists():
+                self.log_success("Found template compose.yaml file")
+                return
+            else:
+                self.log_error("Template compose.yaml not found")
+                return
 
         if not compose_path.exists():
-            self.log_error("compose.yaml not found")
+            self.log_error("compose.yaml not found in generated project")
             return
 
         try:
@@ -216,37 +229,38 @@ class DCSMValidator:
         """Test template generation with test configuration."""
         print("\\n🏗️  Testing template generation...")
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_path = Path(temp_dir)
+        # Create a temporary directory that we'll clean up manually
+        self.temp_dir = tempfile.mkdtemp()
+        temp_path = Path(self.temp_dir)
 
-            # Build cookiecutter command
-            cmd = [
-                "cookiecutter",
-                str(Path.cwd()),
-                "--output-dir",
-                str(temp_path),
-                "--no-input",
-            ]
+        # Build cookiecutter command
+        cmd = [
+            "cookiecutter",
+            str(Path.cwd()),
+            "--output-dir",
+            str(temp_path),
+            "--no-input",
+        ]
 
-            # Add test configuration
-            for key, value in self.test_config.items():
-                cmd.append(f"{key}={value}")
+        # Add test configuration
+        for key, value in self.test_config.items():
+            cmd.append(f"{key}={value}")
 
-            try:
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
-                if result.returncode == 0:
-                    self.log_success("Template generation completed successfully")
-                    project_path = temp_path / self.test_config["repo_slug"]
-                    return project_path
-                else:
-                    self.log_error(f"Template generation failed: {result.stderr}")
-                    return None
-            except subprocess.TimeoutExpired:
-                self.log_error("Template generation timed out")
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            if result.returncode == 0:
+                self.log_success("Template generation completed successfully")
+                project_path = temp_path / self.test_config["repo_slug"]
+                return project_path
+            else:
+                self.log_error(f"Template generation failed: {result.stderr}")
                 return None
-            except Exception as e:
-                self.log_error(f"Template generation error: {e}")
-                return None
+        except subprocess.TimeoutExpired:
+            self.log_error("Template generation timed out")
+            return None
+        except Exception as e:
+            self.log_error(f"Template generation error: {e}")
+            return None
 
     def test_docker_build(self, project_path: Path) -> bool:
         """Test Docker build functionality."""
@@ -412,7 +426,7 @@ class DCSMValidator:
         # Step 2: Dockerfile validation
         self.validate_dockerfile_structure()
 
-        # Step 3: Compose configuration validation
+        # Step 3: Template compose file existence check
         self.validate_compose_configuration()
 
         # Step 4: Template generation test
@@ -421,18 +435,34 @@ class DCSMValidator:
             self.log_error("Cannot continue - template generation failed")
             return False
 
-        # Step 5: Docker build test
+        # Step 5: Validate generated compose configuration
+        self.validate_compose_configuration(project_path)
+
+        # Step 6: Docker build test
         if not self.test_docker_build(project_path):
             self.log_warning("Docker build test failed - may affect DCSM integration")
 
-        # Step 6: Service startup test
+        # Step 7: Service startup test
         if not self.test_service_startup(project_path):
             self.log_warning("Service startup test failed - may affect end-to-end functionality")
 
         # Summary
         self.print_summary()
 
+        # Cleanup
+        self.cleanup()
+
         return len(self.errors) == 0
+
+    def cleanup(self) -> None:
+        """Clean up temporary files and directories."""
+        if hasattr(self, "temp_dir") and Path(self.temp_dir).exists():
+            import shutil
+
+            try:
+                shutil.rmtree(self.temp_dir)
+            except Exception:
+                pass  # Don't fail validation due to cleanup issues
 
     def print_summary(self) -> None:
         """Print validation summary."""

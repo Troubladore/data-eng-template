@@ -44,6 +44,7 @@ services:
       args:
         AIRFLOW_VERSION: ${AIRFLOW_VERSION:-2.9.3}
         PYTHON_VERSION: ${PYTHON_VERSION:-3.12}
+    image: {{cookiecutter.repo_slug}}-airflow-dev
     env_file: [./airflow.env]
     environment: *airflow-env
     user: "50000:0"
@@ -64,6 +65,7 @@ services:
       args:
         AIRFLOW_VERSION: ${AIRFLOW_VERSION:-2.9.3}
         PYTHON_VERSION: ${PYTHON_VERSION:-3.12}
+    image: {{cookiecutter.repo_slug}}-airflow-dev
     env_file: [./airflow.env]
     environment: *airflow-env
     user: "50000:0"
@@ -81,6 +83,7 @@ services:
       args:
         AIRFLOW_VERSION: ${AIRFLOW_VERSION:-2.9.3}
         PYTHON_VERSION: ${PYTHON_VERSION:-3.12}
+    image: {{cookiecutter.repo_slug}}-airflow-dev
     env_file: [./airflow.env]
     environment: *airflow-env
     user: "50000:0"
