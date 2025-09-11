@@ -1,0 +1,6 @@
+# Airflow plugins directory
+# 
+# Place custom Airflow plugins in this directory.
+# They will be automatically loaded by Airflow.
+#
+# See: https://airflow.apache.org/docs/apache-airflow/stable/plugins.html

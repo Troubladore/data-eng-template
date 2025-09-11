@@ -24,8 +24,9 @@ WORKDIR /opt/airflow
 
 # Copy dependency files first for better caching
 # Only these files changing will bust the dependency cache
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml ./
 COPY airflow/requirements.txt ./airflow/
+# Note: uv.lock will be generated during uv sync if not present
 
 # Install UV for faster dependency management (if not present)
 USER root

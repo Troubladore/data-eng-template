@@ -351,8 +351,16 @@ class DCSMValidator:
             self.log_error("Generated project missing compose.yaml")
             return False
 
-        # Start services
-        startup_cmd = ["docker", "compose", "-f", str(compose_file), "up", "-d"]
+        # Start services (build images first if they don't exist)
+        startup_cmd = [
+            "docker",
+            "compose",
+            "-f",
+            str(compose_file),
+            "up",
+            "-d",
+            "--build",
+        ]
 
         try:
             result = subprocess.run(
