@@ -28,12 +28,12 @@ COPY pyproject.toml ./
 COPY airflow/requirements.txt ./airflow/
 # Note: uv.lock will be generated during uv sync if not present
 
-# Install UV for faster dependency management (if not present)
-USER root
-RUN pip install --no-cache-dir uv
-
-# Switch back to airflow user and install dependencies
+# Install UV using official installer (works in any environment)
 USER airflow
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Add UV to PATH (installed to ~/.local/bin by the installer)
+ENV PATH="/home/airflow/.local/bin:$PATH"
 
 # Install Python dependencies using UV for speed
 # This layer will be cached unless dependencies change
