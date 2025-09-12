@@ -11,6 +11,7 @@ Key test scenarios:
 - Integration with existing DevContainer workflows
 """
 
+import logging
 import subprocess
 import tempfile
 import time
@@ -20,6 +21,10 @@ from typing import Any
 import pytest
 import requests
 import yaml
+
+# Configure comprehensive test logging for forensic analysis
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class TestDCSMCustomBuildIntegration:
