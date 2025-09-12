@@ -394,19 +394,42 @@ class DCSMValidator:
                 if ps_result.returncode == 0:
                     import json
 
-                    services_info = [
-                        json.loads(line)
-                        for line in ps_result.stdout.strip().split("\\n")
-                        if line.strip()
-                    ]
+                    try:
+                        # Parse each line as a separate JSON object
+                        services_info = []
+                        for line in ps_result.stdout.strip().split("\\n"):
+                            if line.strip():
+                                try:
+                                    services_info.append(json.loads(line.strip()))
+                                except json.JSONDecodeError:
+                                    # Skip invalid JSON lines
+                                    continue
 
-                    running_services = [s for s in services_info if s.get("State") == "running"]
-                    if len(running_services) >= 3:  # postgres, scheduler, webserver minimum
-                        self.log_success(f"Found {len(running_services)} running services")
-                    else:
-                        self.log_warning(
-                            f"Only {len(running_services)} services running, expected at least 3"
+                        running_services = [s for s in services_info if s.get("State") == "running"]
+                        if len(running_services) >= 3:  # postgres, scheduler, webserver minimum
+                            self.log_success(f"Found {len(running_services)} running services")
+                        else:
+                            self.log_warning(
+                                f"Only {len(running_services)} services running, expected at least 3"
+                            )
+                    except Exception as json_error:
+                        # Fall back to simple container count check
+                        self.log_warning(f"JSON parsing failed ({json_error}), using simple container check")
+                        # Count running containers with basic docker compose ps
+                        simple_ps_cmd = [
+                            "docker", "compose", "-f", str(compose_file), "ps", "--services", "--filter", "status=running"
+                        ]
+                        simple_result = subprocess.run(
+                            simple_ps_cmd, capture_output=True, text=True, cwd=compose_file.parent
                         )
+                        if simple_result.returncode == 0:
+                            running_count = len([s for s in simple_result.stdout.strip().split("\\n") if s.strip()])
+                            if running_count >= 3:
+                                self.log_success(f"Found {running_count} running services (simple check)")
+                            else:
+                                self.log_warning(f"Only {running_count} services running (simple check)")
+                        else:
+                            self.log_warning("Could not determine service status")
 
                 return True
             else:
