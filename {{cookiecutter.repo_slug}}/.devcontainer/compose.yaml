@@ -8,6 +8,8 @@ x-airflow-env: &airflow-env
   # Authentication credentials for Airflow admin user
   _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-admin}
   _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-admin}
+  # Prevent Flask-AppBuilder from auto-creating roles/permissions (reduces DB conflicts)
+  AIRFLOW__WEBSERVER__UPDATE_FAB_PERMS: "False"
 
 # Common volume configurations for caching optimization
 x-airflow-volumes: &airflow-volumes
@@ -50,7 +52,7 @@ services:
     volumes: *airflow-volumes
     command: [
       "bash", "-c",
-      "airflow db upgrade && airflow users create --username $$_AIRFLOW_WWW_USER_USERNAME --password $$_AIRFLOW_WWW_USER_PASSWORD --firstname Admin --lastname User --role Admin --email admin@example.com 2>/dev/null || echo 'Admin user already exists'"
+      "airflow db upgrade && airflow users create --username $$_AIRFLOW_WWW_USER_USERNAME --password $$_AIRFLOW_WWW_USER_PASSWORD --firstname Admin --lastname User --role Admin --email admin@example.com 2>/dev/null || echo 'Admin user already exists'; airflow sync-perm"
     ]
     restart: "no"
     depends_on:
@@ -87,7 +89,7 @@ services:
     env_file: [./airflow.env]
     environment: *airflow-env
     user: "50000:0"
-    command: ["airflow", "webserver"]
+    command: ["airflow", "webserver", "--workers", "1"]
     ports:
       - "8080:8080"
     volumes: *airflow-volumes
