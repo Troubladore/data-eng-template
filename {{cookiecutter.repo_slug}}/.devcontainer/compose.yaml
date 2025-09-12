@@ -5,7 +5,6 @@ x-airflow-env: &airflow-env
   AIRFLOW__CORE__LOAD_EXAMPLES: ${AIRFLOW__CORE__LOAD_EXAMPLES:-False}
   # Fernet key sourced from Hydra configuration
   AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY}
-  _PIP_ADDITIONAL_REQUIREMENTS: "apache-airflow-providers-postgres psycopg2-binary"
   # Authentication credentials for Airflow admin user
   _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-admin}
   _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-admin}
@@ -51,8 +50,9 @@ services:
     volumes: *airflow-volumes
     command: [
       "bash", "-c",
-      "airflow db upgrade && airflow users create --username $$_AIRFLOW_WWW_USER_USERNAME --password $$_AIRFLOW_WWW_USER_PASSWORD --firstname Admin --lastname User --role Admin --email admin@example.com || true"
+      "airflow db upgrade && airflow users create --username $$_AIRFLOW_WWW_USER_USERNAME --password $$_AIRFLOW_WWW_USER_PASSWORD --firstname Admin --lastname User --role Admin --email admin@example.com 2>/dev/null || echo 'Admin user already exists'"
     ]
+    restart: "no"
     depends_on:
       postgres:
         condition: service_healthy
