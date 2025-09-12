@@ -408,10 +408,12 @@ class DCSMValidator:
                         running_services = [s for s in services_info if s.get("State") == "running"]
                         if len(running_services) >= 3:  # postgres, scheduler, webserver minimum
                             self.log_success(f"Found {len(running_services)} running services")
+                            return True
                         else:
-                            self.log_warning(
+                            self.log_error(
                                 f"Only {len(running_services)} services running, expected at least 3"
                             )
+                            return False
                     except Exception as json_error:
                         # Fall back to simple container count check
                         self.log_warning(f"JSON parsing failed ({json_error}), using simple container check")
@@ -426,12 +428,13 @@ class DCSMValidator:
                             running_count = len([s for s in simple_result.stdout.strip().split("\\n") if s.strip()])
                             if running_count >= 3:
                                 self.log_success(f"Found {running_count} running services (simple check)")
+                                return True
                             else:
-                                self.log_warning(f"Only {running_count} services running (simple check)")
+                                self.log_error(f"Only {running_count} services running (simple check), expected at least 3")
+                                return False
                         else:
-                            self.log_warning("Could not determine service status")
-
-                return True
+                            self.log_error("Could not determine service status")
+                            return False
             else:
                 self.log_error(f"Service startup failed: {result.stderr}")
                 return False
@@ -475,7 +478,7 @@ class DCSMValidator:
 
         # Step 7: Service startup test
         if not self.test_service_startup(project_path):
-            self.log_warning("Service startup test failed - may affect end-to-end functionality")
+            self.log_error("Service startup test failed - services are not running properly")
 
         # Summary
         self.print_summary()
