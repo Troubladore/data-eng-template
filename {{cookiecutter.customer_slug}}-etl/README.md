@@ -7,8 +7,21 @@ An **Astronomer-based** data engineering project with Kubernetes Executor, multi
 
 ## 🚀 Quick Start
 
-Follow the Astronomer development workflow:
+### Option 1: VS Code DevContainer (Recommended)
+```bash
+# Open in VS Code - fully automated setup!
+code .
+# Click "Reopen in Container" when prompted
+# ✅ Services start automatically, ports forwarded, everything ready!
+```
 
+**Why this is best**:
+- **Zero setup**: One click gets you a complete development environment
+- **Automatic services**: Airflow + PostgreSQL start automatically
+- **Port forwarding**: Access Airflow UI at http://localhost:8081
+- **All tooling**: Python, extensions, linting pre-configured
+
+### Option 2: Astronomer CLI (Production-like)
 ```bash
 # Copy environment configuration
 cp .env.example .env
@@ -20,11 +33,18 @@ make init
 ./tools/where.sh
 ```
 
-**Access Points**:
-- **Airflow UI**: Accessible via hostname-based routing (see `./tools/where.sh`)
-- **Database**: PostgreSQL with environment-specific configuration
+### Option 3: Manual Docker Compose
+```bash
+uv sync && ./scripts/export_env.sh > .env
+cd .devcontainer && docker compose up -d
+```
 
-**Key Features**:
+**Access Points**:
+- **Airflow UI**: http://localhost:8081 (admin/admin) via DevContainer or compose
+- **Database**: localhost:5432 (postgres/postgres)
+- **Service Discovery**: `./tools/where.sh` for Astronomer workflow
+
+**Enterprise Features**:
 - **{{cookiecutter.executor}}**: Production-ready executor
 - **{{cookiecutter.secrets_strategy}}**: Enterprise secret management
 - **Multi-Environment**: Consistent dev/staging/prod deployment

@@ -1,6 +1,15 @@
 # DevContainer Configuration
 
-This project uses **Docker Compose** for development environment orchestration with Astronomer-compatible services.
+This is the **recommended development environment** for {{cookiecutter.project_name}}. The DevContainer provides a fully automated, zero-configuration setup that works consistently across all team members.
+
+## ⚡ **Why DevContainer is Recommended**
+
+- **One-Click Setup**: `code .` → "Reopen in Container" → Development ready!
+- **Zero Configuration**: All services, ports, tooling, extensions configured automatically  
+- **Consistent Experience**: Same environment for all developers, no "works on my machine"
+- **Integrated Debugging**: Native VS Code debugging with breakpoints in DAGs and transforms
+- **Port Forwarding**: Direct access to services without complex networking
+- **Minimal Dependencies**: Only requires VS Code + Docker (no Astro CLI, no manual setup)
 
 ## Architecture
 

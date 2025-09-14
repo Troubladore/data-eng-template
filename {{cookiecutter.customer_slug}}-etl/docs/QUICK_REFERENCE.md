@@ -2,7 +2,15 @@
 
 ## 🚀 **Get Started Fast**
 
-### Astronomer Workflow (Recommended)
+### VS Code DevContainer (Recommended)
+```bash
+# One-click development environment
+code .
+# Click "Reopen in Container" → Automatic setup!
+```
+**Benefits**: Zero configuration, automatic service startup, port forwarding, all tooling ready
+
+### Astronomer CLI (Production-like)
 ```bash
 # Copy environment configuration
 cp .env.example .env
@@ -14,17 +22,17 @@ make init
 ./tools/where.sh
 ```
 
-### Alternative: DevContainer
+### Manual Docker Compose
 ```bash
-# Open in VS Code DevContainer
-code .
-# Click "Reopen in Container" when prompted
+# Manual setup
+uv sync && cd .devcontainer && docker compose up -d
 ```
 
 ## 🌐 **Service Access Points**
 
-- **Airflow UI**: Hostname-based routing (see `./tools/where.sh`)
-- **PostgreSQL**: Environment-specific configuration
+- **Airflow UI**: http://localhost:8081 (admin/admin) - DevContainer/Compose
+- **Airflow UI**: Hostname routing (see `./tools/where.sh`) - Astronomer CLI  
+- **PostgreSQL**: localhost:5432 - DevContainer/Compose
 
 ## 📁 **Key Directories**
 

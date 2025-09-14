@@ -2,17 +2,30 @@
 
 **Generated from data-eng-template**: This is an **Astronomer-based** data engineering project with **Kubernetes Executor**, **multi-environment configuration**, **secrets management**, and **enterprise-grade** development workflow.
 
-## Astronomer Development Workflow
+## Development Environment Options
 
-This project uses **Astronomer** for professional Airflow development with enterprise patterns:
+This project provides **three development approaches** optimized for different scenarios:
 
-- **Astro CLI**: Local development with `astro dev` commands
-- **{{cookiecutter.executor}}**: Production-ready executor configuration
-- **Multi-Environment**: Dev/staging/prod with consistent deployment patterns
-- **Secrets Management**: {{cookiecutter.secrets_strategy}} integration
-- **Kerberos Support**: {% if cookiecutter.enable_kerberos == "yes" %}Enabled{% else %}Disabled{% endif %}
+### 🎯 **VS Code DevContainer (Primary Recommendation)**
 
-### Development Commands
+**Best for**: Day-to-day development, team onboarding, debugging
+
+```bash
+# One command setup
+code .
+# Click "Reopen in Container" → Everything starts automatically!
+```
+
+**Benefits**:
+- **Zero configuration**: All services, ports, and tooling configured automatically
+- **Consistent environments**: Same setup across all team members
+- **Integrated debugging**: Full VS Code integration with breakpoints, intellisense
+- **Port forwarding**: Direct access to Airflow UI at http://localhost:8081
+- **No dependencies**: Only requires VS Code + Docker (no Astro CLI needed)
+
+### 🚀 **Astronomer CLI (Production-like)**
+
+**Best for**: Production deployment testing, advanced Airflow features
 
 ```bash
 # Initialize and start local environment
@@ -24,13 +37,33 @@ astro dev start
 
 # Stop services
 astro dev stop
-
-# Export requirements
-make export
 ```
 
+**Benefits**:
+- **Production parity**: Closest to actual Astronomer deployment
+- **Advanced features**: Full Astro CLI feature set
+- **Deployment testing**: Test deployment configurations locally
+
+### 🔧 **Manual Docker Compose (Fallback)**
+
+**Best for**: CI/CD, custom setups, troubleshooting
+
+```bash
+uv sync && ./scripts/export_env.sh > .env
+cd .devcontainer && docker compose up -d
+```
+
+## Enterprise Architecture
+
+This project uses **Astronomer patterns** for professional data engineering:
+
+- **{{cookiecutter.executor}}**: Production-ready executor configuration
+- **Multi-Environment**: Dev/staging/prod with consistent deployment patterns
+- **Secrets Management**: {{cookiecutter.secrets_strategy}} integration
+- **Kerberos Support**: {% if cookiecutter.enable_kerberos == "yes" %}Enabled{% else %}Disabled{% endif %}
+
 **Key Services:**
-- **Airflow UI**: Accessible via hostname-based routing (see `./tools/where.sh`)
+- **Airflow UI**: http://localhost:8081 (DevContainer) or hostname routing (Astro CLI)
 - **Database**: PostgreSQL with environment-specific configuration
 - **Container Registry**: {{cookiecutter.image_repo}}
 

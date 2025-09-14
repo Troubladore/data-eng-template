@@ -5,6 +5,12 @@
 set -euo pipefail
 
 echo "🚀 Setting up Astronomer development environment..."
+echo
+echo "💡 TIP: For the best developer experience, use VS Code DevContainer instead:"
+echo "   code . → Click 'Reopen in Container' → Everything starts automatically!"
+echo
+echo "   This script is for manual setup when DevContainer isn't available."
+echo
 
 # Function to check if command exists
 command_exists() {
