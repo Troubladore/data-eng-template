@@ -1,13 +1,38 @@
 {
-  "project_name": "Awesome Data Project",
-  "repo_slug": "awesome-data-project",
+  "customer_slug": "customer-a",
+  "project_slug": "{{ cookiecutter.customer_slug }}-etl",
+  "project_name": "{{ cookiecutter.customer_slug | title }} ETL Project",
   "author_name": "Data Engineering Team",
-  "description": "Modern data engineering project with Airflow, dbt, and Hydra configuration",
+  "description": "Modern data engineering project with Astronomer, Airflow, dbt, and Hydra configuration",
   "python_version": "3.12",
-  "airflow_version": "3.0.6",
+  "airflow_version": "2.8.0",
+  "runtime_tag": "8.10.0",
+  "image_repo": "registry.example.com/etl/{{ cookiecutter.customer_slug }}",
   "postgres_version": "16",
-  "airflow_executor": ["LocalExecutor", "SequentialExecutor"],
-  "db_name": "{{ cookiecutter.repo_slug.replace('-', '_') }}",
+  "env_name": [
+    "dev",
+    "int", 
+    "qa",
+    "prod"
+  ],
+  "company_domain": "myco.com",
+  "local_domain": "localhost",
+  "high_label": "high",
+  "executor": [
+    "KubernetesExecutor",
+    "CeleryExecutor",
+    "LocalExecutor"
+  ],
+  "secrets_strategy": [
+    "azure-key-vault",
+    "external-secrets-operator",
+    "env-vars"
+  ],
+  "enable_kerberos": [
+    "yes",
+    "no"
+  ],
+  "db_name": "{{ cookiecutter.customer_slug.replace('-', '_') }}_etl",
   "db_user": "postgres",
   "db_password": "postgres",
   "license": ["Proprietary", "MIT", "Apache-2.0"],

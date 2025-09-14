@@ -1,0 +1,36 @@
+trigger:
+- main
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildImage
+    pool: { vmImage: 'ubuntu-latest' }
+    steps:
+    - script: |
+        pipx install uv || pip install uv
+        bash tools/uv/export.sh
+      displayName: Export deps (uv)
+    - script: |
+        docker build           -t $(IMAGE_REPO):$(Build.SourceVersion)           .
+      displayName: Docker build
+    - script: |
+        docker push $(IMAGE_REPO):$(Build.SourceVersion)
+      displayName: Push image
+
+- stage: Deploy
+  dependsOn: Build
+  jobs:
+  - job: AstroDeploy
+    pool: { vmImage: 'ubuntu-latest' }
+    steps:
+    - script: |
+        curl -sSL https://install.astronomer.io | bash
+        export PATH=$HOME/.astro/bin:$PATH
+        astro version
+      displayName: Install Astro CLI
+    - script: |
+        astro deploy --deployment $(ASTRO_DEPLOYMENT_ID) --image $(IMAGE_REPO):$(Build.SourceVersion) --force
+      displayName: Deploy to Astronomer Software
+      env:
+        ASTRO_API_TOKEN: $(ASTRO_API_TOKEN)

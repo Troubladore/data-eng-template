@@ -1,8 +1,32 @@
-import base64, os, pathlib, json, subprocess
+import base64, os, pathlib, json, subprocess, shutil
 import yaml
+
+HERE = os.path.abspath(os.curdir)
+
+def run(cmd, **kw):
+    print("+", " ".join(cmd))
+    subprocess.check_call(cmd, **kw)
 
 # Generate Fernet key and dynamic configuration
 fernet_key = base64.urlsafe_b64encode(os.urandom(32)).decode()
+
+# 1) Initialize an Astro project if not present
+if not os.path.exists(os.path.join(HERE, "dags")):
+    if shutil.which("astro"):
+        run(["astro", "dev", "init"])
+        print("Initialized Astro project structure.")
+    else:
+        print("WARNING: Astro CLI not found; assuming project skeleton exists.")
+
+# 2) Export pinned requirements via uv if available
+if shutil.which("uv"):
+    try:
+        run(["uv", "export", "--frozen", "--no-hashes", "-o", "requirements.txt"])
+        print("Exported requirements.txt via uv.")
+    except subprocess.CalledProcessError:
+        print("WARNING: uv export failed. Run tools/uv/export.sh before building.")
+else:
+    print("WARNING: uv not found. Run tools/uv/export.sh before building.")
 
 # Create local Hydra configuration override with generated values
 local_config_dir = pathlib.Path("conf/local")
@@ -52,7 +76,7 @@ import sys
 sys.path.insert(0, 'src')
 
 try:
-    from {{cookiecutter.repo_slug.replace('-', '_')}}.config import get_settings
+    from {{cookiecutter.project_slug.replace('-', '_')}}.config import get_settings
     
     # Load configuration
     settings = get_settings()
@@ -206,3 +230,8 @@ try:
     
 except (subprocess.CalledProcessError, FileNotFoundError) as e:
     print(f"Warning: git initialization failed: {e}")
+
+print("\nTemplate ready. Next:")
+print("  cp .env.example .env")  
+print("  make init")
+print("  ./tools/where.sh")
