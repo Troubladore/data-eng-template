@@ -29,7 +29,7 @@ class TestTemplateGeneration:
         assert result.returncode == 0, f"Template generation failed: {result.stderr}"
         
         # Check that project was created
-        project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
+        project_dir = temp_dir / default_cookiecutter_config["project_slug"]
         assert project_dir.exists(), "Generated project directory should exist"
         assert project_dir.is_dir(), "Generated project should be a directory"
     
@@ -54,7 +54,7 @@ class TestTemplateGeneration:
         
         assert result.returncode == 0, f"Generation failed for config {all_cookiecutter_configs}: {result.stderr}"
         
-        project_dir = output_dir / all_cookiecutter_configs["repo_slug"]
+        project_dir = output_dir / all_cookiecutter_configs["project_slug"]
         assert project_dir.exists(), f"Project not created for config: {all_cookiecutter_configs}"
     
     def test_generated_project_structure(self, template_dir: Path, temp_dir: Path, default_cookiecutter_config: Dict[str, Any], expected_project_structure: list):
@@ -74,7 +74,7 @@ class TestTemplateGeneration:
         
         assert result.returncode == 0
         
-        project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
+        project_dir = temp_dir / default_cookiecutter_config["project_slug"]
         
         # Check all expected items exist
         for expected_item in expected_project_structure:
@@ -98,7 +98,7 @@ class TestTemplateGeneration:
         
         assert result.returncode == 0
         
-        project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
+        project_dir = temp_dir / default_cookiecutter_config["project_slug"]
         
         # Check all guidance files exist
         for guidance_file in expected_guidance_files:
@@ -133,7 +133,7 @@ class TestHookExecution:
         assert result.returncode == 0, f"Template generation with hook failed: {result.stderr}"
         
         # Check that hook created expected artifacts
-        project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
+        project_dir = temp_dir / default_cookiecutter_config["project_slug"]
         
         # Hook should create .devcontainer/.env file
         env_file = project_dir / ".devcontainer" / ".env"
@@ -171,7 +171,7 @@ class TestHookExecution:
         
         assert result.returncode == 0, f"Template generation failed: {result.stderr}"
         
-        project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
+        project_dir = temp_dir / default_cookiecutter_config["project_slug"]
         
         # Check .devcontainer/.env file
         env_file = project_dir / ".devcontainer" / ".env"
@@ -208,7 +208,7 @@ class TestHookExecution:
         
         assert result.returncode == 0
         
-        project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
+        project_dir = temp_dir / default_cookiecutter_config["project_slug"]
         
         # Should have .git directory
         git_dir = project_dir / ".git"
@@ -229,12 +229,12 @@ class TestErrorHandling:
     
     def test_invalid_config_fails_gracefully(self, template_dir: Path, temp_dir: Path):
         """Test that invalid configuration fails with helpful error."""
-        # Test with invalid repo_slug that would cause filesystem issues
+        # Test with invalid project_slug that would cause filesystem issues
         result = subprocess.run([
             'cookiecutter', str(template_dir),
             '--output-dir', str(temp_dir),
             '--no-input',
-            'repo_slug=../invalid-path',  # Invalid path
+            'project_slug=../invalid-path',  # Invalid path
             'project_name=Test Project'
         ], capture_output=True, text=True)
         
@@ -292,7 +292,7 @@ class TestGeneratedProjectValidation:
         
         assert result.returncode == 0
         
-        project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
+        project_dir = temp_dir / default_cookiecutter_config["project_slug"]
         
         # Check main CLAUDE.md has substituted values
         main_claude_md = project_dir / "CLAUDE.md"
@@ -319,7 +319,7 @@ class TestGeneratedProjectValidation:
         
         assert result.returncode == 0
         
-        project_dir = temp_dir / default_cookiecutter_config["repo_slug"]
+        project_dir = temp_dir / default_cookiecutter_config["project_slug"]
         
         # Check all text files for template artifacts
         text_files = list(project_dir.rglob("*.md")) + list(project_dir.rglob("*.py")) + list(project_dir.rglob("*.yml"))
@@ -331,4 +331,4 @@ class TestGeneratedProjectValidation:
             assert "{{cookiecutter." not in content, f"File {file_path.name} contains unresolved template variables"
             
             # Should not contain template directory references
-            assert "{{cookiecutter.repo_slug}}" not in content, f"File {file_path.name} contains template directory references"
+            assert "{{cookiecutter.project_slug}}" not in content, f"File {file_path.name} contains template directory references"

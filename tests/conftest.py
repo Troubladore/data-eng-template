@@ -1,6 +1,7 @@
 """Test configuration and fixtures for template testing."""
 
 import json
+import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -17,26 +18,40 @@ def temp_dir() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def template_dir() -> Path:
-    """Path to the cookiecutter template directory."""
-    return Path(__file__).parent.parent
+def template_dir() -> str:
+    """Path to the cookiecutter template directory or remote URL."""
+    if os.getenv('PYTEST_REMOTE_BRANCH'):
+        branch = os.getenv('PYTEST_REMOTE_BRANCH', 'main')
+        return f"https://github.com/Troubladore/data-eng-template.git@{branch}"
+    return str(Path(__file__).parent.parent)
 
 
 @pytest.fixture
 def default_cookiecutter_config() -> Dict[str, Any]:
     """Default cookiecutter configuration for testing."""
     return {
-        "project_name": "Test Data Project",
-        "repo_slug": "test-data-project",
+        "customer_slug": "test-customer",
+        "project_slug": "test-customer-etl",
+        "project_name": "Test Customer ETL Project",
         "author_name": "Test Author",
+        "description": "Test data engineering project",
         "python_version": "3.12",
-        "airflow_version": "3.0.6",
+        "airflow_version": "2.8.0",
+        "runtime_tag": "8.10.0",
+        "image_repo": "registry.example.com/etl/test-customer",
         "postgres_version": "16",
-        "airflow_executor": "LocalExecutor",
-        "db_name": "test_data_project",
+        "env_name": "dev",
+        "company_domain": "test.com",
+        "local_domain": "localhost",
+        "high_label": "high",
+        "executor": "LocalExecutor",
+        "secrets_strategy": "env-vars",
+        "enable_kerberos": "no",
+        "db_name": "test_customer_etl",
         "db_user": "postgres",
         "db_password": "postgres",
-        "license": "MIT"
+        "license": "MIT",
+        "year": "2025"
     }
 
 
