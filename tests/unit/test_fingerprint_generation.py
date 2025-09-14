@@ -11,23 +11,18 @@ from pathlib import Path
 
 import pytest
 
-from tests.helpers.fast_testing import CookiecutterTemplateValidator
-
 
 class TestFingerprintGeneration:
     """Test the fingerprinting script functionality."""
 
     def test_fingerprint_script_exists_in_template(self):
         """Test that the fingerprint script exists in the template structure."""
-        validator = CookiecutterTemplateValidator()
-        template_files = validator.get_template_files()
-
-        fingerprint_script = "{{cookiecutter.customer_slug}}-etl/scripts/generate_build_fingerprint.py"
-        assert fingerprint_script in template_files, "Fingerprint script should exist in template"
+        # Direct file existence check instead of using non-existent validator
+        fingerprint_script_path = Path(__file__).parent.parent.parent / "{{cookiecutter.customer_slug}}-etl" / "scripts" / "generate_build_fingerprint.py"
+        assert fingerprint_script_path.exists(), f"Fingerprint script should exist at {fingerprint_script_path}"
 
     def test_fingerprint_script_syntax(self):
         """Test that the fingerprint script has valid Python syntax."""
-        validator = CookiecutterTemplateValidator()
         script_path = Path(__file__).parent.parent.parent / "{{cookiecutter.customer_slug}}-etl" / "scripts" / "generate_build_fingerprint.py"
 
         # Basic syntax validation

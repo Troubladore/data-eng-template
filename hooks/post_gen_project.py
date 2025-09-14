@@ -254,8 +254,9 @@ try:
             compose_content = compose_file.read_text()
 
             # Get the actual project slug from context
-            project_slug = os.environ.get('COOKIECUTTER_PROJECT_SLUG', '{{ cookiecutter.project_slug }}')
-            if project_slug.startswith('{{'):
+            # Use a fallback approach since direct cookiecutter variable can cause Jinja2 issues
+            project_slug = os.environ.get('COOKIECUTTER_PROJECT_SLUG')
+            if not project_slug or (project_slug and project_slug.startswith('{{')):
                 # If template variable wasn't replaced, try to extract from current directory
                 current_dir = os.path.basename(os.getcwd())
                 project_slug = current_dir.replace('-etl', '') if current_dir.endswith('-etl') else current_dir

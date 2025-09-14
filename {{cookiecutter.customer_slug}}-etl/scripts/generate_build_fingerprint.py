@@ -30,8 +30,15 @@ def _normalize_dockerfile(content: str) -> str:
     # Remove customer-specific project references but keep structural content
     # This preserves actual build instructions while normalizing project names
     content = re.sub(r'customer-[a-zA-Z0-9-]+', 'NORMALIZED_CUSTOMER', content)
-    content = re.sub(r'{{cookiecutter\.customer_slug}}', 'NORMALIZED_CUSTOMER', content)
-    content = re.sub(r'{{cookiecutter\.project_slug}}', 'NORMALIZED_PROJECT', content)
+
+    # Remove cookiecutter template variables if they appear in generated files
+    # Build the patterns dynamically to avoid Jinja2 parsing issues
+    left_brace = '{'
+    right_brace = '}'
+    cookiecutter_customer_pattern = left_brace * 2 + r'cookiecutter\.customer_slug' + right_brace * 2
+    cookiecutter_project_pattern = left_brace * 2 + r'cookiecutter\.project_slug' + right_brace * 2
+    content = re.sub(cookiecutter_customer_pattern, 'NORMALIZED_CUSTOMER', content)
+    content = re.sub(cookiecutter_project_pattern, 'NORMALIZED_PROJECT', content)
 
     return content
 
