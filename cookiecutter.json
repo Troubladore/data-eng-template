@@ -5,8 +5,8 @@
   "author_name": "Data Engineering Team",
   "description": "Modern data engineering project with Astronomer, Airflow, dbt, and Hydra configuration",
   "python_version": "3.12",
-  "airflow_version": "2.8.0",
-  "runtime_tag": "8.10.0",
+  "airflow_version": "3.0.6",
+  "runtime_tag": "3.0-10",
   "image_repo": "registry.example.com/etl/{{ cookiecutter.customer_slug }}",
   "postgres_version": "16",
   "env_name": [

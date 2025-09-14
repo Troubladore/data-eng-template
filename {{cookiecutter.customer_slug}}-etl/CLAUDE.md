@@ -6,7 +6,7 @@
 
 This project provides **three development approaches** optimized for different scenarios:
 
-### 🎯 **VS Code DevContainer (Primary Recommendation)**
+### 🎯 **VS Code DevContainer (Recommended)**
 
 **Best for**: Day-to-day development, team onboarding, debugging
 

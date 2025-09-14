@@ -144,7 +144,7 @@ class TestHookExecution:
         expected_env_vars = [
             "AIRFLOW__CORE__FERNET_KEY",
             "AIRFLOW__CORE__LOAD_EXAMPLES=False",
-            "POSTGRES_DB=test_data_project",
+            f"POSTGRES_DB={default_cookiecutter_config['db_name']}",
             "POSTGRES_USER=postgres",
             "POSTGRES_PASSWORD=postgres",
             "_AIRFLOW_WWW_USER_USERNAME=admin",

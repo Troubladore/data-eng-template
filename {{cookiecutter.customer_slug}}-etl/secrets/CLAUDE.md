@@ -50,6 +50,22 @@ spec:
       key: airflow/fernet-key
 ```
 
+### Environment Variables (env-vars)
+
+**Best for**: Development, simple deployments, or environments without enterprise secret management
+
+```bash
+# Environment variable configuration
+export AIRFLOW_CONN_POSTGRES_DEFAULT="postgresql://user:password@localhost:5432/airflow"
+export AIRFLOW_VAR_S3_BUCKET="my-data-bucket"
+export AIRFLOW_VAR_API_KEY="your-api-key-here"
+
+# In .env file for DevContainer
+AIRFLOW_CONN_POSTGRES_DEFAULT=postgresql://user:password@localhost:5432/airflow
+AIRFLOW_VAR_S3_BUCKET=my-data-bucket
+AIRFLOW_VAR_API_KEY=your-api-key-here
+```
+
 ## Environment-Specific Patterns
 
 ### Development

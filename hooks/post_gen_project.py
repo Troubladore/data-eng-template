@@ -1,4 +1,4 @@
-import base64, os, pathlib, json, subprocess, shutil
+import base64, os, pathlib, json, subprocess, shutil, re
 import yaml
 
 HERE = os.path.abspath(os.curdir)
@@ -230,6 +230,59 @@ try:
     
 except (subprocess.CalledProcessError, FileNotFoundError) as e:
     print(f"Warning: git initialization failed: {e}")
+
+# Generate build fingerprint for shared Docker image caching
+print("Generating build fingerprint for optimized Docker caching...")
+try:
+    # Generate fingerprint using the script we created
+    result = subprocess.run([
+        "python", "scripts/generate_build_fingerprint.py"
+    ], capture_output=True, text=True, check=True)
+    
+    fingerprint_output = result.stdout.strip()
+    print(fingerprint_output)
+    
+    # Extract image name from script output
+    import re
+    image_match = re.search(r'Shared Image Name: (.+)', fingerprint_output)
+    if image_match:
+        shared_image_name = image_match.group(1)
+        
+        # Update Docker Compose file to use shared image name
+        compose_file = pathlib.Path(".devcontainer/compose.yaml")
+        if compose_file.exists():
+            compose_content = compose_file.read_text()
+
+            # Get the actual project slug from context
+            project_slug = os.environ.get('COOKIECUTTER_PROJECT_SLUG', '{{ cookiecutter.project_slug }}')
+            if project_slug.startswith('{{'):
+                # If template variable wasn't replaced, try to extract from current directory
+                current_dir = os.path.basename(os.getcwd())
+                project_slug = current_dir.replace('-etl', '') if current_dir.endswith('-etl') else current_dir
+
+            old_image_pattern = f"{project_slug}-airflow-dev"
+
+            # Use regex to replace build context and image references
+            compose_content = re.sub(
+                rf'image:\s+{re.escape(old_image_pattern)}.*',
+                f'image: {shared_image_name}',
+                compose_content
+            )
+
+            # Also update any build context references to use pre-built image
+            compose_content = re.sub(
+                r'build:\s*\n\s*context:.*?\n\s*dockerfile:.*?\n',
+                f'image: {shared_image_name}\n',
+                compose_content,
+                flags=re.MULTILINE | re.DOTALL
+            )
+
+            compose_file.write_text(compose_content)
+            print(f"Updated Docker Compose to use shared image: {shared_image_name}")
+        
+except subprocess.CalledProcessError as e:
+    print(f"Warning: Build fingerprinting failed: {e}")
+    print("Continuing with project-specific image names...")
 
 print("\nTemplate ready. Next:")
 print("  cp .env.example .env")  
