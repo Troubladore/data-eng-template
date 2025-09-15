@@ -1,5 +1,5 @@
 # Modern Docker Compose setup using custom Airflow image
-name: {{cookiecutter.project_slug}}-modern
+name: {{cookiecutter.project_slug}}-modern{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
 
 x-airflow-env: &airflow-env
   AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -19,6 +19,11 @@ x-airflow-volumes: &airflow-volumes
 services:
   postgres:
     image: postgres:{{cookiecutter.postgres_version}}
+    container_name: {{cookiecutter.project_slug}}-postgres{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    labels:
+      - "de-template.project={{cookiecutter.project_slug}}"
+      - "de-template.deployment={{cookiecutter.deployment_mode}}"
+      - "de-template.service=postgres"
     environment:
       POSTGRES_DB: "{{cookiecutter.db_name}}"
       POSTGRES_USER: "admin"
@@ -38,7 +43,12 @@ services:
       context: ..
       dockerfile: Dockerfile.airflow
       target: development
-    image: {{cookiecutter.project_slug}}-airflow-dev
+    image: {{cookiecutter.project_slug}}-airflow-dev{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    container_name: {{cookiecutter.project_slug}}-airflow-init{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    labels:
+      - "de-template.project={{cookiecutter.project_slug}}"
+      - "de-template.deployment={{cookiecutter.deployment_mode}}"
+      - "de-template.service=airflow-init"
     environment: *airflow-env
     user: "50000:0"
     volumes: *airflow-volumes
@@ -55,7 +65,12 @@ services:
       context: ..
       dockerfile: Dockerfile.airflow
       target: development
-    image: {{cookiecutter.project_slug}}-airflow-dev
+    image: {{cookiecutter.project_slug}}-airflow-dev{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    container_name: {{cookiecutter.project_slug}}-airflow-scheduler{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    labels:
+      - "de-template.project={{cookiecutter.project_slug}}"
+      - "de-template.deployment={{cookiecutter.deployment_mode}}"
+      - "de-template.service=airflow-scheduler"
     environment: *airflow-env
     user: "50000:0"
     command: ["airflow", "scheduler"]
@@ -69,7 +84,12 @@ services:
       context: ..
       dockerfile: Dockerfile.airflow
       target: development
-    image: {{cookiecutter.project_slug}}-airflow-dev
+    image: {{cookiecutter.project_slug}}-airflow-dev{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    container_name: {{cookiecutter.project_slug}}-airflow-webserver{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    labels:
+      - "de-template.project={{cookiecutter.project_slug}}"
+      - "de-template.deployment={{cookiecutter.deployment_mode}}"
+      - "de-template.service=airflow-webserver"
     environment: *airflow-env
     user: "50000:0"
     command: ["airflow", "api-server", "--port", "8080"]
@@ -85,7 +105,12 @@ services:
       context: ..
       dockerfile: Dockerfile.airflow
       target: development
-    image: {{cookiecutter.project_slug}}-airflow-dev
+    image: {{cookiecutter.project_slug}}-airflow-dev{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    container_name: {{cookiecutter.project_slug}}-airflow-dag-processor{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    labels:
+      - "de-template.project={{cookiecutter.project_slug}}"
+      - "de-template.deployment={{cookiecutter.deployment_mode}}"
+      - "de-template.service=airflow-dag-processor"
     environment: *airflow-env
     user: "50000:0"
     command: ["airflow", "dag-processor"]
@@ -97,6 +122,11 @@ services:
   # DevContainer service (what VS Code opens into)
   devcontainer:
     image: mcr.microsoft.com/devcontainers/python:{{cookiecutter.python_version}}
+    container_name: {{cookiecutter.project_slug}}-devcontainer{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    labels:
+      - "de-template.project={{cookiecutter.project_slug}}"
+      - "de-template.deployment={{cookiecutter.deployment_mode}}"
+      - "de-template.service=devcontainer"
     command: sleep infinity
     user: "1000:1000"
     init: true

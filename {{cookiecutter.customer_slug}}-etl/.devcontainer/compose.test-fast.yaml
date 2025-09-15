@@ -1,6 +1,6 @@
 # Fast test Docker Compose using pre-built base image
 # Significantly faster than compose.yaml for testing scenarios
-name: {{cookiecutter.project_slug}}-test-fast
+name: {{cookiecutter.project_slug}}-test-fast{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
 
 x-airflow-env: &airflow-env
   AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -20,6 +20,11 @@ x-airflow-volumes: &airflow-volumes
 services:
   postgres:
     image: postgres:{{cookiecutter.postgres_version}}
+    container_name: {{cookiecutter.project_slug}}-postgres{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    labels:
+      - "de-template.project={{cookiecutter.project_slug}}"
+      - "de-template.deployment={{cookiecutter.deployment_mode}}"
+      - "de-template.service=postgres"
     environment:
       POSTGRES_DB: "{{cookiecutter.db_name}}"
       POSTGRES_USER: "admin"
@@ -40,7 +45,12 @@ services:
       context: ..
       dockerfile: Dockerfile.airflow.fast-test
       target: development
-    image: {{cookiecutter.project_slug}}-airflow-fast-test
+    image: {{cookiecutter.project_slug}}-airflow-fast-test{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    container_name: {{cookiecutter.project_slug}}-airflow-init{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    labels:
+      - "de-template.project={{cookiecutter.project_slug}}"
+      - "de-template.deployment={{cookiecutter.deployment_mode}}"
+      - "de-template.service=airflow-init"
     environment: *airflow-env
     user: "50000:0"
     volumes: *airflow-volumes
@@ -53,7 +63,12 @@ services:
         condition: service_healthy
 
   airflow-scheduler:
-    image: {{cookiecutter.project_slug}}-airflow-fast-test
+    image: {{cookiecutter.project_slug}}-airflow-fast-test{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    container_name: {{cookiecutter.project_slug}}-airflow-scheduler{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    labels:
+      - "de-template.project={{cookiecutter.project_slug}}"
+      - "de-template.deployment={{cookiecutter.deployment_mode}}"
+      - "de-template.service=airflow-scheduler"
     environment: *airflow-env
     user: "50000:0"
     command: ["airflow", "scheduler"]
@@ -63,7 +78,12 @@ services:
         condition: service_completed_successfully
 
   airflow-webserver:
-    image: {{cookiecutter.project_slug}}-airflow-fast-test
+    image: {{cookiecutter.project_slug}}-airflow-fast-test{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    container_name: {{cookiecutter.project_slug}}-airflow-webserver{% if cookiecutter.deployment_mode == 'testing' %}-test{% endif %}
+    labels:
+      - "de-template.project={{cookiecutter.project_slug}}"
+      - "de-template.deployment={{cookiecutter.deployment_mode}}"
+      - "de-template.service=airflow-webserver"
     environment: *airflow-env
     user: "50000:0"
     command: ["airflow", "webserver"]
