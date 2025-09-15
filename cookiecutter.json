@@ -34,7 +34,7 @@
   "project_name": "{{ cookiecutter.customer_slug | title }} ETL Project",
   "project_slug": "{{ cookiecutter.customer_slug }}-etl",
   "python_version": "3.12",
-  "runtime_tag": "3.0-10",
+  "runtime_tag": "{% if cookiecutter.airflow_version.startswith('3.0.6') %}3.0-10{% elif cookiecutter.airflow_version.startswith('3.0.7') %}3.0-11{% elif cookiecutter.airflow_version.startswith('2.10.2') %}2.10-1{% else %}3.0-10{% endif %}",
   "secrets_strategy": [
     "azure-key-vault",
     "external-secrets-operator",

@@ -27,7 +27,7 @@ get_container_port() {
     local container_name="$1"
     local internal_port="$2"
 
-    if ! docker ps --format "table {{.Names}}\t{{.Status}}" | grep -q "$container_name"; then
+    if ! docker ps --format "table {%raw%}{{.Names}}\t{{.Status}}{%endraw%}" | grep -q "$container_name"; then
         echo -e "${RED}❌ Container '$container_name' not running${NC}"
         return 1
     fi
@@ -108,7 +108,7 @@ echo
 echo -e "${BLUE}🔍 Checking for port conflicts:${NC}"
 
 # Find other running Astronomer projects
-OTHER_PROJECTS=$(docker ps --filter "label=de-template.service=airflow-webserver" --format "{{.Names}}" | grep -v "$AIRFLOW_CONTAINER" || true)
+OTHER_PROJECTS=$(docker ps --filter "label=de-template.service=airflow-webserver" --format "{%raw%}{{.Names}}{%endraw%}" | grep -v "$AIRFLOW_CONTAINER" || true)
 
 if [[ -n "$OTHER_PROJECTS" ]]; then
     echo -e "${YELLOW}⚠️  Other Astronomer projects running:${NC}"
