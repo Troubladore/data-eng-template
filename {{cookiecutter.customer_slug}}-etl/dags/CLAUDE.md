@@ -77,7 +77,7 @@ Prior to Airflow 3.0, there was a fundamental dependency conflict:
 
 This led to complex workarounds like:
 - Dependency isolation using `PythonVirtualenvOperator`
-- Constraint files: `pip install "apache-airflow[celery]==2.8.1" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.8.1/constraints-3.10.txt"`
+- Constraint files: `pip install "apache-airflow[celery]==3.0.6" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.0.6/constraints-3.12.txt"`
 - Dual virtual environments within containers
 
 ### The Solution (Modern)

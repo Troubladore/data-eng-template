@@ -251,7 +251,7 @@ EOF
     "repo_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-').replace('_', '-') }}",
     "postgres_version": "16",
     "python_version": "3.12",
-    "airflow_version": "2.8.0"
+    "airflow_version": "3.0.6"
 }
 ```
 

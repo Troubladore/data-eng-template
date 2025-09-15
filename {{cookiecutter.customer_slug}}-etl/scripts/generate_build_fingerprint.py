@@ -66,17 +66,17 @@ def generate_build_fingerprint(project_root: Path) -> str:
         cookiecutter_file = project_root / "cookiecutter.json"
         if cookiecutter_file.exists():
             cookiecutter_config = json.loads(cookiecutter_file.read_text())
-            fingerprint_data['airflow_version'] = cookiecutter_config.get('airflow_version', '2.8.0')
+            fingerprint_data['airflow_version'] = cookiecutter_config.get('airflow_version', '{{cookiecutter.airflow_version}}')
             fingerprint_data['python_version'] = cookiecutter_config.get('python_version', '3.12')
             fingerprint_data['postgres_version'] = cookiecutter_config.get('postgres_version', '16')
         else:
             # Fallback defaults for generated projects
-            fingerprint_data['airflow_version'] = '2.8.0'
+            fingerprint_data['airflow_version'] = '{{cookiecutter.airflow_version}}'
             fingerprint_data['python_version'] = '3.12'
             fingerprint_data['postgres_version'] = '16'
     except Exception:
         # Fallback defaults if config reading fails
-        fingerprint_data['airflow_version'] = '2.8.0'
+        fingerprint_data['airflow_version'] = '{{cookiecutter.airflow_version}}'
         fingerprint_data['python_version'] = '3.12'
         fingerprint_data['postgres_version'] = '16'
     
@@ -112,15 +112,15 @@ def generate_image_name(fingerprint: str, project_root: Path) -> str:
         cookiecutter_file = project_root / "cookiecutter.json"
         if cookiecutter_file.exists():
             cookiecutter_config = json.loads(cookiecutter_file.read_text())
-            airflow_version = cookiecutter_config.get('airflow_version', '2.8.0')
+            airflow_version = cookiecutter_config.get('airflow_version', '{{cookiecutter.airflow_version}}')
             python_version = cookiecutter_config.get('python_version', '3.12')
         else:
             # Fallback defaults for generated projects
-            airflow_version = '2.8.0'
+            airflow_version = '{{cookiecutter.airflow_version}}'
             python_version = '3.12'
     except Exception:
         # Fallback defaults if config reading fails
-        airflow_version = '2.8.0'
+        airflow_version = '{{cookiecutter.airflow_version}}'
         python_version = '3.12'
 
     return f"data-eng-airflow-dev:{airflow_version}-py{python_version}-{fingerprint}"
