@@ -24,15 +24,11 @@ Rather than having each developer manage these conflicts individually, **we decl
 
 This organizational setup step is where we configure things **once** to ensure that seamless, aligned experience for everyone on your team. After this setup, individual developers can focus on building data pipelines rather than wrestling with configuration decisions and environment conflicts.
 
-## 🎯 **Before Your First Project: Optimize for Team Success**
-
-**Critical**: Complete this setup **before generating your first project** to ensure optimal caching, consistent team workflows, and long-term maintainability.
-
 ## 🏢 **Step 1: Clone and Configure Template for Your Organization**
 
 ### **1.1: Fork or Clone the Template**
 
-Choose your persistence strategy:
+Choose whether to make a permanent fork where you can maintain common team standards (Option A), or just work locally for now (Option B):
 
 #### **Option A: Private Fork (Recommended)**
 ```bash
@@ -72,16 +68,19 @@ cp company-template-defaults.yaml your-org-defaults.yaml
 
 ## 🔧 **Step 2: Guided Configuration Optimization**
 
-Edit `your-org-defaults.yaml` with your organization's standards:
+Edit `your-org-defaults.yaml` with your organization's standards. For detailed explanations of each configuration option and their caching implications, see **[Template Configuration Guide](template-configuration.md)**.
+
+The following sections correspond directly to the settings in your `your-org-defaults.yaml` file:
 
 ### **2.1: Critical Caching Settings**
+Update these settings that directly impact build performance:
 ```yaml
 default_context:
-  # STANDARDIZE THESE across ALL team projects for optimal caching
-  python_version: "3.12"           # ⚡ Critical: Same version = shared base layers
-  airflow_version: "3.0.6"         # ⚡ Critical: Stable version for team consistency
-  postgres_version: "16"           # ⚡ Medium: Database container layers
-  runtime_tag: "3.0-10"           # ⚡ Critical: Must match airflow_version exactly
+  # ⚡ Critical: Same across ALL team projects for optimal caching
+  python_version: "3.12"           # Python runtime version
+  airflow_version: "3.0.6"         # Airflow version
+  postgres_version: "16"           # Database container version
+  runtime_tag: "3.0-10"           # Must match airflow_version exactly
 ```
 
 **Why this matters**: Teams using different versions rebuild all Docker layers from scratch, wasting hours of build time daily.
@@ -90,9 +89,9 @@ default_context:
 ```yaml
 default_context:
   # UPDATE with your organization's container registry
-  image_repo: "your-registry.company.com/data-eng/{{ cookiecutter.customer_slug }}"
+  image_repo: "registry.example.com/etl/{{ cookiecutter.customer_slug }}"
 
-  # Examples:
+  # Examples for your organization:
   # Azure: "yourregistry.azurecr.io/data-eng/{{ cookiecutter.customer_slug }}"
   # AWS: "123456789.dkr.ecr.us-east-1.amazonaws.com/data-eng/{{ cookiecutter.customer_slug }}"
   # GCP: "gcr.io/your-project/data-eng/{{ cookiecutter.customer_slug }}"
@@ -144,6 +143,36 @@ reserved_ports:
 
 # Verify reservation worked
 ./scripts/manage-ports.sh check test-project
+```
+
+### **2.4: Security and Enterprise Settings**
+```yaml
+default_context:
+  # CUSTOMIZE for your organization's security requirements
+  secrets_strategy: "azure-key-vault"    # azure-key-vault | external-secrets-operator | env-vars
+  executor: "KubernetesExecutor"         # KubernetesExecutor | CeleryExecutor | LocalExecutor
+  enable_kerberos: "no"                  # yes | no (if your org uses Kerberos)
+
+  # UPDATE with your organization details
+  author_name: "Data Engineering Team"
+  company_domain: "myco.com"
+  high_label: "high"                     # Your organization's security classification
+  license: "Proprietary"                # Proprietary | MIT | Apache-2.0
+```
+
+### **2.5: Additional Organizational Defaults**
+```yaml
+default_context:
+  # Environment and database settings
+  env_name: "dev"                        # dev | int | qa | prod (default environment)
+  local_domain: "localhost"             # Domain for local development
+
+  # Database defaults (development)
+  db_user: "postgres"
+  db_password: "postgres"
+
+  # Metadata
+  year: "2025"                          # For license headers
 ```
 
 **Registry Access Setup**:
