@@ -96,7 +96,7 @@ cleanup_images() {
 echo ""
 echo "📁 Cleaning up generated repository folders..."
 
-# Look for generated folders in current directory and /tmp
+# Look for generated folders in current directory and /tmp ONLY
 search_paths=("." "/tmp")
 
 for search_path in "${search_paths[@]}"; do
@@ -107,32 +107,61 @@ for search_path in "${search_paths[@]}"; do
     echo "Searching for generated projects in: $search_path"
 
     # Look for generated folders (they will have the pattern from cookiecutter defaults)
-    # Also search one level deep in case they're in subdirectories (like temp dirs)
-    for dir in "$search_path"/customer-a-etl*/ "$search_path"/*-etl*/ "$search_path"/*-*/*-etl*/; do
-        # Skip the template directory itself (it has literal {{ }} in the name)
-        if [[ -d "$dir" && "$(basename "$dir")" != "data-eng-template" && "$(basename "$dir")" != *"cookiecutter"* ]]; then
-            # Check if it looks like a generated project (has .devcontainer folder)
-            if [[ -d "$dir/.devcontainer" ]]; then
-                echo "Found generated project: $dir"
+    if [[ "$search_path" == "/tmp" ]]; then
+        # For /tmp, search one level deep ONLY within /tmp (hardcoded for safety)
+        for dir in /tmp/customer-a-etl*/ /tmp/*-etl*/ /tmp/*/*-etl*/; do
+            # Skip the template directory itself (it has literal {{ }} in the name)
+            if [[ -d "$dir" && "$(basename "$dir")" != "data-eng-template" && "$(basename "$dir")" != *"cookiecutter"* ]]; then
+                # Check if it looks like a generated project (has .devcontainer folder)
+                if [[ -d "$dir/.devcontainer" ]]; then
+                    echo "Found generated project: $dir"
 
-                # Extract project slug from directory name
-                project_slug=$(basename "$dir")
+                    # Extract project slug from directory name
+                    project_slug=$(basename "$dir")
 
-                # Cleanup associated Docker artifacts
-                echo "  Cleaning up Docker artifacts for: $project_slug"
-                cleanup_compose_project "${project_slug}-modern"
-                cleanup_compose_project "${project_slug}-modern-test"
-                cleanup_compose_project "${project_slug}-test-fast"
-                cleanup_compose_project "${project_slug}-test-fast-test"
+                    # Cleanup associated Docker artifacts
+                    echo "  Cleaning up Docker artifacts for: $project_slug"
+                    cleanup_compose_project "${project_slug}-modern"
+                    cleanup_compose_project "${project_slug}-modern-test"
+                    cleanup_compose_project "${project_slug}-test-fast"
+                    cleanup_compose_project "${project_slug}-test-fast-test"
 
-                # Also cleanup by labels (catches any containers not removed by compose)
-                cleanup_project_by_labels "$project_slug"
+                    # Also cleanup by labels (catches any containers not removed by compose)
+                    cleanup_project_by_labels "$project_slug"
 
-                # Remove the directory
-                remove_directory "$dir"
+                    # Remove the directory
+                    remove_directory "$dir"
+                fi
             fi
-        fi
-    done
+        done
+    else
+        # For current directory, only search top level
+        for dir in "$search_path"/customer-a-etl*/ "$search_path"/*-etl*/; do
+            # Skip the template directory itself (it has literal {{ }} in the name)
+            if [[ -d "$dir" && "$(basename "$dir")" != "data-eng-template" && "$(basename "$dir")" != *"cookiecutter"* ]]; then
+                # Check if it looks like a generated project (has .devcontainer folder)
+                if [[ -d "$dir/.devcontainer" ]]; then
+                    echo "Found generated project: $dir"
+
+                    # Extract project slug from directory name
+                    project_slug=$(basename "$dir")
+
+                    # Cleanup associated Docker artifacts
+                    echo "  Cleaning up Docker artifacts for: $project_slug"
+                    cleanup_compose_project "${project_slug}-modern"
+                    cleanup_compose_project "${project_slug}-modern-test"
+                    cleanup_compose_project "${project_slug}-test-fast"
+                    cleanup_compose_project "${project_slug}-test-fast-test"
+
+                    # Also cleanup by labels (catches any containers not removed by compose)
+                    cleanup_project_by_labels "$project_slug"
+
+                    # Remove the directory
+                    remove_directory "$dir"
+                fi
+            fi
+        done
+    fi
 done
 
 # Clean up any orphaned volumes that might be left
