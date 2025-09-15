@@ -55,9 +55,8 @@ class TestDeploymentModeRendering:
         assert 'container_name: test-prod-etl-postgres' in compose_content
         assert 'test-prod-etl-postgres-test' not in compose_content
 
-        # Images should NOT have -test suffix
-        assert 'test-prod-etl-airflow-dev' in compose_content
-        assert 'test-prod-etl-airflow-dev-test' not in compose_content
+        # Images should be shared fingerprinted images (fingerprinting system replaces project names)
+        assert 'data-eng-airflow-dev:' in compose_content, "Should use fingerprinted shared image names"
 
         # Labels should show production deployment
         assert 'de-template.deployment=production' in compose_content
@@ -89,8 +88,8 @@ class TestDeploymentModeRendering:
         assert 'container_name: test-testing-etl-postgres-test' in compose_content
         assert 'container_name: test-testing-etl-airflow-webserver-test' in compose_content
 
-        # Images should have -test suffix
-        assert 'test-testing-etl-airflow-dev-test' in compose_content
+        # Images should be shared fingerprinted images (fingerprinting system replaces project names)
+        assert 'data-eng-airflow-dev:' in compose_content, "Should use fingerprinted shared image names"
 
         # Labels should show testing deployment
         assert 'de-template.deployment=testing' in compose_content
