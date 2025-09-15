@@ -282,15 +282,17 @@ class TestCleanupSystemE2E:
                 timeout=180
             )
 
-            # Restore file permissions
-            compose_file.chmod(original_mode)
+            # Restore file permissions (if file still exists)
+            if compose_file.exists():
+                compose_file.chmod(original_mode)
 
             # Cleanup should still complete (with some warnings/errors)
             assert result.returncode == 0, f"Cleanup should complete despite errors: {result.stderr}"
 
         except Exception as e:
             # Emergency cleanup
-            compose_file.chmod(original_mode)
+            if compose_file.exists():
+                compose_file.chmod(original_mode)
             self._run_command(f"docker compose down -v --remove-orphans", cwd=str(compose_dir), timeout=60)
             raise e
 
