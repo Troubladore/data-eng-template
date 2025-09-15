@@ -1,5 +1,29 @@
 # Organizational Setup Guide
 
+## 📋 **The Philosophy Behind Organizational Setup**
+
+This template contains numerous configurable attributes within both the cookiecutter system and the Hydra configuration framework that supports generated projects. The key insight is that **most of these decisions should be made once at the organizational or departmental level**, rather than forcing individual developers to repeatedly make the same choices.
+
+### **Organizational Defaults Philosophy**
+
+The goal is to capture and default as many organizational decisions as possible, so your team members don't have to constantly think and worry about what the right choices are for your specific context:
+
+- **Container registries**: Which registry does your org use? Azure ACR, AWS ECR, GCP Container Registry?
+- **Security strategies**: Azure Key Vault, External Secrets Operator, or simple environment variables?
+- **Python versions**: What version has your org standardized on?
+- **Executor types**: KubernetesExecutor for scale, or CeleryExecutor for your infrastructure?
+- **Port assignments**: Which projects get which ports to avoid conflicts?
+
+### **Development Environment Hygiene**
+
+Additionally, development environments easily get littered with the "dead ships" of abandoned repositories and containers. Teams frequently run into non-value-added configuration conflicts—especially around port settings—that create friction and waste time.
+
+Rather than having each developer manage these conflicts individually, **we declare these settings centrally and apply them globally** at the developer workstation level. This prevents the accumulation of configuration debt and ensures consistent, conflict-free environments across your entire team.
+
+### **The Result: Seamless, Aligned Experience**
+
+This organizational setup step is where we configure things **once** to ensure that seamless, aligned experience for everyone on your team. After this setup, individual developers can focus on building data pipelines rather than wrestling with configuration decisions and environment conflicts.
+
 ## 🎯 **Before Your First Project: Optimize for Team Success**
 
 **Critical**: Complete this setup **before generating your first project** to ensure optimal caching, consistent team workflows, and long-term maintainability.
