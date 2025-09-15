@@ -133,11 +133,9 @@ your-project-etl/
 
 ## How to Learn More
 
-### About the Deployed Repo
-Explore what a **generated project looks like**: **[`{{cookiecutter.customer_slug}}-etl/README.md`]({{cookiecutter.customer_slug}}-etl/README.md)**
+**About the Deployed Repo**: Explore what a **generated project looks like** → **[`{{cookiecutter.customer_slug}}-etl/README.md`]({{cookiecutter.customer_slug}}-etl/README.md)**
 
-### About This Template
-For template architecture, development, and design decisions: **[`docs/`](docs/)**
+**About This Template**: For template architecture, development, and design decisions → **[`docs/`](docs/)**
 
 ## License
 
