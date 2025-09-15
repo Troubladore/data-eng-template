@@ -3,12 +3,11 @@
 ## Getting Started
 - [organizational-setup-guide.md](organizational-setup-guide.md) - **Essential first-time setup** for teams
 - [getting-started.md](getting-started.md) - How to use this cookiecutter template
-- [template-configuration.md](template-configuration.md) - Configuration guide with caching implications
-- [directory-structure.md](directory-structure.md) - Template file organization
 
-## Architecture & Requirements
+## Architecture & Goals
 - [template-overview.md](template-overview.md) - High-level architecture and deployment pathway
 - [astronomer-architecture-requirements.md](astronomer-architecture-requirements.md) - Production feature checklist
+- [directory-structure.md](directory-structure.md) - Template file organization
 - [architecture-decisions.md](architecture-decisions.md) - Design rationale and technology choices
 
 ## Development & Team Practices
