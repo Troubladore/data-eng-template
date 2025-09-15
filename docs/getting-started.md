@@ -43,25 +43,6 @@ During generation, you'll be prompted for:
 - **`airflow_version`**: "3.0.6" (current stable)
 - **Additional options** with sensible defaults
 
-## 🏗️ **Generated Project Architecture**
-
-### Astronomer Foundation
-- **Airflow 3.0.6**: Latest stable with Astronomer runtime optimizations
-- **Production-ready**: Enterprise-grade configurations from day one
-- **Multi-environment**: Dev/staging/prod deployment patterns
-- **Secrets management**: Azure Key Vault integration patterns
-
-### Development Environment
-- **DevContainer**: One-click VS Code integration
-- **Custom Airflow image**: Project dependencies included
-- **Service orchestration**: Airflow + PostgreSQL + monitoring
-- **Hot-reload**: 10-second DAG detection for rapid iteration
-
-### Configuration Management
-- **Hydra**: Unified configuration system replacing fragmented .env files
-- **Type-safe**: Pydantic validation with IDE support
-- **Environment-aware**: Automatic dev/staging/prod handling
-- **Command-line overrides**: Change any setting without editing files
 
 ## 🔧 **Development Workflow**
 
@@ -84,16 +65,9 @@ python scripts/run_pipeline.py environment=prod database.host=prod-db.example.co
 ```
 
 ### Project Structure
-```
-your-project-etl/
-├── dags/                    # Airflow DAGs with modern patterns
-├── dbt/                     # dbt transformations (bronze/silver/gold)
-├── .devcontainer/           # VS Code DevContainer configuration
-├── conf/                    # Hydra configuration system
-├── scripts/                 # Pipeline runners and utilities
-├── tests/                   # Comprehensive test suite
-└── docs/                    # Generated project documentation
-```
+
+For the complete directory structure of generated projects, see:
+**[Generated Project Structure](../{{cookiecutter.customer_slug}}-etl/docs/directory_structure.md)**
 
 ## 🪟 **Platform-Specific Notes**
 

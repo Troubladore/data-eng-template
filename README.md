@@ -13,9 +13,10 @@ This is a **cookiecutter template** that generates data engineering projects bui
 - **Performance optimizations** from years of Airflow operational experience
 
 ### 🛠️ **Team Development Customizations**
-- **DevContainer environments** for consistent team development workflows
-- **Type-safe configuration** via Hydra + Pydantic for team-specific needs
+- **DevContainer environments** with custom Airflow images for consistent team workflows
+- **Type-safe configuration** via Hydra + Pydantic replacing fragmented .env files
 - **Modern Python tooling** (`uv`, `ruff`, Python 3.12) aligned with team standards
+- **Hot-reload development** with 10-second DAG detection for rapid iteration
 - **Docker cleanup systems** to prevent development environment drift
 - **Comprehensive testing frameworks** ensuring code quality across projects
 
@@ -34,7 +35,8 @@ This template leverages **Astronomer's operational excellence** while adding **t
 **🏗️ Built on Astronomer's Proven Foundation**
 - **Reliability**: Astronomer's enterprise-grade Airflow distribution
 - **Operational ease**: Pre-configured monitoring, scaling, and deployment patterns
-- **Flexibility**: Extensible architecture supporting diverse data workflows
+- **Enterprise security**: Azure Key Vault integration and secrets management patterns
+- **Flexibility**: Multi-environment support (dev/staging/prod) with consistent deployment
 - **Performance**: Optimized configurations from years of production experience
 
 **👥 Customized for Team Development Alignment**
