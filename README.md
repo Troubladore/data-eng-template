@@ -1,10 +1,8 @@
 # Data Engineering Cookiecutter Template
 
-**Astronomer-powered cookiecutter template** that generates production-ready data engineering projects built on **Astronomer's proven foundation** with **team-customized development workflows**, **DevContainer environments**, and **repeatable project architecture**.
-
 ## What Is This?
 
-This is a **cookiecutter template** that generates data engineering projects built on **Astronomer's battle-tested foundation**:
+This is a cookiecutter template that generates data engineering projects built on Astronomer's battle-tested foundation. [Astronomer](https://www.astronomer.io/) provides enterprise-grade Apache Airflow distributions and operational tooling for production data workflows.
 
 ### 🚀 **Astronomer Core Benefits** (Built-in)
 - **Airflow 3.0.6** with Astronomer runtime for **proven reliability**
