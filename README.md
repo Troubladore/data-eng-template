@@ -47,50 +47,33 @@ This template leverages **Astronomer's operational excellence** while adding **t
 
 ## How Do You Use It?
 
-### Prerequisites
-- **Docker** with Compose V2 (Docker Desktop or Engine)
-- **Cookiecutter**: `pipx install cookiecutter`
-- **VS Code** (recommended for DevContainer support)
+**⚠️ This template requires proper organizational setup for optimal team results.**
 
-### Generate a New Project
+### Step 1: Organizational Setup (Required First)
 
-```bash
-# Navigate to your projects directory
-cd ~/projects
+**📚 [Complete the Organizational Setup Guide](docs/organizational-setup-guide.md)**
 
-# Generate from remote template (recommended)
-cookiecutter https://github.com/Troubladore/data-eng-template
+This mandatory first step:
+- **Sets up optimized caching defaults** (10-second rebuilds vs 10-minute rebuilds)
+- **Configures port management** to prevent team conflicts
+- **Establishes container registry** and security settings
+- **Creates team dependency standards** and workflow documentation
+- **Ensures persistence** of customizations across template updates
 
-# Or from local clone
-git clone https://github.com/Troubladore/data-eng-template.git
-cookiecutter data-eng-template/
-```
+**Why this step is required**: Skipping organizational setup leads to slow builds, port conflicts, configuration drift, and inconsistent team environments that waste hours of development time.
 
-**You'll be prompted for**:
-- `customer_slug`: Project identifier (e.g., "awesome-analytics")
-- `deployment_mode`: "production" or "testing" (affects container naming)
-- `python_version`: "3.12" (recommended)
-- `airflow_version`: "3.0.6" (current stable)
-- Additional configuration options with sensible defaults
+### Step 2: Project Generation
 
-### Start Development
+**After completing organizational setup**:
 
-```bash
-# Navigate to generated project
-cd your-project-name-etl/
+**📚 [Follow the Getting Started Guide](docs/getting-started.md)**
 
-# Option 1: VS Code DevContainer (recommended)
-code .
-# Click "Reopen in Container" → Everything starts automatically
-
-# Option 2: Manual Docker Compose
-cd .devcontainer
-docker compose up -d
-
-# Access services
-# Airflow UI: http://localhost:8081 (admin/admin)
-# Database: localhost:5432 (postgres/postgres)
-```
+You'll have a streamlined experience:
+- **3 simple prompts**: customer_slug, description, deployment_mode
+- **Optimized defaults**: All technical settings pre-configured for your team
+- **Fast builds**: Sub-10-second rebuilds with shared Docker layer caching
+- **Port coordination**: Automatic conflict-free port assignment
+- **Consistent environments**: Same setup across all team members
 
 ## Project Architecture
 
