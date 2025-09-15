@@ -87,7 +87,8 @@ class TestCleanupSystemE2E:
     @pytest.mark.skipif(shutil.which("docker") is None, reason="Docker not available")
     def test_complete_testing_workflow_with_cleanup(self, template_dir, temp_output_dir, cleanup_scripts):
         """Test complete workflow: generate testing project -> start -> cleanup -> verify clean."""
-        project_slug = "e2e-test-complete"
+        customer_slug = "e2e-test-complete"
+        project_slug = f"{customer_slug}-etl"  # cookiecutter appends -etl
 
         # 1. Generate testing project
         result_dir = cookiecutter(
@@ -96,7 +97,7 @@ class TestCleanupSystemE2E:
             output_dir=temp_output_dir,
             extra_context={
                 'deployment_mode': 'testing',
-                'customer_slug': project_slug.replace('-etl', '')
+                'customer_slug': customer_slug
             }
         )
 
