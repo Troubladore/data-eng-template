@@ -34,11 +34,9 @@ This template combines Astronomer's operational excellence with team-specific de
 
 ### Step 2: Project Generation
 
-**After completing organizational setup**:
-
 **📚 [Follow the Getting Started Guide](docs/getting-started.md)**
 
-You'll have a streamlined experience:
+Having completed the organizational setup, getting started will be streamlined:
 - **3 simple prompts**: customer_slug, description, deployment_mode
 - **Optimized defaults**: All technical settings pre-configured for your team
 - **Fast builds**: Sub-10-second rebuilds with shared Docker layer caching
