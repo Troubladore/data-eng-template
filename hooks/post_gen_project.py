@@ -253,17 +253,16 @@ try:
         if compose_file.exists():
             compose_content = compose_file.read_text()
 
-            # Get the actual project slug from context
-            # Use a fallback approach since direct cookiecutter variable can cause Jinja2 issues
-            project_slug = os.environ.get('COOKIECUTTER_PROJECT_SLUG')
-            # Check if project_slug looks like an unprocessed template variable
-            template_prefix = '{' + '{'  # Avoid Jinja2 processing this literal
-            if not project_slug or (project_slug and project_slug.startswith(template_prefix)):
-                # If template variable wasn't replaced, try to extract from current directory
-                current_dir = os.path.basename(os.getcwd())
-                project_slug = current_dir.replace('-etl', '') if current_dir.endswith('-etl') else current_dir
+            # The generated Docker Compose file uses {{cookiecutter.project_slug}}-airflow-dev
+            # Since we're in the generated project directory, extract from the directory name
+            current_dir = os.path.basename(os.getcwd())
 
+            # For template test: "airflow-debug-etl" → project_slug should be "airflow-debug-etl"
+            # This matches the {{cookiecutter.project_slug}} value used in the template
+            project_slug = current_dir
             old_image_pattern = f"{project_slug}-airflow-dev"
+
+            print(f"DEBUG: Looking for pattern '{old_image_pattern}' to replace with '{shared_image_name}'")
 
             # Replace build context + image pattern with single fingerprinted image
             # This handles the common pattern: build block followed by image line
