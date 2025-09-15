@@ -44,7 +44,7 @@ services:
     volumes: *airflow-volumes
     command: [
       "bash", "-c",
-      "airflow db upgrade && airflow users create --username $$_AIRFLOW_WWW_USER_USERNAME --password $$_AIRFLOW_WWW_USER_PASSWORD --firstname Admin --lastname User --role Admin --email admin@example.com || true"
+      "airflow db migrate && airflow users create --username $$_AIRFLOW_WWW_USER_USERNAME --password $$_AIRFLOW_WWW_USER_PASSWORD --firstname Admin --lastname User --role Admin --email admin@example.com || true"
     ]
     depends_on:
       postgres:
@@ -72,9 +72,23 @@ services:
     image: {{cookiecutter.project_slug}}-airflow-dev
     environment: *airflow-env
     user: "50000:0"
-    command: ["airflow", "webserver"]
+    command: ["airflow", "api-server", "--port", "8080"]
     ports:
       - "8081:8080"
+    volumes: *airflow-volumes
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-dag-processor:
+    build:
+      context: ..
+      dockerfile: Dockerfile.airflow
+      target: development
+    image: {{cookiecutter.project_slug}}-airflow-dev
+    environment: *airflow-env
+    user: "50000:0"
+    command: ["airflow", "dag-processor"]
     volumes: *airflow-volumes
     depends_on:
       airflow-init:
@@ -92,6 +106,7 @@ services:
     depends_on:
       - airflow-webserver
       - airflow-scheduler
+      - airflow-dag-processor
       - postgres
 
 volumes:
