@@ -17,26 +17,36 @@ default_context:
   description: "Modern data engineering project with Astronomer, Airflow, dbt, and Hydra configuration"
   deployment_mode: "production"
 
-  # OPTIONAL: Company-specific defaults (alphabetical order)
+  # OPTIONAL: Company-specific defaults (grouped by topic)
+
+  # Critical Caching Settings
+  python_version: "3.12"
   airflow_version: "3.0.6"
+  postgres_version: "16"
+  runtime_tag: "3.0-10"
+
+  # Container Registry Configuration
+  image_repo: "registry.example.com/etl/{{ cookiecutter.customer_slug }}"
+
+  # Security and Enterprise Settings
+  secrets_strategy: "azure-key-vault"
+  executor: "KubernetesExecutor"
+  enable_kerberos: "no"
   author_name: "Data Engineering Team"
   company_domain: "myco.com"
-  db_name: "{{ cookiecutter.customer_slug.replace('-', '_') }}_etl"
-  db_password: "postgres"
-  db_user: "postgres"
-  enable_kerberos: "no"
-  env_name: "dev"
-  executor: "KubernetesExecutor"
   high_label: "high"
-  image_repo: "registry.example.com/etl/{{ cookiecutter.customer_slug }}"
   license: "Proprietary"
+
+  # Environment and Database Settings
+  env_name: "dev"
   local_domain: "localhost"
-  postgres_version: "16"
+  db_user: "postgres"
+  db_password: "postgres"
+
+  # Auto-generated values (usually don't need changes)
+  db_name: "{{ cookiecutter.customer_slug.replace('-', '_') }}_etl"
   project_name: "{{ cookiecutter.customer_slug | title }} ETL Project"
   project_slug: "{{ cookiecutter.customer_slug }}-etl"
-  python_version: "3.12"
-  runtime_tag: "3.0-10"
-  secrets_strategy: "azure-key-vault"
   year: "2025"
 
 # Port Management Integration

@@ -160,18 +160,25 @@ default_context:
   license: "Proprietary"                # Proprietary | MIT | Apache-2.0
 ```
 
-### **2.5: Additional Organizational Defaults**
+### **2.5: Environment and Database Settings**
 ```yaml
 default_context:
-  # Environment and database settings
+  # Environment settings
   env_name: "dev"                        # dev | int | qa | prod (default environment)
   local_domain: "localhost"             # Domain for local development
 
   # Database defaults (development)
   db_user: "postgres"
   db_password: "postgres"
+```
 
-  # Metadata
+### **2.6: Auto-Generated Values**
+```yaml
+default_context:
+  # Usually don't need changes - generated from other values
+  db_name: "{{ cookiecutter.customer_slug.replace('-', '_') }}_etl"
+  project_name: "{{ cookiecutter.customer_slug | title }} ETL Project"
+  project_slug: "{{ cookiecutter.customer_slug }}-etl"
   year: "2025"                          # For license headers
 ```
 
