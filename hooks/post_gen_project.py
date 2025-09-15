@@ -256,7 +256,9 @@ try:
             # Get the actual project slug from context
             # Use a fallback approach since direct cookiecutter variable can cause Jinja2 issues
             project_slug = os.environ.get('COOKIECUTTER_PROJECT_SLUG')
-            if not project_slug or (project_slug and project_slug.startswith('{{')):
+            # Check if project_slug looks like an unprocessed template variable
+            template_prefix = '{' + '{'  # Avoid Jinja2 processing this literal
+            if not project_slug or (project_slug and project_slug.startswith(template_prefix)):
                 # If template variable wasn't replaced, try to extract from current directory
                 current_dir = os.path.basename(os.getcwd())
                 project_slug = current_dir.replace('-etl', '') if current_dir.endswith('-etl') else current_dir
