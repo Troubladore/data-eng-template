@@ -134,10 +134,10 @@ your-project-etl/
 ## How to Learn More
 
 ### About the Deployed Repo
-After generating your project, refer to the **generated project's documentation**:
-- **`README.md`**: Generated project overview and quick start
-- **`CLAUDE.md`**: Project-specific development guidance
-- **`docs/`**: Complete project documentation index
+Explore what a **generated project looks like** by browsing the template slug:
+- **[`{{cookiecutter.customer_slug}}-etl/README.md`]({{cookiecutter.customer_slug}}-etl/README.md)**: Generated project overview and quick start
+- **[`{{cookiecutter.customer_slug}}-etl/CLAUDE.md`]({{cookiecutter.customer_slug}}-etl/CLAUDE.md)**: Project-specific development guidance
+- **[`{{cookiecutter.customer_slug}}-etl/docs/`]({{cookiecutter.customer_slug}}-etl/docs/)**: Complete project documentation index
 
 ### About This Template
 For template architecture, development, and design decisions:
