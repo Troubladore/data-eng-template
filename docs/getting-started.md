@@ -35,13 +35,40 @@ docker compose up -d
 
 ## 🚀 **Template Configuration**
 
-During generation, you'll be prompted for:
+During generation, you'll be prompted for these values. **This table explains each prompt to avoid guessing the author's intent:**
 
-- **`customer_slug`**: Project identifier (e.g., "awesome-analytics")
-- **`deployment_mode`**: "production" or "testing" (affects container naming)
-- **`python_version`**: "3.12" (recommended)
-- **`airflow_version`**: "3.0.6" (current stable)
-- **Additional options** with sensible defaults
+| Prompt | Description | Choices/Format | Choice Definitions | Examples |
+|--------|-------------|----------------|-------------------|----------|
+| **`customer_slug`** | Project identifier used throughout the codebase | Free text (kebab-case) | Short, descriptive project identifier | `awesome-analytics`, `customer-a`, `fraud-detection` |
+| **`project_slug`** | Generated automatically | `{customer_slug}-etl` | Auto-generated from customer_slug | `awesome-analytics-etl` |
+| **`project_name`** | Human-readable project title | Generated from slug | Used in documentation and displays | `Awesome Analytics ETL Project` |
+| **`author_name`** | Project maintainer/team | Free text | Who to contact for this project | `Data Engineering Team`, `Analytics Squad` |
+| **`description`** | Brief project summary | Free text | One-line description for documentation | Default is sensible for most cases |
+| **`python_version`** | Python runtime version | `3.12` (default) | Python version for containers and dev | `3.12` recommended for latest features |
+| **`airflow_version`** | Airflow version | `3.0.6` (default) | Airflow runtime version | `3.0.6` is current Astronomer stable |
+| **`runtime_tag`** | Astronomer runtime tag | `3.0-10` (default) | Astronomer's runtime image tag | Matches Airflow version, use default |
+| **`image_repo`** | Container registry path | Format: `registry.domain.com/path/{slug}` | Where to push custom images | `registry.example.com/etl/awesome-analytics` |
+| **`postgres_version`** | PostgreSQL version | `16` (default) | Database version for development | `16` is latest stable with JSON features |
+| **`deployment_mode`** | Container naming strategy | `production`, `testing` | **production**: Clean names for prod deployment<br/>**testing**: Prefixed names for isolation | Choose `production` for real projects |
+| **`env_name`** | Default environment | `dev`, `int`, `qa`, `prod` | **dev**: Development with debug enabled<br/>**int**: Integration testing<br/>**qa**: Quality assurance testing<br/>**prod**: Production deployment | Start with `dev` for development |
+| **`company_domain`** | Production domain | Domain format | Your organization's domain for prod | `mycompany.com`, `analytics.corp.com` |
+| **`local_domain`** | Development domain | `localhost` (default) | Domain for local development | Keep as `localhost` |
+| **`high_label`** | Security classification | Free text | Label for sensitive workloads | `high`, `sensitive`, `restricted` |
+| **`executor`** | Airflow executor type | `KubernetesExecutor`, `CeleryExecutor`, `LocalExecutor` | **KubernetesExecutor**: Scalable, isolated task execution<br/>**CeleryExecutor**: Distributed workers<br/>**LocalExecutor**: Single-machine execution | `KubernetesExecutor` for production |
+| **`secrets_strategy`** | Secrets management | `azure-key-vault`, `external-secrets-operator`, `env-vars` | **azure-key-vault**: Azure Key Vault integration<br/>**external-secrets-operator**: K8s External Secrets<br/>**env-vars**: Simple environment variables | `azure-key-vault` for enterprise |
+| **`enable_kerberos`** | Kerberos authentication | `yes`, `no` | **yes**: Enable Kerberos for secure connections<br/>**no**: Standard authentication only | `yes` if your org uses Kerberos |
+| **`db_name`** | Database name | Auto-generated | Generated from customer_slug | `awesome_analytics_etl` |
+| **`db_user`** | Database username | `postgres` (default) | Development database user | Keep default for development |
+| **`db_password`** | Database password | `postgres` (default) | Development database password | Keep default for development |
+| **`license`** | Project license | `Proprietary`, `MIT`, `Apache-2.0` | **Proprietary**: Company/private use only<br/>**MIT**: Open source, permissive<br/>**Apache-2.0**: Open source with patent protection | `Proprietary` for company projects |
+| **`year`** | Copyright year | Current year | For license headers | `2025` |
+
+### 💡 **Recommended Choices for Most Projects**
+- **`deployment_mode`**: `production` (unless specifically testing template)
+- **`executor`**: `KubernetesExecutor` (scalable and modern)
+- **`secrets_strategy`**: `azure-key-vault` (enterprise-ready)
+- **`enable_kerberos`**: `no` (unless your organization requires it)
+- **`license`**: `Proprietary` (for company projects)
 
 
 ## 🔧 **Development Workflow**
