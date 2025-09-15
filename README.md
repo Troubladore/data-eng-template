@@ -133,6 +133,8 @@ your-project-etl/
 
 ## How to Learn More
 
+Generated projects include their own comprehensive documentation. This README focuses on the template itself.
+
 **About the Deployed Repo**: Explore what a **generated project looks like** → **[`{{cookiecutter.customer_slug}}-etl/README.md`]({{cookiecutter.customer_slug}}-etl/README.md)**
 
 **About This Template**: For template architecture, development, and design decisions → **[`docs/`](docs/)**
@@ -140,7 +142,3 @@ your-project-etl/
 ## License
 
 This cookiecutter template is available under the MIT License. Generated projects can choose their own license during generation.
-
----
-
-**Generated projects include their own comprehensive documentation**. This README focuses on the template itself - refer to your generated project's `README.md` and `docs/` directory for project-specific guidance.
