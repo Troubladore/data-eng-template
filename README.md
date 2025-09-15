@@ -134,17 +134,10 @@ your-project-etl/
 ## How to Learn More
 
 ### About the Deployed Repo
-Explore what a **generated project looks like** by browsing the template slug:
-- **[`{{cookiecutter.customer_slug}}-etl/README.md`]({{cookiecutter.customer_slug}}-etl/README.md)**: Generated project overview and quick start
-- **[`{{cookiecutter.customer_slug}}-etl/CLAUDE.md`]({{cookiecutter.customer_slug}}-etl/CLAUDE.md)**: Project-specific development guidance
-- **[`{{cookiecutter.customer_slug}}-etl/docs/`]({{cookiecutter.customer_slug}}-etl/docs/)**: Complete project documentation index
+Explore what a **generated project looks like**: **[`{{cookiecutter.customer_slug}}-etl/README.md`]({{cookiecutter.customer_slug}}-etl/README.md)**
 
 ### About This Template
-For template architecture, development, and design decisions:
-- **[`docs/`](docs/)**: Complete template documentation index
-- **[Template Overview](docs/template-overview.md)**: Architecture and production deployment pathway
-- **[Architecture Requirements](docs/astronomer-architecture-requirements.md)**: Production feature checklist
-- **[Getting Started](docs/getting-started.md)**: How to use this cookiecutter template
+For template architecture, development, and design decisions: **[`docs/`](docs/)**
 
 ## License
 
