@@ -104,10 +104,21 @@ for search_path in "${search_paths[@]}"; do
 
     # Look for generated folders (they will have the pattern from cookiecutter defaults)
     if [[ "$search_path" == "/tmp" ]]; then
-        # For /tmp, search one level deep ONLY within /tmp (hardcoded for safety)
-        for dir in /tmp/customer-a-etl*/ /tmp/*-etl*/ /tmp/*/*-etl*/; do
-            # Skip the template directory itself (it has literal {{ }} in the name)
-            if [[ -d "$dir" && "$(basename "$dir")" != "data-eng-template" && "$(basename "$dir")" != *"cookiecutter"* ]]; then
+        # For /tmp, search ONLY one level deep within /tmp (NEVER multiple levels for safety)
+        for dir in /tmp/customer-a-etl*/ /tmp/*-etl*/; do
+            # CRITICAL SAFETY CHECKS to prevent template directory deletion
+            if [[ -d "$dir" ]]; then
+                # Never touch anything that contains template patterns
+                if [[ "$dir" == *"{{cookiecutter"* || "$dir" == *"}}-etl"* || "$(basename "$dir")" == "data-eng-template" || "$(basename "$dir")" == *"cookiecutter"* ]]; then
+                    echo "  SAFETY: Skipping template directory: $dir"
+                    continue
+                fi
+                # Never delete anything not directly in /tmp (safety check)
+                parent_dir=$(dirname "$dir")
+                if [[ "$parent_dir" != "/tmp" ]]; then
+                    echo "  SAFETY: Refusing to delete directory with unsafe path: $dir (parent: $parent_dir)"
+                    continue
+                fi
                 # Check if it looks like a generated project (has .devcontainer folder)
                 if [[ -d "$dir/.devcontainer" ]]; then
                     echo "Found generated project: $dir"
