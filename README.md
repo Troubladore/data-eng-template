@@ -21,7 +21,7 @@ This template combines Astronomer's operational excellence with team-specific de
 
 ## How Do You Use It?
 
-### Step 1: Organizational Setup (Required First)
+### Step 1: One-Time Organizational Setup
 
 **📚 [Complete the Organizational Setup Guide](docs/organizational-setup-guide.md)**
 
@@ -32,11 +32,11 @@ This template combines Astronomer's operational excellence with team-specific de
 - **Creates team dependency standards** and workflow documentation
 - **Ensures persistence** of customizations across template updates
 
-### Step 2: Project Generation
+### Step 2: Per-Repository Project Generation
 
-**📚 [Follow the Getting Started Guide](docs/getting-started.md)**
+**📚 [Follow the Per-Project Usage Guide](docs/getting-started.md)**
 
-Having completed the organizational setup, getting started will be streamlined:
+Having completed the organizational setup, generating each new project will be streamlined:
 - **3 simple prompts**: customer_slug, description, deployment_mode
 - **Optimized defaults**: All technical settings pre-configured for your team
 - **Fast builds**: Sub-10-second rebuilds with shared Docker layer caching
