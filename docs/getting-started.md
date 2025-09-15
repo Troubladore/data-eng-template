@@ -5,24 +5,49 @@ This cookiecutter template generates **Astronomer-powered data engineering proje
 ## 🎯 **Quick Start**
 
 ### Prerequisites
+
+#### ✅ **Required Tools**
 - **Docker** with Compose V2 (Docker Desktop or Engine)
 - **Cookiecutter**: `pipx install cookiecutter`
 - **VS Code** (recommended for DevContainer support)
 
+#### 🏢 **First-Time Organizational Setup (Critical)**
+
+**⚠️ STOP: Complete this setup BEFORE generating your first project!**
+
+**📚 [Complete the Organizational Setup Guide](organizational-setup-guide.md)** to:
+- **Configure caching-optimized defaults** for your team
+- **Set up container registry** and security settings
+- **Establish persistence strategy** for your customizations
+- **Create team dependency standards**
+- **Test and validate** your configuration
+
+**Why this matters**: Skipping this setup leads to slow builds (10+ minutes instead of 10 seconds), inconsistent team environments, and configuration drift that wastes hours of development time.
+
+#### ✅ **After Organizational Setup**
+
 ### Generate and Start Project
+
+With organizational setup complete, project generation is streamlined:
+
 ```bash
 # Navigate to your projects directory
 cd ~/projects
 
-# Generate from template
-cookiecutter https://github.com/Troubladore/data-eng-template
+# Generate using your organization's optimized defaults
+cookiecutter https://github.com/your-org/data-eng-template --config-file your-org-defaults.yaml
+
+# You'll only be prompted for 3 values:
+# - customer_slug: your-project-identifier
+# - description: Brief project description
+# - deployment_mode: production (or testing)
 
 # Navigate to generated project
-cd your-project-name-etl/
+cd your-project-identifier-etl/
 
 # Option 1: VS Code DevContainer (recommended)
 code .
-# Click "Reopen in Container" → Everything starts automatically
+# Click "Reopen in Container" → Everything starts automatically with optimized caching
 
 # Option 2: Manual Docker Compose
 cd .devcontainer

@@ -1,6 +1,7 @@
 # Template Documentation
 
 ## Getting Started
+- [organizational-setup-guide.md](organizational-setup-guide.md) - **Essential first-time setup** for teams
 - [getting-started.md](getting-started.md) - How to use this cookiecutter template
 - [template-configuration.md](template-configuration.md) - Configuration guide with caching implications
 - [directory-structure.md](directory-structure.md) - Template file organization
