@@ -133,11 +133,9 @@ your-project-etl/
 
 ## How to Learn More
 
-Generated projects include their own comprehensive documentation. This README focuses on the template itself.
-
-**About the Deployed Repo**: Explore what a **generated project looks like** → **[`{{cookiecutter.customer_slug}}-etl/README.md`]({{cookiecutter.customer_slug}}-etl/README.md)**
-
 **About This Template**: For template architecture, development, and design decisions → **[`docs/`](docs/)**
+
+**About the Deployed Repo**: Generated projects include their own comprehensive documentation. Explore what a **generated project looks like** → **[`{{cookiecutter.customer_slug}}-etl/README.md`]({{cookiecutter.customer_slug}}-etl/README.md)**
 
 ## License
 
