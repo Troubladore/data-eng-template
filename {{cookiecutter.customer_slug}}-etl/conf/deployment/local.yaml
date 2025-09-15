@@ -70,7 +70,9 @@ development:
   
   # Airflow development settings
   airflow:
-    dag_dir_list_interval: 10  # Check for DAG changes every 10 seconds
+    # DAG processor configuration (Airflow 3.0+)
+    dag_processor:
+      refresh_interval: 10  # Check for DAG changes every 10 seconds
     load_examples: false
     reload_on_plugin_change: true
   

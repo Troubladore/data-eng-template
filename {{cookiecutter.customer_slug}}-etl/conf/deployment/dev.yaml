@@ -50,7 +50,9 @@ development:
   
   # Production-like Airflow settings
   airflow:
-    dag_dir_list_interval: 30  # Less frequent checks for stability
+    # DAG processor configuration (Airflow 3.0+)
+    dag_processor:
+      refresh_interval: 30  # Less frequent checks for stability
     load_examples: false
     reload_on_plugin_change: false
 

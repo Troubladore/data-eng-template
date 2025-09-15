@@ -54,7 +54,9 @@ development:
   
   # Production Airflow settings
   airflow:
-    dag_dir_list_interval: 300  # Check every 5 minutes
+    # DAG processor configuration (Airflow 3.0+)
+    dag_processor:
+      refresh_interval: 300  # Check every 5 minutes
     load_examples: false
     reload_on_plugin_change: false
 

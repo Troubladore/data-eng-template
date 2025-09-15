@@ -181,8 +181,9 @@ volumes:
 Airflow is configured for rapid development:
 
 ```yaml
-# Fast DAG discovery and reloading
-dag_dir_list_interval: 10  # Check for changes every 10 seconds
+# Fast DAG discovery and reloading (Airflow 3.0+)
+dag_processor:
+  refresh_interval: 10  # Check for changes every 10 seconds
 reload_on_plugin_change: true
 dag_discovery_safe_mode: false  # Faster but less safe parsing
 ```

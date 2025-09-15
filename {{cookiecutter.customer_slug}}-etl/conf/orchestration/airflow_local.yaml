@@ -56,15 +56,19 @@ webserver:
 
 # Scheduler configuration
 scheduler:
-  # Scheduling intervals
-  dag_dir_list_interval: 30  # Check for new DAGs every 30 seconds
+  # Scheduling settings
   catchup_by_default: false  # Don't catch up by default
   max_threads: 2  # Lower thread count for local development
-  
+
   # Task scheduling
   schedule_after_task_execution: true
   orphaned_tasks_check_interval: 300  # 5 minutes
   child_process_log_directory: "./logs/scheduler"
+
+# DAG Processor configuration (Airflow 3.0+)
+dag_processor:
+  # DAG discovery intervals
+  refresh_interval: 30  # Check for new DAGs every 30 seconds
 
 # Logging configuration
 logging:
