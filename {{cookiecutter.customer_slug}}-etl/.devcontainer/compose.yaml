@@ -54,7 +54,7 @@ services:
     volumes: *airflow-volumes
     command: [
       "bash", "-c",
-      "airflow db migrate && airflow connections create --conn-id default --conn-type generic || true"
+      "airflow db migrate && airflow connections add --conn-id default --conn-type generic || true"
     ]
     depends_on:
       postgres:
