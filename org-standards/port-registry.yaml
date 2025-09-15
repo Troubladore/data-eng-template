@@ -1,0 +1,114 @@
+# Organization Port Registry
+# Shared port allocation tracking for all team projects
+#
+# This file should be maintained in your organization's cookiecutter fork
+# and updated whenever new projects are created or ports are changed.
+
+# Port allocation strategy
+port_allocation:
+  # Port ranges for different environments
+  development:
+    range_start: 8100
+    range_end: 8199
+    description: "Local development Airflow webservers"
+
+  database:
+    range_start: 5500
+    range_end: 5599
+    description: "Local development databases (Postgres, etc.)"
+
+  monitoring:
+    range_start: 9100
+    range_end: 9199
+    description: "Monitoring and metrics services"
+
+  testing:
+    range_start: 8200
+    range_end: 8299
+    description: "Testing/CI environments"
+
+# Project port reservations
+# Format: project_slug: {airflow_port: XXXX, postgres_port: XXXX, owner: "team/person"}
+reserved_ports:
+  # Standard/long-running projects (permanent reservations)
+  customer-analytics:
+    airflow_port: 8101
+    postgres_port: 5501
+    owner: "analytics-team"
+    description: "Main customer analytics pipeline"
+    created: "2025-01-15"
+
+  fraud-detection:
+    airflow_port: 8102
+    postgres_port: 5502
+    owner: "security-team"
+    description: "Fraud detection and monitoring"
+    created: "2025-01-20"
+
+  # Example reservations for your organization
+  # marketing-attribution:
+  #   airflow_port: 8103
+  #   postgres_port: 5503
+  #   owner: "marketing-team"
+  #   description: "Marketing attribution analysis"
+  #   created: "2025-02-01"
+
+# Dynamic allocation pool (for temporary/development projects)
+dynamic_allocation:
+  airflow_ports:
+    available: [8110, 8111, 8112, 8113, 8114, 8115, 8116, 8117, 8118, 8119]
+    description: "Available for temporary projects and development"
+
+  postgres_ports:
+    available: [5510, 5511, 5512, 5513, 5514, 5515, 5516, 5517, 5518, 5519]
+    description: "Available for temporary projects and development"
+
+# Port assignment rules
+assignment_rules:
+  permanent_projects:
+    description: "Long-running, production-bound projects"
+    criteria:
+      - "Expected lifetime > 6 months"
+      - "Used by multiple team members"
+      - "Production deployment planned"
+    process: "Reserve specific ports in this file via PR"
+
+  temporary_projects:
+    description: "Development, testing, or short-term projects"
+    criteria:
+      - "Personal development projects"
+      - "Proof of concepts"
+      - "Expected lifetime < 6 months"
+    process: "Use dynamic allocation pool"
+
+# Maintenance procedures
+maintenance:
+  review_frequency: "monthly"
+  cleanup_criteria:
+    - "Project not active for 90+ days"
+    - "Owner confirms project is completed"
+    - "Repository archived or deleted"
+
+  reservation_process:
+    - "Create PR updating this port-registry.yaml"
+    - "Include project description and expected lifetime"
+    - "Get approval from data engineering team lead"
+    - "Merge PR to reserve ports"
+
+# Usage instructions
+usage_instructions: |
+  1. For permanent projects: Reserve ports by updating this file via PR
+  2. For temporary projects: Use dynamic allocation (get-ports.sh will assign automatically)
+  3. Check this file before starting new projects to avoid conflicts
+  4. Update project status and cleanup unused reservations monthly
+
+# Integration with cookiecutter
+cookiecutter_integration:
+  # How this integrates with your-org-defaults.yaml
+  reserved_port_variable: "reserved_ports"
+  dynamic_allocation_variable: "dynamic_ports"
+
+  # Template variables that will be set based on project type
+  variables:
+    airflow_host_port: "${AIRFLOW_PORT}"
+    postgres_host_port: "${POSTGRES_PORT}"

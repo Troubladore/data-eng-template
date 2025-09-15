@@ -75,6 +75,53 @@ default_context:
   # Docker Hub: "yourorg/{{ cookiecutter.customer_slug }}-etl"
 ```
 
+### **2.3: Port Management Strategy**
+
+**Critical**: Set up port management to coordinate team development and avoid conflicts.
+
+```bash
+# Review the port registry template
+cat org-standards/port-registry.yaml
+
+# Customize port ranges for your organization
+# Edit org-standards/port-registry.yaml:
+# - Update port ranges to fit your network policies
+# - Set initial project reservations
+# - Define permanent vs temporary project criteria
+```
+
+**Port Registry Configuration**:
+```yaml
+# Example customization for your org
+port_allocation:
+  development:
+    range_start: 8100  # Adjust for your network
+    range_end: 8199
+  database:
+    range_start: 5500
+    range_end: 5599
+
+reserved_ports:
+  # Add your organization's existing projects
+  existing-analytics:
+    airflow_port: 8101
+    postgres_port: 5501
+    owner: "analytics-team"
+    description: "Existing analytics pipeline"
+```
+
+**Test port management**:
+```bash
+# Check port management system
+./scripts/manage-ports.sh status
+
+# Reserve ports for a test project
+./scripts/manage-ports.sh reserve test-project "your-team" "Test project for validation"
+
+# Verify reservation worked
+./scripts/manage-ports.sh check test-project
+```
+
 **Registry Access Setup**:
 ```bash
 # Ensure all team members can push/pull
@@ -287,8 +334,22 @@ cat > TEAM-ONBOARDING.md << 'EOF'
 4. Test: Generate sample project with your-org-defaults.yaml
 
 ## Daily Usage
+
+### Option 1: Intelligent Generation (Recommended)
 ```bash
-# Generate new project
+# Use the intelligent project generator with port management
+./scripts/generate-project.sh
+
+# This will:
+# 1. Ask if project is permanent or temporary
+# 2. Handle port reservations automatically
+# 3. Generate project with appropriate port configuration
+# 4. Provide specific next steps
+```
+
+### Option 2: Manual Generation
+```bash
+# Traditional cookiecutter approach
 cookiecutter . --config-file your-org-defaults.yaml
 
 # Answer only 3 prompts:
@@ -296,8 +357,23 @@ cookiecutter . --config-file your-org-defaults.yaml
 # - description: Brief project description
 # - deployment_mode: production
 
-# Everything else uses optimized organization defaults
+# For permanent projects: reserve ports manually
+./scripts/manage-ports.sh reserve your-project-name "your-team" "Project description"
 ```
+
+## Port Management Workflow
+
+### For Permanent Projects
+1. **Reserve ports**: Use `./scripts/manage-ports.sh reserve`
+2. **Commit reservation**: Add `org-standards/port-registry.yaml` to git
+3. **Generate project**: Ports will be automatically configured
+4. **Access services**: Use predictable, documented URLs
+
+### For Temporary Projects
+1. **Generate project**: No port reservation needed
+2. **Start services**: Dynamic ports assigned automatically
+3. **Discover ports**: Use `./scripts/get-ports.sh` in generated project
+4. **Clean up**: Ports freed automatically when containers stop
 
 ## Troubleshooting
 - Slow builds? Check python_version consistency across projects

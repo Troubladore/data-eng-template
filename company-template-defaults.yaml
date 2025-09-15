@@ -39,6 +39,13 @@ default_context:
   secrets_strategy: "azure-key-vault"
   year: "2025"
 
+# Port Management Integration
+# Set these variables to integrate with your organization's port registry
+port_management:
+  # These will be set by generate-project.sh based on port reservations
+  airflow_host_port: "${AIRFLOW_PORT:-0}"      # 0 = dynamic allocation
+  postgres_host_port: "${POSTGRES_PORT:-0}"    # 0 = dynamic allocation
+
 # Example: Company-specific overrides
 # Copy this file and modify for your organization:
 #
@@ -61,3 +68,8 @@ default_context:
 # 2. Modify the values under default_context
 # 3. Use with: cookiecutter . --config-file your-company-defaults.yaml
 # 4. You'll only be prompted for customer_slug, description, and deployment_mode
+#
+# Port Management:
+# 1. Check port registry: ./scripts/manage-ports.sh status
+# 2. Reserve ports for permanent projects: ./scripts/manage-ports.sh reserve <project> <owner> <description>
+# 3. For temporary projects: ports will be allocated dynamically
