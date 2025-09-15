@@ -1,0 +1,63 @@
+# Company Template Defaults Configuration
+# Use with: cookiecutter . --config-file company-template-defaults.yaml
+#
+# This file allows organizations to set their own defaults for cookiecutter prompts,
+# reducing the number of questions users need to answer.
+#
+# Only the 3 required prompts will be asked:
+# - customer_slug
+# - description
+# - deployment_mode
+#
+# All other values below will be used as defaults (can be overridden with --no-input=false)
+
+default_context:
+  # REQUIRED: These 3 prompts cannot be defaulted and must be answered
+  customer_slug: "customer-a"
+  description: "Modern data engineering project with Astronomer, Airflow, dbt, and Hydra configuration"
+  deployment_mode: "production"
+
+  # OPTIONAL: Company-specific defaults (alphabetical order)
+  airflow_version: "3.0.6"
+  author_name: "Data Engineering Team"
+  company_domain: "myco.com"
+  db_name: "{{ cookiecutter.customer_slug.replace('-', '_') }}_etl"
+  db_password: "postgres"
+  db_user: "postgres"
+  enable_kerberos: "no"
+  env_name: "dev"
+  executor: "KubernetesExecutor"
+  high_label: "high"
+  image_repo: "registry.example.com/etl/{{ cookiecutter.customer_slug }}"
+  license: "Proprietary"
+  local_domain: "localhost"
+  postgres_version: "16"
+  project_name: "{{ cookiecutter.customer_slug | title }} ETL Project"
+  project_slug: "{{ cookiecutter.customer_slug }}-etl"
+  python_version: "3.12"
+  runtime_tag: "3.0-10"
+  secrets_strategy: "azure-key-vault"
+  year: "2025"
+
+# Example: Company-specific overrides
+# Copy this file and modify for your organization:
+#
+# default_context:
+#   # Required prompts (still need to be answered)
+#   customer_slug: "customer-a"
+#   description: "Data engineering project"
+#   deployment_mode: "production"
+#
+#   # Your company's defaults
+#   author_name: "Acme Analytics Team"
+#   company_domain: "acme.com"
+#   image_repo: "acr.acme.com/data-eng/{{ cookiecutter.customer_slug }}"
+#   secrets_strategy: "azure-key-vault"
+#   executor: "KubernetesExecutor"
+#   license: "Proprietary"
+#
+# Usage:
+# 1. Copy this file to your-company-defaults.yaml
+# 2. Modify the values under default_context
+# 3. Use with: cookiecutter . --config-file your-company-defaults.yaml
+# 4. You'll only be prompted for customer_slug, description, and deployment_mode

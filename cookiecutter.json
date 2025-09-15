@@ -1,44 +1,44 @@
 {
   "customer_slug": "customer-a",
-  "project_slug": "{{ cookiecutter.customer_slug }}-etl",
-  "project_name": "{{ cookiecutter.customer_slug | title }} ETL Project",
-  "author_name": "Data Engineering Team",
   "description": "Modern data engineering project with Astronomer, Airflow, dbt, and Hydra configuration",
-  "python_version": "3.12",
-  "airflow_version": "3.0.6",
-  "runtime_tag": "3.0-10",
-  "image_repo": "registry.example.com/etl/{{ cookiecutter.customer_slug }}",
-  "postgres_version": "16",
   "deployment_mode": [
     "production",
     "testing"
   ],
+  "airflow_version": "3.0.6",
+  "author_name": "Data Engineering Team",
+  "company_domain": "myco.com",
+  "db_name": "{{ cookiecutter.customer_slug.replace('-', '_') }}_etl",
+  "db_password": "postgres",
+  "db_user": "postgres",
+  "enable_kerberos": [
+    "no",
+    "yes"
+  ],
   "env_name": [
     "dev",
-    "int", 
+    "int",
     "qa",
     "prod"
   ],
-  "company_domain": "myco.com",
-  "local_domain": "localhost",
-  "high_label": "high",
   "executor": [
     "KubernetesExecutor",
     "CeleryExecutor",
     "LocalExecutor"
   ],
+  "high_label": "high",
+  "image_repo": "registry.example.com/etl/{{ cookiecutter.customer_slug }}",
+  "license": ["Proprietary", "MIT", "Apache-2.0"],
+  "local_domain": "localhost",
+  "postgres_version": "16",
+  "project_name": "{{ cookiecutter.customer_slug | title }} ETL Project",
+  "project_slug": "{{ cookiecutter.customer_slug }}-etl",
+  "python_version": "3.12",
+  "runtime_tag": "3.0-10",
   "secrets_strategy": [
     "azure-key-vault",
     "external-secrets-operator",
     "env-vars"
   ],
-  "enable_kerberos": [
-    "yes",
-    "no"
-  ],
-  "db_name": "{{ cookiecutter.customer_slug.replace('-', '_') }}_etl",
-  "db_user": "postgres",
-  "db_password": "postgres",
-  "license": ["Proprietary", "MIT", "Apache-2.0"],
   "year": "2025"
 }

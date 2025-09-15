@@ -35,40 +35,58 @@ docker compose up -d
 
 ## 🚀 **Template Configuration**
 
-During generation, you'll be prompted for these values. **This table explains each prompt to avoid guessing the author's intent:**
+### ⚡ **Streamlined Experience: Only 3 Required Prompts**
 
-| Prompt | Description | Choices/Format | Choice Definitions | Examples |
-|--------|-------------|----------------|-------------------|----------|
-| **`customer_slug`** | Project identifier used throughout the codebase | Free text (kebab-case) | Short, descriptive project identifier | `awesome-analytics`, `customer-a`, `fraud-detection` |
-| **`project_slug`** | Generated automatically | `{customer_slug}-etl` | Auto-generated from customer_slug | `awesome-analytics-etl` |
-| **`project_name`** | Human-readable project title | Generated from slug | Used in documentation and displays | `Awesome Analytics ETL Project` |
-| **`author_name`** | Project maintainer/team | Free text | Who to contact for this project | `Data Engineering Team`, `Analytics Squad` |
-| **`description`** | Brief project summary | Free text | One-line description for documentation | Default is sensible for most cases |
-| **`python_version`** | Python runtime version | `3.12` (default) | Python version for containers and dev | `3.12` recommended for latest features |
-| **`airflow_version`** | Airflow version | `3.0.6` (default) | Airflow runtime version | `3.0.6` is current Astronomer stable |
-| **`runtime_tag`** | Astronomer runtime tag | `3.0-10` (default) | Astronomer's runtime image tag | Matches Airflow version, use default |
-| **`image_repo`** | Container registry path | Format: `registry.domain.com/path/{slug}` | Where to push custom images | `registry.example.com/etl/awesome-analytics` |
-| **`postgres_version`** | PostgreSQL version | `16` (default) | Database version for development | `16` is latest stable with JSON features |
-| **`deployment_mode`** | Container naming strategy | `production`, `testing` | **production**: Clean names for prod deployment<br/>**testing**: Prefixed names for isolation | Choose `production` for real projects |
-| **`env_name`** | Default environment | `dev`, `int`, `qa`, `prod` | **dev**: Development with debug enabled<br/>**int**: Integration testing<br/>**qa**: Quality assurance testing<br/>**prod**: Production deployment | Start with `dev` for development |
-| **`company_domain`** | Production domain | Domain format | Your organization's domain for prod | `mycompany.com`, `analytics.corp.com` |
-| **`local_domain`** | Development domain | `localhost` (default) | Domain for local development | Keep as `localhost` |
-| **`high_label`** | Security classification | Free text | Label for sensitive workloads | `high`, `sensitive`, `restricted` |
-| **`executor`** | Airflow executor type | `KubernetesExecutor`, `CeleryExecutor`, `LocalExecutor` | **KubernetesExecutor**: Scalable, isolated task execution<br/>**CeleryExecutor**: Distributed workers<br/>**LocalExecutor**: Single-machine execution | `KubernetesExecutor` for production |
-| **`secrets_strategy`** | Secrets management | `azure-key-vault`, `external-secrets-operator`, `env-vars` | **azure-key-vault**: Azure Key Vault integration<br/>**external-secrets-operator**: K8s External Secrets<br/>**env-vars**: Simple environment variables | `azure-key-vault` for enterprise |
-| **`enable_kerberos`** | Kerberos authentication | `yes`, `no` | **yes**: Enable Kerberos for secure connections<br/>**no**: Standard authentication only | `yes` if your org uses Kerberos |
-| **`db_name`** | Database name | Auto-generated | Generated from customer_slug | `awesome_analytics_etl` |
-| **`db_user`** | Database username | `postgres` (default) | Development database user | Keep default for development |
-| **`db_password`** | Database password | `postgres` (default) | Development database password | Keep default for development |
-| **`license`** | Project license | `Proprietary`, `MIT`, `Apache-2.0` | **Proprietary**: Company/private use only<br/>**MIT**: Open source, permissive<br/>**Apache-2.0**: Open source with patent protection | `Proprietary` for company projects |
-| **`year`** | Copyright year | Current year | For license headers | `2025` |
+You'll only be prompted for these **3 essential values**:
 
-### 💡 **Recommended Choices for Most Projects**
-- **`deployment_mode`**: `production` (unless specifically testing template)
-- **`executor`**: `KubernetesExecutor` (scalable and modern)
-- **`secrets_strategy`**: `azure-key-vault` (enterprise-ready)
-- **`enable_kerberos`**: `no` (unless your organization requires it)
-- **`license`**: `Proprietary` (for company projects)
+| Prompt | Description | Examples |
+|--------|-------------|----------|
+| **`customer_slug`** | Project identifier (kebab-case) | `awesome-analytics`, `fraud-detection`, `customer-a` |
+| **`description`** | Brief project summary | `Customer analytics data pipeline`, `Fraud detection system` |
+| **`deployment_mode`** | Container naming strategy | **`production`** (clean names) or **`testing`** (prefixed for isolation) |
+
+**All other settings use sensible defaults** and can be customized later if needed.
+
+### 🏢 **Company Defaults Configuration**
+
+For organizations wanting to customize defaults:
+
+```bash
+# Copy and customize the defaults file
+cp company-template-defaults.yaml your-company-defaults.yaml
+
+# Edit your-company-defaults.yaml with your organization's settings:
+# - Container registry URLs
+# - Security settings (executor, secrets strategy)
+# - Author names and domains
+# - License preferences
+
+# Generate projects with your company defaults
+cookiecutter . --config-file your-company-defaults.yaml
+```
+
+### 🔧 **Advanced: All Available Options**
+
+If you need to customize any defaults, here are all available options:
+
+<details>
+<summary><strong>Click to expand full configuration options</strong></summary>
+
+| Option | Default | Choices | Description |
+|--------|---------|---------|-------------|
+| `airflow_version` | `3.0.6` | Version string | Airflow version |
+| `author_name` | `Data Engineering Team` | Free text | Project maintainer |
+| `company_domain` | `myco.com` | Domain | Production domain |
+| `enable_kerberos` | `no` | `no`, `yes` | Enable Kerberos auth |
+| `env_name` | `dev` | `dev`, `int`, `qa`, `prod` | Default environment |
+| `executor` | `KubernetesExecutor` | `KubernetesExecutor`, `CeleryExecutor`, `LocalExecutor` | Airflow executor |
+| `high_label` | `high` | Free text | Security classification |
+| `image_repo` | `registry.example.com/etl/{slug}` | Registry URL | Container registry |
+| `license` | `Proprietary` | `Proprietary`, `MIT`, `Apache-2.0` | Project license |
+| `python_version` | `3.12` | Version string | Python version |
+| `secrets_strategy` | `azure-key-vault` | `azure-key-vault`, `external-secrets-operator`, `env-vars` | Secrets management |
+
+</details>
 
 
 ## 🔧 **Development Workflow**
