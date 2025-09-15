@@ -54,9 +54,46 @@ cd .devcontainer
 docker compose up -d
 ```
 
-### Access Services
-- **Airflow UI**: http://localhost:8081 (admin/admin)
-- **Database**: localhost:5432 (postgres/postgres)
+### Discover Service Ports
+
+**Dynamic Port Allocation**: This template supports parallel development by using dynamic port allocation. Each project gets unique ports automatically.
+
+```bash
+# Discover your project's actual ports
+./scripts/get-ports.sh
+
+# Output example:
+# 🌐 Airflow UI: http://localhost:32768
+# 🗄️ PostgreSQL: localhost:32769
+```
+
+**Credentials**:
+- **Airflow**: admin/admin
+- **Database**: admin/admin
+
+### 🔄 **Parallel Development Support**
+
+**Multiple Projects**: You can run multiple Astronomer projects simultaneously without port conflicts:
+
+```bash
+# Terminal 1: Project A
+cd project-a-etl/
+./scripts/get-ports.sh
+# 🌐 Airflow UI: http://localhost:32768
+
+# Terminal 2: Project B
+cd project-b-etl/
+./scripts/get-ports.sh
+# 🌐 Airflow UI: http://localhost:32770
+
+# Both projects run independently with unique ports
+```
+
+**Use Cases**:
+- Develop in one project while monitoring long-running DAGs in another
+- Compare implementations between projects
+- Test integration between multiple data pipelines
+- Team members working on different projects simultaneously
 
 ## 🚀 **Template Configuration**
 

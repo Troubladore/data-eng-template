@@ -267,10 +267,11 @@ cd your-test-project-etl/
 code .  # Open in VS Code DevContainer
 
 # In VS Code DevContainer:
-# 1. Verify Airflow UI loads (http://localhost:8081)
-# 2. Run: make test
-# 3. Check build time (should be <2 minutes after first build)
-# 4. Verify registry push: docker push (to your org registry)
+# 1. Discover actual service ports: ./scripts/get-ports.sh
+# 2. Verify Airflow UI loads at discovered port
+# 3. Run: make test
+# 4. Check build time (should be <2 minutes after first build)
+# 5. Verify registry push: docker push (to your org registry)
 ```
 
 ### **5.2: Team Onboarding**
