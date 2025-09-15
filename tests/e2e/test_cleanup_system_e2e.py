@@ -246,7 +246,8 @@ class TestCleanupSystemE2E:
     @pytest.mark.skipif(shutil.which("docker") is None, reason="Docker not available")
     def test_cleanup_script_error_handling(self, template_dir, temp_output_dir, cleanup_scripts):
         """Test that cleanup scripts handle errors gracefully."""
-        project_slug = "error-handling-test"
+        customer_slug = "error-handling-test"
+        project_slug = f"{customer_slug}-etl"  # cookiecutter appends -etl
 
         # Generate a project
         result_dir = cookiecutter(
@@ -255,7 +256,7 @@ class TestCleanupSystemE2E:
             output_dir=temp_output_dir,
             extra_context={
                 'deployment_mode': 'testing',
-                'customer_slug': project_slug.replace('-etl', '')
+                'customer_slug': customer_slug
             }
         )
 

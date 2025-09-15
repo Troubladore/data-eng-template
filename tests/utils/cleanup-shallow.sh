@@ -23,13 +23,9 @@ cleanup_compose_project() {
     local project_name="$1"
     echo "Cleaning up Docker Compose project: $project_name"
 
-    # Try to stop and remove containers
-    if docker compose -p "$project_name" ps -q 2>/dev/null | grep -q .; then
-        echo "  Stopping containers..."
-        docker compose -p "$project_name" down --remove-orphans --volumes 2>/dev/null || true
-    else
-        echo "  No running containers found"
-    fi
+    # Try to stop and remove containers (both running and stopped)
+    echo "  Stopping and removing containers..."
+    docker compose -p "$project_name" down --remove-orphans --volumes 2>/dev/null || true
 
     # Remove any leftover containers with both compose labels and our custom labels
     local containers=$(docker ps -a --filter "label=com.docker.compose.project=$project_name" -q 2>/dev/null || true)
