@@ -108,7 +108,8 @@ for search_path in "${search_paths[@]}"; do
 
     # Look for generated folders (they will have the pattern from cookiecutter defaults)
     for dir in "$search_path"/customer-a-etl*/ "$search_path"/*-etl*/; do
-        if [[ -d "$dir" && "$(basename "$dir")" != "data-eng-template" ]]; then
+        # Skip the template directory itself (it has literal {{ }} in the name)
+        if [[ -d "$dir" && "$(basename "$dir")" != "data-eng-template" && "$(basename "$dir")" != *"cookiecutter"* ]]; then
             # Check if it looks like a generated project (has .devcontainer folder)
             if [[ -d "$dir/.devcontainer" ]]; then
                 echo "Found generated project: $dir"
