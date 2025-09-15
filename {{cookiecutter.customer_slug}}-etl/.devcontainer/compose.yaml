@@ -54,7 +54,7 @@ services:
     volumes: *airflow-volumes
     command: [
       "bash", "-c",
-      "airflow db migrate && airflow users create --username $$_AIRFLOW_WWW_USER_USERNAME --password $$_AIRFLOW_WWW_USER_PASSWORD --firstname Admin --lastname User --role Admin --email admin@example.com || true"
+      "airflow db migrate && airflow connections create --conn-id default --conn-type generic || true"
     ]
     depends_on:
       postgres:
