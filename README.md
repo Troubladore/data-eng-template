@@ -21,20 +21,16 @@ This template combines Astronomer's operational excellence with team-specific de
 
 ## How Do You Use It?
 
-**⚠️ This template requires proper organizational setup for optimal team results.**
-
 ### Step 1: Organizational Setup (Required First)
 
 **📚 [Complete the Organizational Setup Guide](docs/organizational-setup-guide.md)**
 
-This mandatory first step:
+**Why this step is required:**
 - **Sets up optimized caching defaults** (10-second rebuilds vs 10-minute rebuilds)
 - **Configures port management** to prevent team conflicts
 - **Establishes container registry** and security settings
 - **Creates team dependency standards** and workflow documentation
 - **Ensures persistence** of customizations across template updates
-
-**Why this step is required**: Skipping organizational setup leads to slow builds, port conflicts, configuration drift, and inconsistent team environments that waste hours of development time.
 
 ### Step 2: Project Generation
 
