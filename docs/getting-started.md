@@ -47,6 +47,16 @@ You'll only be prompted for these **3 essential values**:
 
 **All other settings use sensible defaults** and can be customized later if needed.
 
+### ⚡ **Critical: Configuration Choices Impact Caching!**
+
+**Your configuration choices directly affect Docker build performance!** Poor choices can mean 10-minute rebuilds instead of 10-second rebuilds for your entire team.
+
+**📚 [Read the complete Template Configuration Guide](template-configuration.md)** to understand:
+- **Cache-impacting settings** that affect build performance across your team
+- **Docker layer caching strategy** and how template choices influence it
+- **pyproject.toml considerations** for dependency caching
+- **Organizational best practices** for consistent, fast builds
+
 ### 🏢 **Company Defaults Configuration**
 
 For organizations wanting to customize defaults:

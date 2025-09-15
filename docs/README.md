@@ -2,6 +2,7 @@
 
 ## Getting Started
 - [getting-started.md](getting-started.md) - How to use this cookiecutter template
+- [template-configuration.md](template-configuration.md) - Configuration guide with caching implications
 - [directory-structure.md](directory-structure.md) - Template file organization
 
 ## Architecture & Requirements
