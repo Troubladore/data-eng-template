@@ -265,19 +265,23 @@ try:
 
             old_image_pattern = f"{project_slug}-airflow-dev"
 
-            # Use regex to replace build context and image references
+            # Replace build context + image pattern with single fingerprinted image
+            # This handles the common pattern: build block followed by image line
+            build_and_image_pattern = rf'build:\s*\n(\s+)context:.*?\n\1dockerfile:.*?\n(\1target:.*?\n)?\s+image:\s+{re.escape(old_image_pattern)}.*?\n'
+            replacement = f'image: {shared_image_name}\n'
+
+            compose_content = re.sub(
+                build_and_image_pattern,
+                replacement,
+                compose_content,
+                flags=re.MULTILINE | re.DOTALL
+            )
+
+            # Fallback: replace any remaining project-specific image references
             compose_content = re.sub(
                 rf'image:\s+{re.escape(old_image_pattern)}.*',
                 f'image: {shared_image_name}',
                 compose_content
-            )
-
-            # Also update any build context references to use pre-built image
-            compose_content = re.sub(
-                r'build:\s*\n\s*context:.*?\n\s*dockerfile:.*?\n',
-                f'image: {shared_image_name}\n',
-                compose_content,
-                flags=re.MULTILINE | re.DOTALL
             )
 
             compose_file.write_text(compose_content)
