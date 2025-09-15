@@ -2,12 +2,11 @@
 name = "{{cookiecutter.project_slug}}"
 version = "0.1.0"
 requires-python = "=={{cookiecutter.python_version}}.*"
-description = "Data engineering repo with Airflow (containers), Postgres, uv, ruff, sqlmodel, and dbt."
+description = "Data engineering repo with Airflow (containers), Postgres, uv, ruff, and dbt."
 dependencies = [
   # Core data engineering stack
-  "sqlmodel>=0.0.21",
   "pydantic>=2.7",
-  "sqlalchemy>=2.0",  # Modern SQLAlchemy 2.0+ (supported by Airflow 3.0+)
+  "sqlalchemy>=1.4.0,<2.0",  # SQLAlchemy 1.4.x (compatible with Airflow 3.0.6)
   "psycopg[binary]>=2.9",
   "dbt-core>=1.7",
   

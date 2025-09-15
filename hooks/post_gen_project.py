@@ -19,14 +19,16 @@ if not os.path.exists(os.path.join(HERE, "dags")):
         print("WARNING: Astro CLI not found; assuming project skeleton exists.")
 
 # 2) Export pinned requirements via uv if available
-if shutil.which("uv"):
+# Note: This will typically fail in fresh projects since pyproject.toml/uv.lock don't exist yet
+# The requirements.txt will be generated when users run `uv sync` in their development workflow
+if shutil.which("uv") and os.path.exists("pyproject.toml"):
     try:
         run(["uv", "export", "--frozen", "--no-hashes", "-o", "requirements.txt"])
         print("Exported requirements.txt via uv.")
     except subprocess.CalledProcessError:
-        print("WARNING: uv export failed. Run tools/uv/export.sh before building.")
+        print("Note: requirements.txt will be generated when you run 'uv sync' in development.")
 else:
-    print("WARNING: uv not found. Run tools/uv/export.sh before building.")
+    print("Note: requirements.txt will be generated when you run 'uv sync' in development.")
 
 # Create local Hydra configuration override with generated values
 local_config_dir = pathlib.Path("conf/local")
@@ -264,24 +266,15 @@ try:
 
             print(f"DEBUG: Looking for pattern '{old_image_pattern}' to replace with '{shared_image_name}'")
 
-            # Replace build context + image pattern with single fingerprinted image
-            # This handles the common pattern: build block followed by image line
-            build_and_image_pattern = rf'build:\s*\n(\s+)context:.*?\n\1dockerfile:.*?\n(\1target:.*?\n)?\s+image:\s+{re.escape(old_image_pattern)}.*?\n'
-            replacement = f'image: {shared_image_name}\n'
-
-            compose_content = re.sub(
-                build_and_image_pattern,
-                replacement,
-                compose_content,
-                flags=re.MULTILINE | re.DOTALL
-            )
-
-            # Fallback: replace any remaining project-specific image references
+            # Replace only the image name, keep build context for fallback
+            # This allows Docker to build locally if the fingerprinted image doesn't exist
             compose_content = re.sub(
                 rf'image:\s+{re.escape(old_image_pattern)}.*',
                 f'image: {shared_image_name}',
                 compose_content
             )
+
+            print(f"DEBUG: Replaced image references. Build contexts preserved for fallback.")
 
             compose_file.write_text(compose_content)
             print(f"Updated Docker Compose to use shared image: {shared_image_name}")
