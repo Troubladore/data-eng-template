@@ -60,7 +60,7 @@ default_context:
   postgres_version: "16"        # Modern database features
 ```
 
-**Why these choices**: → [See Critical Caching Settings details](template-configuration.md#critical-caching-settings)
+**Why these choices**: → [See Critical Caching Settings details](template-configuration.md#-critical-caching-settings)
 
 ### **Decision 2: Acme's Container Registry**
 
@@ -71,7 +71,7 @@ default_context:
   image_repo: "acme.azurecr.io/data-eng/{{ cookiecutter.customer_slug }}"
 ```
 
-**Registry decision factors**: → [See Container Registry Configuration details](template-configuration.md#container-registry-configuration)
+**Registry decision factors**: → [See Container Registry Configuration details](template-configuration.md#-container-registry-configuration)
 
 ### **Decision 3: Security Strategy**
 
@@ -85,7 +85,7 @@ default_context:
   license: "Proprietary"               # Internal company code
 ```
 
-**Security choice rationale**: → [See Security and Enterprise Settings details](template-configuration.md#security-and-enterprise-settings)
+**Security choice rationale**: → [See Security and Enterprise Settings details](template-configuration.md#-security-and-enterprise-settings)
 
 ### **Decision 4: Acme Organizational Identity**
 
@@ -98,7 +98,7 @@ default_context:
   high_label: "confidential"          # Acme's classification level
 ```
 
-**Organizational settings**: → [See Organizational Settings details](template-configuration.md#organizational-and-documentation-settings)
+**Organizational settings**: → [See Organizational Settings details](template-configuration.md#-organizational-and-documentation-settings)
 
 ### **Decision 5: Development Environment**
 
@@ -112,7 +112,7 @@ default_context:
   db_password: "postgres"              # Dev environments only
 ```
 
-**Environment choices**: → [See Environment and Database Settings details](template-configuration.md#environment-and-database-settings)
+**Environment choices**: → [See Environment and Database Settings details](template-configuration.md#-environment-and-database-settings)
 
 ---
 
@@ -187,8 +187,6 @@ You'll only be asked 3 questions:
 ## Questions?
 
 See the [Template Configuration Guide](template-configuration.md) for technical details on any setting.
-EOF
-```
 
 ---
 
@@ -218,11 +216,11 @@ EOF
 
 | Configuration Area | Your Decision | Where to Learn More |
 |--------------------|---------------|-------------------|
-| **Python/Airflow versions** | What has your org standardized on? | [Critical Caching Settings →](template-configuration.md#critical-caching-settings) |
-| **Container registry** | Azure ACR? AWS ECR? GCP? Docker Hub? | [Container Registry Configuration →](template-configuration.md#container-registry-configuration) |
-| **Security strategy** | Key Vault? External Secrets? Simple env vars? | [Security Settings →](template-configuration.md#security-and-enterprise-settings) |
-| **Kubernetes setup** | Do you have K8s clusters? | [Executor Configuration →](template-configuration.md#security-and-enterprise-settings) |
-| **Company branding** | Team name, domain, classification levels? | [Organizational Settings →](template-configuration.md#organizational-and-documentation-settings) |
+| **Python/Airflow versions** | What has your org standardized on? | [Critical Caching Settings →](template-configuration.md#-critical-caching-settings) |
+| **Container registry** | Azure ACR? AWS ECR? GCP? Docker Hub? | [Container Registry Configuration →](template-configuration.md#-container-registry-configuration) |
+| **Security strategy** | Key Vault? External Secrets? Simple env vars? | [Security Settings →](template-configuration.md#-security-and-enterprise-settings) |
+| **Kubernetes setup** | Do you have K8s clusters? | [Executor Configuration →](template-configuration.md#-security-and-enterprise-settings) |
+| **Company branding** | Team name, domain, classification levels? | [Organizational Settings →](template-configuration.md#-organizational-and-documentation-settings) |
 
 **For detailed explanations of every setting, caching implications, and technical trade-offs**: → **[Template Configuration Guide](template-configuration.md)**
 
