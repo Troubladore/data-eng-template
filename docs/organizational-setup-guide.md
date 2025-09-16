@@ -78,6 +78,16 @@ She modifies the template's `cookiecutter.json` to set organizational choices:
 }
 ```
 
+Then she creates `acme-defaults.yaml` to set organizational defaults from those choices:
+
+```yaml
+default_context:
+  # Technology standards (first choice from each array becomes default)
+  python_version: "3.12.11"        # Company-wide Python standard
+  airflow_version: "3.0.6"         # Latest stable for new features
+  postgres_version: "16"           # Modern database features
+```
+
 *Sarah's reasoning: "This gives developers appropriate choices while ensuring cache sharing within each technology stack. The first option becomes the default, so most projects get our standards automatically."*
 
 **Why constrained choices**: → [See Critical Caching Settings details](template-configuration.md#-critical-caching-settings)
@@ -86,16 +96,7 @@ She modifies the template's `cookiecutter.json` to set organizational choices:
 
 *Sarah thinks: "Now I need to set up choices for our infrastructure and security settings. Some things we hard-code (like our container registry), others we give constrained options."*
 
-**Hard-coded organizational standards** (edit in `cookiecutter.json`):
-```json
-{
-  "image_repo": "acme.azurecr.io/data-eng/{{ cookiecutter.customer_slug }}",
-  "company_domain": "acme.com",
-  "author_name": "Acme Analytics Team"
-}
-```
-
-**Constrained organizational choices** (edit in `cookiecutter.json`):
+**Organizational choices in cookiecutter.json** (already configured):
 ```json
 {
   "secrets_strategy": [
@@ -115,6 +116,20 @@ She modifies the template's `cookiecutter.json` to set organizational choices:
 }
 ```
 
+**Organizational defaults in acme-defaults.yaml**:
+```yaml
+default_context:
+  # Hard-coded organizational infrastructure
+  image_repo: "acme.azurecr.io/data-eng/{{ cookiecutter.customer_slug }}"
+  company_domain: "acme.com"
+
+  # Default choices (teams can override with --no-input=false)
+  secrets_strategy: "azure-key-vault"  # Company standard
+  executor: "KubernetesExecutor"       # We have AKS clusters
+  enable_kerberos: "no"                # We use modern auth
+  license: "Proprietary"               # Internal company code
+```
+
 *Sarah's reasoning: "I hard-code things that never change (our Azure infrastructure), but provide choices for things where different projects might have different needs while staying within our approved options."*
 
 **Note**: Cookiecutter provides single-select choices only. For scenarios requiring multiple selections (like supporting multiple executors in one project), that would be handled in the generated project's runtime configuration, not in the template generation step.
@@ -123,7 +138,7 @@ She modifies the template's `cookiecutter.json` to set organizational choices:
 
 *Sarah thinks: "For environment workflows, I want to give teams options but start with dev as the sensible default. Database settings can be hard-coded for simplicity."*
 
-**Environment workflow choices** (edit in `cookiecutter.json`):
+**Environment choices in cookiecutter.json** (already configured):
 ```json
 {
   "env_name": [
@@ -135,13 +150,16 @@ She modifies the template's `cookiecutter.json` to set organizational choices:
 }
 ```
 
-**Hard-coded development defaults** (edit in `cookiecutter.json`):
-```json
-{
-  "local_domain": "localhost",     // Keep it simple for dev
-  "db_user": "postgres",           // Standard dev default
-  "db_password": "postgres"        // Dev environments only
-}
+**Development defaults in acme-defaults.yaml**:
+```yaml
+default_context:
+  # Environment workflow default
+  env_name: "dev"                      # Start in development mode
+
+  # Hard-coded development defaults
+  local_domain: "localhost"            # Keep it simple
+  db_user: "postgres"                  # Standard defaults
+  db_password: "postgres"              # Dev environments only
 ```
 
 *Sarah's reasoning: "Environment names should be choices since teams deploy to different stages, but dev database credentials can be hard-coded since they're only for local development."*

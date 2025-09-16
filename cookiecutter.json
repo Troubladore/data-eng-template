@@ -10,7 +10,7 @@
     "3.0.7",
     "2.10.2"
   ],
-  "author_name": "Data Engineering Team",
+  "author_name": null,
   "company_domain": "myco.com",
   "db_name": "{{ cookiecutter.customer_slug.replace('-', '_') }}_etl",
   "db_password": "postgres",
