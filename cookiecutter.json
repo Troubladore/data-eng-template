@@ -34,10 +34,18 @@
   "image_repo": "registry.example.com/etl/{{ cookiecutter.customer_slug }}",
   "license": ["Proprietary", "MIT", "Apache-2.0"],
   "local_domain": "localhost",
-  "postgres_version": "16",
+  "postgres_version": [
+    "16",
+    "15",
+    "17"
+  ],
   "project_name": "{{ cookiecutter.customer_slug | title }} ETL Project",
   "project_slug": "{{ cookiecutter.customer_slug }}-etl",
-  "python_version": "3.12",
+  "python_version": [
+    "3.12",
+    "3.11",
+    "3.13"
+  ],
   "runtime_tag": "{% if cookiecutter.airflow_version.startswith('3.0.6') %}3.0-10{% elif cookiecutter.airflow_version.startswith('3.0.7') %}3.0-11{% elif cookiecutter.airflow_version.startswith('2.10.2') %}2.10-1{% else %}3.0-10{% endif %}",
   "secrets_strategy": [
     "azure-key-vault",

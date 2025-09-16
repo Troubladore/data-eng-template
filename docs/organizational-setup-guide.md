@@ -46,21 +46,40 @@ cp company-template-defaults.yaml acme-defaults.yaml
 
 ## 🎯 **Step 2: Sarah's Configuration Decisions**
 
-### **Decision 1: Critical Caching Settings**
+### **Decision 1: Technology Standards and Choice Control**
 
-*Sarah thinks: "My team wastes 20-30 minutes daily on Docker builds. If everyone uses different Python versions, we can't share any cached layers."*
+*Sarah thinks: "My team wastes 20-30 minutes daily on Docker builds. If everyone uses different Python versions, we can't share any cached layers. But I also need to balance standardization with giving my team options for different project needs."*
 
-She opens `acme-defaults.yaml` and sets the foundation:
+**Sarah's Technology Assessment:**
+- **Python 3.12**: Company standard, but some legacy projects need 3.11, and early adopters want 3.13 for performance testing
+- **Airflow 3.0.6**: Current stable, but 3.0.7 has bug fixes some teams need, and 2.10.2 for legacy compatibility
+- **PostgreSQL 16**: Our standard, but 15 for legacy systems and 17 for teams wanting cutting-edge features
 
-```yaml
-default_context:
-  # Critical: Everyone at Acme uses these exact versions
-  python_version: "3.12"        # Company-wide Python standard
-  airflow_version: "3.0.6"      # Latest stable for new features
-  postgres_version: "16"        # Modern database features
+She modifies the template's `cookiecutter.json` to set organizational choices:
+
+```json
+{
+  "python_version": [
+    "3.12",    // Default: company standard
+    "3.11",    // Legacy project compatibility
+    "3.13"     // Early adopter performance testing
+  ],
+  "airflow_version": [
+    "3.0.6",   // Default: current stable
+    "3.0.7",   // Bug fixes for specific teams
+    "2.10.2"   // Legacy system compatibility
+  ],
+  "postgres_version": [
+    "16",      // Default: company standard
+    "15",      // Legacy system support
+    "17"       // Cutting-edge features
+  ]
+}
 ```
 
-**Why these choices**: → [See Critical Caching Settings details](template-configuration.md#-critical-caching-settings)
+*Sarah's reasoning: "This gives developers appropriate choices while ensuring cache sharing within each technology stack. The first option becomes the default, so most projects get our standards automatically."*
+
+**Why constrained choices**: → [See Critical Caching Settings details](template-configuration.md#-critical-caching-settings)
 
 ### **Decision 2: Acme's Container Registry**
 
@@ -208,13 +227,51 @@ See the [Template Configuration Guide](template-configuration.md) for technical 
 
 **Step 1**: Fork or clone the template
 
-**Step 2**: Copy `company-template-defaults.yaml` to `your-org-defaults.yaml`
+**Step 2**: **Set Organizational Technology Choices** - Edit `cookiecutter.json` to define your supported versions:
 
-**Step 3**: Make your configuration decisions (use the [Template Configuration Guide](template-configuration.md) for detailed explanations)
+```json
+{
+  "python_version": [
+    "3.12",      // Your primary standard (becomes default)
+    "3.11"       // Add other versions your org supports
+  ],
+  "airflow_version": [
+    "3.0.6",     // Your primary standard (becomes default)
+    "3.0.7"      // Add other versions for specific needs
+  ],
+  "postgres_version": [
+    "16",        // Your primary standard (becomes default)
+    "15"         // Add for legacy compatibility if needed
+  ]
+}
+```
 
-**Step 4**: Test with a sample project
+**Step 3**: **Set Organizational Defaults** - Copy `company-template-defaults.yaml` to `your-org-defaults.yaml`
 
-**Step 5**: Commit and share with your team
+**Step 4**: Make your configuration decisions (use the [Template Configuration Guide](template-configuration.md) for detailed explanations)
+
+**Step 5**: Test with a sample project
+
+**Step 6**: Commit and share with your team
+
+### **Customizing Technology Choices**
+
+**Key Principle**: The first item in each choice array becomes the default. Organize your choices by priority:
+
+```json
+"python_version": [
+  "3.12",        // ✅ Default - most projects get this automatically
+  "3.11",        // Legacy support option
+  "3.13"         // Early adopter option
+]
+```
+
+**Benefits of Constrained Choices**:
+- ✅ **Cache sharing**: Projects using same versions share Docker layers
+- ✅ **Prevents invalid combinations**: No accidental unsupported versions
+- ✅ **Easy organizational control**: Just edit the template's cookiecutter.json
+- ✅ **Clear options**: Developers see exactly what's supported
+- ✅ **Default compliance**: Most projects automatically use organizational standards
 
 ### **Key Configuration Areas to Consider**
 

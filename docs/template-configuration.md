@@ -79,9 +79,9 @@ These settings have **massive impact** on Docker build performance. Misalignment
 
 | Setting | Short Description | Format | Examples/Choices | Suggested Default |
 |---------|-------------------|--------|------------------|-------------------|
-| **`python_version`** | Python runtime version for all containers | Version number | `3.11`, `3.12`, `3.13` | `3.12` |
+| **`python_version`** | Python runtime version for all containers | Choice | `3.12`, `3.11`, `3.13` | `3.12` |
 | **`airflow_version`** | Airflow runtime version | Choice | `3.0.6`, `3.0.7`, `2.10.2` | `3.0.6` |
-| **`postgres_version`** | PostgreSQL database version | Major version | `15`, `16`, `17` | `16` |
+| **`postgres_version`** | PostgreSQL database version | Choice | `16`, `15`, `17` | `16` |
 
 <details>
 <summary><strong>python_version</strong> <a id="python_version"></a></summary>
