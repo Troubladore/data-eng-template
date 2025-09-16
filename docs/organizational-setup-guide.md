@@ -4,7 +4,7 @@
 
 This template contains numerous configurable attributes within both the cookiecutter system and the Hydra configuration framework that supports generated projects. The key insight is that **most of these decisions should be made once at the organizational or departmental level**, rather than forcing individual developers to repeatedly make the same choices.
 
-Rather than having each developer manage configuration conflicts individually, **we declare these settings centrally and apply them globally** at the developer workstation level. For critical settings that affect Docker layer caching, organizations should provide *constrained choices* rather than unlimited freedom - balancing developer flexibility with cache optimization. This prevents the accumulation of configuration debt and ensures consistent, conflict-free environments across your entire team.
+Rather than having each developer manage configuration conflicts individually, **we declare these settings centrally and apply them globally** at the developer workstation level. For critical settings that affect Docker layer caching, organizations should provide *constrained choices* rather than unlimited freedom - balancing implementation flexibility vs best practices and operational sustainability. This prevents the accumulation of configuration debt and ensures consistent, conflict-free environments across your entire team.
 
 After this setup, individual developers can focus on building data pipelines rather than wrestling with configuration decisions and environment conflicts.
 
