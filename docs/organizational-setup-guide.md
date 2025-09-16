@@ -4,452 +4,238 @@
 
 This template contains numerous configurable attributes within both the cookiecutter system and the Hydra configuration framework that supports generated projects. The key insight is that **most of these decisions should be made once at the organizational or departmental level**, rather than forcing individual developers to repeatedly make the same choices.
 
-### **Organizational Defaults Philosophy**
+Rather than having each developer manage configuration conflicts individually, **we declare these settings centrally and apply them globally** at the developer workstation level. This prevents the accumulation of configuration debt and ensures consistent, conflict-free environments across your entire team.
 
-The goal is to capture and default as many organizational decisions as possible, so your team members don't have to constantly think and worry about what the right choices are for your specific context:
+After this setup, individual developers can focus on building data pipelines rather than wrestling with configuration decisions and environment conflicts.
 
-- **Container registries**: Which registry does your org use? Azure ACR, AWS ECR, GCP Container Registry?
-- **Security strategies**: Azure Key Vault, External Secrets Operator, or simple environment variables?
-- **Python versions**: What version has your org standardized on?
-- **Executor types**: KubernetesExecutor for scale, or CeleryExecutor for your infrastructure?
-- **Port assignments**: Which projects get which ports to avoid conflicts?
+---
 
-### **Development Environment Hygiene**
+## 🏢 **Walkthrough: Setting Up Acme Analytics**
 
-Additionally, development environments easily get littered with the "dead ships" of abandoned repositories and containers. Teams frequently run into non-value-added configuration conflicts—especially around port settings—that create friction and waste time.
+*Let's follow Sarah, the Data Engineering Team Lead at Acme Analytics, as she sets up organizational defaults for her team of 8 data engineers.*
 
-Rather than having each developer manage these conflicts individually, **we declare these settings centrally and apply them globally** at the developer workstation level. This prevents the accumulation of configuration debt and ensures consistent, conflict-free environments across your entire team.
+### **Sarah's Infrastructure Assessment**
 
-### **The Result: Seamless, Aligned Experience**
+**Sarah starts by reviewing Acme's existing infrastructure:**
 
-This organizational setup step is where we configure things **once** to ensure that seamless, aligned experience for everyone on your team. After this setup, individual developers can focus on building data pipelines rather than wrestling with configuration decisions and environment conflicts.
+- **Cloud Platform**: Azure (standardized across company)
+- **Container Registry**: Azure Container Registry (`acme.azurecr.io`)
+- **Security**: Azure Key Vault for secrets management
+- **Kubernetes**: AKS clusters for production workloads
+- **Team Standards**: Python 3.12, standardized linting rules
 
-## 🏢 **Step 1: Clone and Configure Template for Your Organization**
+**Her Goal**: Configure the template so her team only answers the 3 essential questions (project name, description, deployment mode) while automatically inheriting all of Acme's organizational standards.
 
-### **1.1: Fork or Clone the Template**
+---
 
-Choose whether to make a permanent fork where you can maintain common team standards (Option A), or just work locally for now (Option B):
+## 🔧 **Step 1: Clone and Configure Template**
 
-#### **Option A: Private Fork (Recommended)**
+Sarah starts by forking the template for Acme Analytics:
+
 ```bash
-# Fork https://github.com/Troubladore/data-eng-template to your organization
-# Then clone your fork
-git clone https://github.com/your-org/data-eng-template.git
+# Sarah forks the template to her organization
+git clone https://github.com/acme/data-eng-template.git
 cd data-eng-template
+git checkout -b acme-config
 
-# Create your organization's configuration branch
-git checkout -b your-org-config
+# Copy the template to customize
+cp company-template-defaults.yaml acme-defaults.yaml
 ```
 
-**Benefits**:
-- ✅ Persists across template updates
-- ✅ Version controlled organizational standards
-- ✅ Can merge upstream updates while keeping customizations
+---
 
-#### **Option B: Local Clone with Git Ignore**
-```bash
-git clone https://github.com/Troubladore/data-eng-template.git
-cd data-eng-template
+## 🎯 **Step 2: Sarah's Configuration Decisions**
 
-# Your customizations will be git-ignored (see .gitignore section below)
-```
+### **Decision 1: Critical Caching Settings**
 
-**Benefits**:
-- ✅ Simpler workflow
-- ❌ Customizations not version controlled
-- ❌ Manual backup required
+*Sarah thinks: "My team wastes 20-30 minutes daily on Docker builds. If everyone uses different Python versions, we can't share any cached layers."*
 
-### **1.2: Create Your Organization's Configuration**
+She opens `acme-defaults.yaml` and sets the foundation:
 
-```bash
-# Copy the template defaults
-cp company-template-defaults.yaml your-org-defaults.yaml
-```
-
-## 🔧 **Step 2: Guided Configuration Optimization**
-
-Edit `your-org-defaults.yaml` with your organization's standards. For detailed explanations of each configuration option and their caching implications, see **[Template Configuration Guide](template-configuration.md)**.
-
-The following sections correspond directly to the settings in your `your-org-defaults.yaml` file:
-
-### **2.1: Critical Caching Settings**
-Update these settings that directly impact build performance:
 ```yaml
 default_context:
-  # ⚡ Critical: Same across ALL team projects for optimal caching
-  python_version: "3.12"           # Python runtime version
-  airflow_version: "3.0.6"         # Airflow version
-  postgres_version: "16"           # Database container version
-  runtime_tag: "3.0-10"           # Must match airflow_version exactly
+  # Critical: Everyone at Acme uses these exact versions
+  python_version: "3.12"        # Company-wide Python standard
+  airflow_version: "3.0.6"      # Latest stable for new features
+  postgres_version: "16"        # Modern database features
 ```
 
-**Why this matters**: Teams using different versions rebuild all Docker layers from scratch, wasting hours of build time daily.
+**Why these choices**: → [See Critical Caching Settings details](template-configuration.md#critical-caching-settings)
 
-### **2.2: Container Registry Configuration**
+### **Decision 2: Acme's Container Registry**
+
+*Sarah thinks: "We're an Azure shop. All our images should go to our ACR, and follow our naming conventions."*
+
 ```yaml
 default_context:
-  # UPDATE with your organization's container registry
-  image_repo: "registry.example.com/etl/{{ cookiecutter.customer_slug }}"
-
-  # Examples for your organization:
-  # Azure: "yourregistry.azurecr.io/data-eng/{{ cookiecutter.customer_slug }}"
-  # AWS: "123456789.dkr.ecr.us-east-1.amazonaws.com/data-eng/{{ cookiecutter.customer_slug }}"
-  # GCP: "gcr.io/your-project/data-eng/{{ cookiecutter.customer_slug }}"
-  # Docker Hub: "yourorg/{{ cookiecutter.customer_slug }}-etl"
+  image_repo: "acme.azurecr.io/data-eng/{{ cookiecutter.customer_slug }}"
 ```
 
-### **2.3: Port Management Strategy**
+**Registry decision factors**: → [See Container Registry Configuration details](template-configuration.md#container-registry-configuration)
 
-**Critical**: Set up port management to coordinate team development and avoid conflicts.
+### **Decision 3: Security Strategy**
 
-```bash
-# Review the port registry template
-cat org-standards/port-registry.yaml
+*Sarah thinks: "We're already using Azure Key Vault company-wide. Development can use env vars, but production must use Key Vault."*
 
-# Customize port ranges for your organization
-# Edit org-standards/port-registry.yaml:
-# - Update port ranges to fit your network policies
-# - Set initial project reservations
-# - Define permanent vs temporary project criteria
-```
-
-**Port Registry Configuration**:
-```yaml
-# Example customization for your org
-port_allocation:
-  development:
-    range_start: 8100  # Adjust for your network
-    range_end: 8199
-  database:
-    range_start: 5500
-    range_end: 5599
-
-reserved_ports:
-  # Add your organization's existing projects
-  existing-analytics:
-    airflow_port: 8101
-    postgres_port: 5501
-    owner: "analytics-team"
-    description: "Existing analytics pipeline"
-```
-
-**Test port management**:
-```bash
-# Check port management system
-./scripts/manage-ports.sh status
-
-# Reserve ports for a test project
-./scripts/manage-ports.sh reserve test-project "your-team" "Test project for validation"
-
-# Verify reservation worked
-./scripts/manage-ports.sh check test-project
-```
-
-### **2.4: Security and Enterprise Settings**
 ```yaml
 default_context:
-  # CUSTOMIZE for your organization's security requirements
-  secrets_strategy: "azure-key-vault"    # azure-key-vault | external-secrets-operator | env-vars
-  executor: "KubernetesExecutor"         # KubernetesExecutor | CeleryExecutor | LocalExecutor
-  enable_kerberos: "no"                  # yes | no (if your org uses Kerberos)
-
-  # UPDATE with your organization details
-  author_name: "Data Engineering Team"
-  company_domain: "myco.com"
-  high_label: "high"                     # Your organization's security classification
-  license: "Proprietary"                # Proprietary | MIT | Apache-2.0
+  secrets_strategy: "azure-key-vault"  # Company standard
+  executor: "KubernetesExecutor"       # We have AKS clusters
+  enable_kerberos: "no"                # We use modern auth
+  license: "Proprietary"               # Internal company code
 ```
 
-### **2.5: Environment and Database Settings**
+**Security choice rationale**: → [See Security and Enterprise Settings details](template-configuration.md#security-and-enterprise-settings)
+
+### **Decision 4: Acme Organizational Identity**
+
+*Sarah thinks: "Every generated project should reflect our team and company standards automatically."*
+
 ```yaml
 default_context:
-  # Environment settings
-  env_name: "dev"                        # dev | int | qa | prod (default environment)
-  local_domain: "localhost"             # Domain for local development
-
-  # Database defaults (development)
-  db_user: "postgres"
-  db_password: "postgres"
+  author_name: "Acme Analytics Team"
+  company_domain: "acme.com"
+  high_label: "confidential"          # Acme's classification level
 ```
 
-### **2.6: Auto-Generated Values**
+**Organizational settings**: → [See Organizational Settings details](template-configuration.md#organizational-and-documentation-settings)
+
+### **Decision 5: Development Environment**
+
+*Sarah thinks: "Most of our work starts in development mode, with localhost being the simplest for local work."*
+
 ```yaml
 default_context:
-  # Usually don't need changes - generated from other values
-  db_name: "{{ cookiecutter.customer_slug.replace('-', '_') }}_etl"
-  project_name: "{{ cookiecutter.customer_slug | title }} ETL Project"
-  project_slug: "{{ cookiecutter.customer_slug }}-etl"
-  year: "2025"                          # For license headers
+  env_name: "dev"                      # Start in development mode
+  local_domain: "localhost"            # Keep it simple
+  db_user: "postgres"                  # Standard defaults
+  db_password: "postgres"              # Dev environments only
 ```
 
-**Registry Access Setup**:
-```bash
-# Ensure all team members can push/pull
-# Azure
-az acr login --name yourregistry
+**Environment choices**: → [See Environment and Database Settings details](template-configuration.md#environment-and-database-settings)
 
-# AWS
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-east-1.amazonaws.com
+---
 
-# GCP
-gcloud auth configure-docker
-```
-
-### **2.3: Security and Enterprise Settings**
-```yaml
-default_context:
-  # CUSTOMIZE for your organization's security requirements
-  secrets_strategy: "azure-key-vault"    # azure-key-vault | external-secrets-operator | env-vars
-  executor: "KubernetesExecutor"         # KubernetesExecutor | CeleryExecutor | LocalExecutor
-  enable_kerberos: "yes"                 # yes | no (if your org uses Kerberos)
-
-  # UPDATE with your organization details
-  author_name: "Your Data Engineering Team"
-  company_domain: "yourcompany.com"
-  high_label: "sensitive"                # Your organization's security classification
-  license: "Proprietary"                 # Proprietary | MIT | Apache-2.0
-```
-
-### **2.4: Test Your Configuration**
-```bash
-# Generate a test project to validate your settings
-cookiecutter . --config-file your-org-defaults.yaml
-
-# When prompted, enter:
-customer_slug: test-config-validation
-description: Configuration validation test project
-deployment_mode: testing
-
-# Verify the generated project has your organization's settings
-cd test-config-validation-etl
-grep "yourcompany.com" .devcontainer/compose.yaml
-grep "your-registry.company.com" Dockerfile.airflow
-
-# Clean up test project
-cd ..
-rm -rf test-config-validation-etl
-```
-
-## 📝 **Step 3: Configure Generated Project Standards**
-
-### **3.1: Create Dependency Standards Template**
-
-Create a template for consistent `pyproject.toml` dependencies:
+## 🧪 **Step 3: Sarah Tests Her Configuration**
 
 ```bash
-# Create organizational Python standards
-mkdir -p org-standards
-cat > org-standards/pyproject-template.toml << 'EOF'
-# Your Organization's Python Standards
-[project]
-dependencies = [
-    # Core data stack (pinned for caching)
-    "pandas==2.1.4",
-    "sqlalchemy==2.0.25",
-    "pyarrow==14.0.2",
+# Generate a test project
+cookiecutter . --config-file acme-defaults.yaml
 
-    # Your organization's internal packages
-    "your-company-data-lib==1.2.3",
-    "your-company-auth==0.5.1",
+# Answer only the 3 required prompts:
+customer_slug: customer-segmentation
+description: Customer behavior analysis pipeline
+deployment_mode: production
 
-    # Development tools (flexible versions)
-    "pytest>=7.0,<8.0",
-    "ruff>=0.1.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "jupyter>=1.0.0",
-    "ipython>=8.0.0",
-]
-
-# Your organization's build settings
-[build-system]
-requires = ["hatchling>=1.21.0"]
-build-backend = "hatchling.build"
-
-[tool.ruff]
-# Your organization's linting standards
-line-length = 88
-select = ["E", "F", "I"]
-
-[tool.pytest.ini_options]
-# Your organization's testing standards
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-EOF
+# Verify the results
+cd customer-segmentation-etl
+grep "acme.azurecr.io" .devcontainer/compose.yaml
+grep "Acme Analytics Team" pyproject.toml
 ```
 
-### **3.2: Document Team Workflow**
+*Sarah's reaction: "Perfect! The project has all our standards baked in, and my developers will only see 3 questions."*
 
-Create team-specific instructions:
+---
 
-```bash
-cat > org-standards/TEAM-WORKFLOW.md << 'EOF'
-# Your Organization's Data Engineering Workflow
-
-## Project Generation
-Always use our organization's defaults:
-```bash
-cookiecutter https://github.com/your-org/data-eng-template --config-file your-org-defaults.yaml
-```
-
-## Development Standards
-1. **Python Dependencies**: Follow org-standards/pyproject-template.toml
-2. **Container Registry**: All images pushed to your-registry.company.com/data-eng/
-3. **Security**: Use Azure Key Vault for all secrets
-4. **Testing**: Minimum 80% coverage required
-
-## Before Your First Commit
-1. Run: `make lint test`
-2. Verify: Container builds successfully
-3. Push: Images to organization registry
-EOF
-```
-
-## 🔄 **Step 4: Persistence Strategy**
-
-### **Option A: Private Fork Workflow (Recommended)**
+## 💾 **Step 4: Sarah Commits the Configuration**
 
 ```bash
-# Commit your organization's customizations
-git add your-org-defaults.yaml org-standards/
-git commit -m "Add organization-specific template configuration
+git add acme-defaults.yaml
+git commit -m "feat: Add Acme Analytics organizational defaults
 
-- Set company container registry and security settings
-- Standardize Python versions for optimal Docker caching
-- Add internal dependency standards and workflow documentation
+- Standardize Python 3.12 and Airflow 3.0.6 for optimal caching
+- Configure acme.azurecr.io registry with data-eng namespace
+- Set Azure Key Vault as security strategy
+- Apply Acme Analytics branding and classification
 "
 
-git push origin your-org-config
-
-# Update .gitignore to preserve your settings
-echo "# Organization-specific settings (keep these)" >> .gitignore
-echo "!your-org-defaults.yaml" >> .gitignore
-echo "!org-standards/" >> .gitignore
+git push origin acme-config
 ```
 
-**Updating from upstream**:
+---
+
+## 🚀 **Step 5: Team Rollout**
+
+Sarah creates simple instructions for her team:
+
 ```bash
-# Periodically merge upstream improvements
-git checkout your-org-config
-git remote add upstream https://github.com/Troubladore/data-eng-template.git
-git fetch upstream
-git merge upstream/main  # or upstream/astro
+cat > ACME-TEAM-SETUP.md << 'EOF'
+# Acme Analytics - Data Engineering Projects
 
-# Resolve any conflicts, keeping your customizations
-git push origin your-org-config
-```
+## New Project Generation
 
-### **Option B: Git Ignore Workflow**
+Always use our organizational defaults:
 
-Add to `.gitignore`:
-```gitignore
-# Allow organization-specific overrides
-!your-org-defaults.yaml
-!org-standards/
-```
-
-**Manual backup required**:
 ```bash
-# Backup your customizations
-cp your-org-defaults.yaml ~/backup-org-config/
-cp -r org-standards/ ~/backup-org-config/
-
-# After updating template:
-git pull origin main
-cp ~/backup-org-config/your-org-defaults.yaml .
-cp -r ~/backup-org-config/org-standards/ .
+cookiecutter https://github.com/acme/data-eng-template --config-file acme-defaults.yaml
 ```
 
-## ✅ **Step 5: Validation and Team Rollout**
+You'll only be asked 3 questions:
+1. **customer_slug**: Your project identifier (kebab-case)
+2. **description**: Brief project summary
+3. **deployment_mode**: Choose "production" for permanent projects, "testing" for experiments
 
-### **5.1: Full Workflow Test**
-```bash
-# Generate a real project using your configuration
-cookiecutter . --config-file your-org-defaults.yaml
+## Everything Else is Pre-Configured
 
-# Test complete development workflow
-cd your-test-project-etl/
-code .  # Open in VS Code DevContainer
+- ✅ Python 3.12 (matches company standard)
+- ✅ Images push to acme.azurecr.io/data-eng/
+- ✅ Azure Key Vault for secrets
+- ✅ Kubernetes executor for scale
+- ✅ Acme Analytics branding
+- ✅ Optimal Docker caching across team
 
-# In VS Code DevContainer:
-# 1. Discover actual service ports: ./scripts/get-ports.sh
-# 2. Verify Airflow UI loads at discovered port
-# 3. Run: make test
-# 4. Check build time (should be <2 minutes after first build)
-# 5. Verify registry push: docker push (to your org registry)
-```
+## Questions?
 
-### **5.2: Team Onboarding**
-```bash
-# Create team onboarding documentation
-cat > TEAM-ONBOARDING.md << 'EOF'
-# Data Engineering Template - Team Setup
-
-## New Team Member Setup
-1. Clone: https://github.com/your-org/data-eng-template
-2. Check out: your-org-config branch
-3. Verify: Docker and VS Code installed
-4. Test: Generate sample project with your-org-defaults.yaml
-
-## Daily Usage
-
-### Option 1: Intelligent Generation (Recommended)
-```bash
-# Use the intelligent project generator with port management
-./scripts/generate-project.sh
-
-# This will:
-# 1. Ask if project is permanent or temporary
-# 2. Handle port reservations automatically
-# 3. Generate project with appropriate port configuration
-# 4. Provide specific next steps
-```
-
-### Option 2: Manual Generation
-```bash
-# Traditional cookiecutter approach
-cookiecutter . --config-file your-org-defaults.yaml
-
-# Answer only 3 prompts:
-# - customer_slug: your-project-name
-# - description: Brief project description
-# - deployment_mode: production
-
-# For permanent projects: reserve ports manually
-./scripts/manage-ports.sh reserve your-project-name "your-team" "Project description"
-```
-
-## Port Management Workflow
-
-### For Permanent Projects
-1. **Reserve ports**: Use `./scripts/manage-ports.sh reserve`
-2. **Commit reservation**: Add `org-standards/port-registry.yaml` to git
-3. **Generate project**: Ports will be automatically configured
-4. **Access services**: Use predictable, documented URLs
-
-### For Temporary Projects
-1. **Generate project**: No port reservation needed
-2. **Start services**: Dynamic ports assigned automatically
-3. **Discover ports**: Use `./scripts/get-ports.sh` in generated project
-4. **Clean up**: Ports freed automatically when containers stop
-
-## Troubleshooting
-- Slow builds? Check python_version consistency across projects
-- Registry errors? Verify docker login to your-registry.company.com
-- Missing dependencies? Follow org-standards/pyproject-template.toml
+See the [Template Configuration Guide](template-configuration.md) for technical details on any setting.
 EOF
 ```
 
-## 🎉 **Success Criteria**
+---
 
-After completing this setup, your team should have:
+## 📊 **Results: Sarah's Success Metrics**
 
-- ✅ **Sub-10 second rebuilds** for code changes across all projects
-- ✅ **Consistent configurations** - no more "works on my machine"
-- ✅ **Streamlined project generation** - only 3 prompts per project
+**After 2 weeks with the new setup:**
+
+- ✅ **Build times**: Dropped from 15+ minutes to under 2 minutes (Docker layer sharing working)
+- ✅ **Configuration consistency**: Zero "works on my machine" issues
+- ✅ **Developer velocity**: 30% faster project onboarding
+- ✅ **Standards compliance**: 100% of projects use company security standards
+- ✅ **Developer satisfaction**: Team loves the 3-question simplicity
+
+*Sarah's conclusion: "This was the best investment we made in developer productivity this quarter."*
+
+---
+
+## 🎯 **Your Turn: Customize for Your Organization**
+
+**Step 1**: Fork or clone the template
+**Step 2**: Copy `company-template-defaults.yaml` to `your-org-defaults.yaml`
+**Step 3**: Make your configuration decisions (use the [Template Configuration Guide](template-configuration.md) for detailed explanations)
+**Step 4**: Test with a sample project
+**Step 5**: Commit and share with your team
+
+### **Key Configuration Areas to Consider**
+
+| Configuration Area | Your Decision | Where to Learn More |
+|--------------------|---------------|-------------------|
+| **Python/Airflow versions** | What has your org standardized on? | [Critical Caching Settings →](template-configuration.md#critical-caching-settings) |
+| **Container registry** | Azure ACR? AWS ECR? GCP? Docker Hub? | [Container Registry Configuration →](template-configuration.md#container-registry-configuration) |
+| **Security strategy** | Key Vault? External Secrets? Simple env vars? | [Security Settings →](template-configuration.md#security-and-enterprise-settings) |
+| **Kubernetes setup** | Do you have K8s clusters? | [Executor Configuration →](template-configuration.md#security-and-enterprise-settings) |
+| **Company branding** | Team name, domain, classification levels? | [Organizational Settings →](template-configuration.md#organizational-and-documentation-settings) |
+
+**For detailed explanations of every setting, caching implications, and technical trade-offs**: → **[Template Configuration Guide](template-configuration.md)**
+
+---
+
+## ✅ **Success Criteria**
+
+After completing your organizational setup, your team should have:
+
+- ✅ **Sub-2 minute rebuilds** for code changes (Docker layer sharing working)
+- ✅ **3-question simplicity** for developers (only project-specific questions)
+- ✅ **Automatic compliance** with organizational standards (security, registry, branding)
 - ✅ **Persistent customizations** that survive template updates
-- ✅ **Organization compliance** - security, registry, and dependency standards built-in
+- ✅ **Consistent environments** across all team members
 
-**Next**: Your team can now follow the standard [Getting Started Guide](getting-started.md) with confidence that every project will be optimized for your organization's success.
+**Next**: Your team can now follow the [Getting Started Guide](getting-started.md) knowing every project will be optimized for your organization.
