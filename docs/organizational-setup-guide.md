@@ -55,37 +55,27 @@ cp company-template-defaults.yaml acme-defaults.yaml
 - **Airflow 3.0.6**: Current stable, but 3.0.7 has bug fixes some teams need, and 2.10.2 for legacy compatibility
 - **PostgreSQL 16**: Our standard, but 15 for legacy systems and 17 for teams wanting cutting-edge features
 
-She modifies the template's `cookiecutter.json` to set organizational choices:
+She customizes the template's `cookiecutter.json` to set organizational choices and defaults:
 
 ```json
 {
   "python_version": [
-    "3.12.11",  // Default: company standard with security patches
+    "3.12.11",  // First = default: company standard with security patches
     "3.11.13",  // Legacy project compatibility, stable patches
     "3.13.2",   // Early adopter stable option
     "3.13.7"    // Latest early adopter option
   ],
   "airflow_version": [
-    "3.0.6",   // Default: current stable
+    "3.0.6",   // First = default: current stable
     "3.0.7",   // Bug fixes for specific teams
     "2.10.2"   // Legacy system compatibility
   ],
   "postgres_version": [
-    "16",      // Default: company standard
+    "16",      // First = default: company standard
     "15",      // Legacy system support
     "17"       // Cutting-edge features
   ]
 }
-```
-
-Then she creates `acme-defaults.yaml` to set organizational defaults from those choices:
-
-```yaml
-default_context:
-  # Technology standards (first choice from each array becomes default)
-  python_version: "3.12.11"        # Company-wide Python standard
-  airflow_version: "3.0.6"         # Latest stable for new features
-  postgres_version: "16"           # Modern database features
 ```
 
 *Sarah's reasoning: "This gives developers appropriate choices while ensuring cache sharing within each technology stack. The first option becomes the default, so most projects get our standards automatically."*
@@ -94,72 +84,60 @@ default_context:
 
 ### **Decision 2: Organizational Infrastructure Choices**
 
-*Sarah thinks: "Now I need to set up choices for our infrastructure and security settings. Some things we hard-code (like our container registry), others we give constrained options."*
+*Sarah thinks: "For infrastructure and security settings, some things I'll hard-code (like our container registry), others I'll provide as constrained choices with our standard as the default."*
 
-**Organizational choices in cookiecutter.json** (already configured):
+She customizes the organizational infrastructure in `cookiecutter.json`:
+
 ```json
 {
+  // Hard-coded organizational infrastructure
+  "image_repo": "acme.azurecr.io/data-eng/{{ cookiecutter.customer_slug }}",
+  "company_domain": "acme.com",
+  "license": "Proprietary",  // Internal company code
+
+  // Constrained choices (first = default)
   "secrets_strategy": [
-    "azure-key-vault",         // Default: company standard
+    "azure-key-vault",         // First = default: company standard
     "external-secrets-operator", // K8s environments
     "env-vars"                 // Development only
   ],
   "executor": [
-    "KubernetesExecutor",      // Default: we have AKS clusters
+    "KubernetesExecutor",      // First = default: we have AKS clusters
     "CeleryExecutor",          // High-throughput scenarios
     "LocalExecutor"            // Development/testing
   ],
   "enable_kerberos": [
-    "no",                      // Default: modern auth
+    "no",                      // First = default: modern auth
     "yes"                      // Legacy system compatibility
   ]
 }
-```
-
-**Organizational defaults in acme-defaults.yaml**:
-```yaml
-default_context:
-  # Hard-coded organizational infrastructure
-  image_repo: "acme.azurecr.io/data-eng/{{ cookiecutter.customer_slug }}"
-  company_domain: "acme.com"
-
-  # Default choices (teams can override with --no-input=false)
-  secrets_strategy: "azure-key-vault"  # Company standard
-  executor: "KubernetesExecutor"       # We have AKS clusters
-  enable_kerberos: "no"                # We use modern auth
-  license: "Proprietary"               # Internal company code
 ```
 
 *Sarah's reasoning: "I hard-code things that never change (our Azure infrastructure), but provide choices for things where different projects might have different needs while staying within our approved options."*
 
 **Note**: Cookiecutter provides single-select choices only. For scenarios requiring multiple selections (like supporting multiple executors in one project), that would be handled in the generated project's runtime configuration, not in the template generation step.
 
-### **Decision 3: Development Environment Choices**
+### **Decision 3: Development Environment Settings**
 
 *Sarah thinks: "For environment workflows, I want to give teams options but start with dev as the sensible default. Database settings can be hard-coded for simplicity."*
 
-**Environment choices in cookiecutter.json** (already configured):
+She sets up the environment configuration in `cookiecutter.json`:
+
 ```json
 {
+  // Environment workflow choices
   "env_name": [
-    "dev",    // Default: most projects start here
+    "dev",    // First = default: most projects start here
     "prod",   // Production deployments
     "int",    // Integration testing
     "qa"      // QA environments
-  ]
+  ],
+
+  // Hard-coded development defaults
+  "local_domain": "localhost",   // Keep it simple
+  "db_user": "postgres",         // Standard dev defaults
+  "db_password": "postgres"      // Dev environments only
 }
-```
-
-**Development defaults in acme-defaults.yaml**:
-```yaml
-default_context:
-  # Environment workflow default
-  env_name: "dev"                      # Start in development mode
-
-  # Hard-coded development defaults
-  local_domain: "localhost"            # Keep it simple
-  db_user: "postgres"                  # Standard defaults
-  db_password: "postgres"              # Dev environments only
 ```
 
 *Sarah's reasoning: "Environment names should be choices since teams deploy to different stages, but dev database credentials can be hard-coded since they're only for local development."*
@@ -169,34 +147,37 @@ default_context:
 ## 🧪 **Step 3: Sarah Tests Her Configuration**
 
 ```bash
-# Generate a test project
-cookiecutter . --config-file acme-defaults.yaml
+# Generate a test project (developers answer ~7 prompts total)
+cookiecutter .
 
-# Answer only the 3 required prompts:
+# Core prompts:
 customer_slug: customer-segmentation
 description: Customer behavior analysis pipeline
-deployment_mode: production
+deployment_mode: 1 (production - default)
+airflow_version: 1 (3.0.6 - default)
+author_name: Sarah Johnson
+# ... other prompts with sensible defaults
 
 # Verify the results
 cd customer-segmentation-etl
 grep "acme.azurecr.io" .devcontainer/compose.yaml
-grep "Acme Analytics Team" pyproject.toml
+grep "3.12.11" Dockerfile.airflow
 ```
 
-*Sarah's reaction: "Perfect! The project has all our standards baked in, and my developers will only see 3 questions."*
+*Sarah's reaction: "Perfect! Developers get appropriate choices, most defaults align with our standards, and the repo creation process is straightforward even with a few prompts."*
 
 ---
 
 ## 💾 **Step 4: Sarah Commits the Configuration**
 
 ```bash
-git add acme-defaults.yaml
-git commit -m "feat: Add Acme Analytics organizational defaults
+git add cookiecutter.json
+git commit -m "feat: Customize template for Acme Analytics
 
-- Standardize Python 3.12 and Airflow 3.0.6 for optimal caching
-- Configure acme.azurecr.io registry with data-eng namespace
-- Set Azure Key Vault as security strategy
-- Apply Acme Analytics branding and classification
+- Set organizational technology choices with company standards as defaults
+- Configure acme.azurecr.io registry and company domain
+- Provide constrained choices for secrets, executor, and environment options
+- Optimal Docker caching through consistent version defaults
 "
 
 git push origin acme-config
@@ -214,25 +195,29 @@ cat > ACME-TEAM-SETUP.md << 'EOF'
 
 ## New Project Generation
 
-Always use our organizational defaults:
+Use our customized template:
 
 ```bash
-cookiecutter https://github.com/acme/data-eng-template --config-file acme-defaults.yaml
+cookiecutter https://github.com/acme/data-eng-template
 ```
 
-You'll only be asked 3 questions:
+You'll be prompted for ~7 configuration choices:
 1. **customer_slug**: Your project identifier (kebab-case)
 2. **description**: Brief project summary
 3. **deployment_mode**: Choose "production" for permanent projects, "testing" for experiments
+4. **airflow_version**: Usually accept default (3.0.6) unless you need specific features
+5. **author_name**: Your name or team name
+6. **secrets_strategy**: Usually accept default (azure-key-vault) unless using env-vars for dev
+7. **executor**: Usually accept default (KubernetesExecutor) unless you need local testing
 
-## Everything Else is Pre-Configured
+## Organizational Standards Are Built-In
 
-- ✅ Python 3.12 (matches company standard)
+- ✅ Python 3.12.11 (company standard with patches)
 - ✅ Images push to acme.azurecr.io/data-eng/
-- ✅ Azure Key Vault for secrets
-- ✅ Kubernetes executor for scale
-- ✅ Acme Analytics branding
-- ✅ Optimal Docker caching across team
+- ✅ Azure Key Vault for secrets (default choice)
+- ✅ Kubernetes executor for scale (default choice)
+- ✅ Company domain and registry configured
+- ✅ Optimal Docker caching through consistent defaults
 
 ## 📊 **Results: Sarah's Success Metrics**
 
@@ -242,7 +227,7 @@ You'll only be asked 3 questions:
 - ✅ **Configuration consistency**: Zero "works on my machine" issues
 - ✅ **Developer velocity**: 30% faster project onboarding
 - ✅ **Standards compliance**: 100% of projects use company security standards
-- ✅ **Developer satisfaction**: Team loves the 3-question simplicity
+- ✅ **Developer satisfaction**: Team appreciates the guided choices with good defaults
 
 *Sarah's conclusion: "This was the best investment we made in developer productivity this quarter."*
 
@@ -258,52 +243,50 @@ See the [Template Configuration Guide](template-configuration.md) for technical 
 
 **Step 1**: Fork or clone the template
 
-**Step 2**: **Set Organizational Technology Choices** - Edit `cookiecutter.json` to define your supported versions:
+**Step 2**: Edit `cookiecutter.json` to set your organizational choices and defaults
+
+**Step 3**: Test with a sample project
+
+**Step 4**: Commit and share with your team
+
+### **Simple Customization Process**
+
+Edit your fork's `cookiecutter.json` to reflect your organizational standards:
 
 ```json
 {
+  // Technology choices (first item = default)
   "python_version": [
     "3.12.11",   // Your primary standard (becomes default)
-    "3.11.13",   // Legacy compatibility with patches
-    "3.13.7"     // Early adopter latest option
+    "3.11.13",   // Legacy compatibility option
+    "3.13.7"     // Early adopter option
   ],
-  "airflow_version": [
-    "3.0.6",     // Your primary standard (becomes default)
-    "3.0.7"      // Add other versions for specific needs
-  ],
-  "postgres_version": [
-    "16",        // Your primary standard (becomes default)
-    "15"         // Add for legacy compatibility if needed
+
+  // Hard-coded organizational infrastructure
+  "image_repo": "your-registry.com/data-eng/{{ cookiecutter.customer_slug }}",
+  "company_domain": "your-company.com",
+  "license": "Proprietary",
+
+  // Security choices (first item = default)
+  "secrets_strategy": [
+    "azure-key-vault",    // Your default
+    "env-vars"            // Development option
   ]
 }
 ```
 
-**Step 3**: **Set Organizational Defaults** - Copy `company-template-defaults.yaml` to `your-org-defaults.yaml`
+### **Key Principles**
 
-**Step 4**: Make your configuration decisions (use the [Template Configuration Guide](template-configuration.md) for detailed explanations)
+- **First choice = default**: Cookiecutter automatically uses the first item in each array as the default
+- **Constrained choices**: Provide 2-4 organizational-approved options instead of unlimited freedom
+- **Hard-code fixed values**: Set truly organizational constants (registry, domain) as single values
+- **Array for flexibility**: Use arrays when teams might need different options for different projects
 
-**Step 5**: Test with a sample project
-
-**Step 6**: Commit and share with your team
-
-### **Customizing Technology Choices**
-
-**Key Principle**: The first item in each choice array becomes the default. Organize your choices by priority:
-
-```json
-"python_version": [
-  "3.12.11",     // ✅ Default - most projects get this automatically
-  "3.11.13",     // Legacy support option with patches
-  "3.13.2",      // Stable early adopter option
-  "3.13.7"       // Latest early adopter option
-]
-```
-
-**Benefits of Constrained Choices**:
+### **Benefits of This Approach**
+- ✅ **Simpler**: Just one file to edit (cookiecutter.json)
+- ✅ **Native**: Uses cookiecutter's built-in choice and default functionality
 - ✅ **Cache sharing**: Projects using same versions share Docker layers
-- ✅ **Prevents invalid combinations**: No accidental unsupported versions
-- ✅ **Easy organizational control**: Just edit the template's cookiecutter.json
-- ✅ **Clear options**: Developers see exactly what's supported
+- ✅ **Clear guidance**: Developers see exactly what's approved during repo creation
 - ✅ **Default compliance**: Most projects automatically use organizational standards
 
 ### **Key Configuration Areas to Consider**
