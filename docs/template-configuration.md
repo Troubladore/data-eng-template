@@ -13,8 +13,8 @@ Understanding Docker's 4-layer caching system is critical for optimal build perf
 | Layer | What Lives Here | Build Time | Cache Sharing Impact |
 |-------|----------------|------------|---------------------|
 | **🐧 Layer 1 (Base)** | OS + Python + Airflow runtime | **5-15 min** | **CRITICAL** - Different versions break ALL caching |
-| **📚 Layer 2 (Dependencies)** | pip packages, system libraries | **2-8 min** | **CRITICAL** - Package changes invalidate everything above |
-| **📦 Layer 3 (Application)** | Your code, DAGs, configs | **30-60 sec** | **HIGH** - Code changes only rebuild this + Layer 4 |
+| **📚 Layer 2 (Dependencies)** | pip packages, system libraries | **2-8 min** | **HIGH** - Package changes invalidate everything above |
+| **📦 Layer 3 (Application)** | Your code, DAGs, configs | **30-60 sec** | **MODERATE** - Code changes only rebuild this + Layer 4 |
 | **🏷️ Layer 4 (Final)** | Labels, metadata, naming | **1-5 sec** | **LOW** - Cosmetic changes, minimal impact |
 
 ---
@@ -123,9 +123,9 @@ These settings have **massive impact** on Docker build performance. Misalignment
 
 | Choice Value | Definition | When to Use | Caching Impact | Isolation Impact |
 |--------------|------------|-------------|----------------|------------------|
-| `15`<br><div style="text-align:center"> </div> | Proven stability for environments requiring PostgreSQL 15 compatibility | Legacy environments or applications specifically requiring PostgreSQL 15 compatibility | **Moderate - Layer 2** - Database container initialization and extension installation layers | **None** - Database runtime only |
-| `16`<br><div style="text-align:center">(default)</div> | Current stable release with good balance of features, performance, and stability | Most production environments requiring balance of stability and modern features | **Moderate - Layer 2** - Database initialization, extension, and configuration layers | **None** - No operational isolation |
-| `17`<br><div style="text-align:center"> </div> | Latest features and performance improvements for cutting-edge database capabilities | Cutting-edge environments requiring newest PostgreSQL features and optimizations | **Moderate - Layer 2** - Different version affects database setup and extension layers | **None** - Database configuration |
+| `15`<br><div style="text-align:center"> </div> | Proven stability for environments requiring PostgreSQL 15 compatibility | Legacy environments or applications specifically requiring PostgreSQL 15 compatibility | **High - Layer 2** - Database container initialization and extension installation layers | **None** - Database runtime only |
+| `16`<br><div style="text-align:center">(default)</div> | Current stable release with good balance of features, performance, and stability | Most production environments requiring balance of stability and modern features | **High - Layer 2** - Database initialization, extension, and configuration layers | **None** - No operational isolation |
+| `17`<br><div style="text-align:center"> </div> | Latest features and performance improvements for cutting-edge database capabilities | Cutting-edge environments requiring newest PostgreSQL features and optimizations | **High - Layer 2** - Different version affects database setup and extension layers | **None** - Database configuration |
 
 
 </details>
@@ -209,7 +209,7 @@ These settings have **massive impact** on Docker build performance. Misalignment
 | Choice Value | Definition | When to Use | Caching Impact | Isolation Impact |
 |--------------|------------|-------------|----------------|------------------|
 | `no`<br><div style="text-align:center">(default)</div> | Standard authentication using modern patterns like OAuth, service accounts, and managed identities | Most modern environments with cloud-native authentication systems and standard security practices | **None** - Runtime authentication configuration only | **None** - No operational impact |
-| `yes`<br><div style="text-align:center"> </div> | Kerberos protocol integration for enterprise environments requiring legacy authentication compatibility | Enterprise environments with existing Kerberos infrastructure and legacy system integration requirements | **Low - Layer 2** - May affect some authentication library installation layers | **None** - Authentication configuration |
+| `yes`<br><div style="text-align:center"> </div> | Kerberos protocol integration for enterprise environments requiring legacy authentication compatibility | Enterprise environments with existing Kerberos infrastructure and legacy system integration requirements | **High - Layer 2** - May affect some authentication library installation layers | **None** - Authentication configuration |
 
 
 </details>
