@@ -38,7 +38,8 @@ graph TD
 | **📦 Layer 3 (Application)** | Your code, DAGs, configs | **30-60 sec** | **HIGH** - Code changes only rebuild this + Layer 4 |
 | **🏷️ Layer 4 (Final)** | Labels, metadata, naming | **1-5 sec** | **LOW** - Cosmetic changes, minimal impact |
 
-> **Cache Impact Degrees:**
+> **Cache Impact Degrees**
+>
 > - **Critical** - Affects foundational layers (1-2), complete cache invalidation across team
 > - **High** - Affects multiple layers (2-3), significant rebuild performance impact
 > - **Moderate** - Affects specific layers (3-4), localized rebuild requirements
