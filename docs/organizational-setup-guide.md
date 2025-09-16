@@ -28,7 +28,7 @@ After this setup, individual developers can focus on building data pipelines rat
 
 ---
 
-## 🔧 **Step 1: Clone and Configure Template**
+## 🔧 **Step 1: Fork Template and Create Org Config**
 
 Sarah starts by forking the template for Acme Analytics:
 
@@ -38,8 +38,9 @@ git clone https://github.com/acme/data-eng-template.git
 cd data-eng-template
 git checkout -b acme-config
 
-# Copy the template to customize
-cp company-template-defaults.yaml acme-defaults.yaml
+# Create organizational overrides (never conflicts with upstream)
+python scripts/merge-config.py --create-example
+mv org-cookiecutter.json acme-overrides.json
 ```
 
 ---
@@ -55,14 +56,13 @@ cp company-template-defaults.yaml acme-defaults.yaml
 - **Airflow 3.0.6**: Current stable, but 3.0.7 has bug fixes some teams need, and 2.10.2 for legacy compatibility
 - **PostgreSQL 16**: Our standard, but 15 for legacy systems and 17 for teams wanting cutting-edge features
 
-She customizes the template's `cookiecutter.json` to set organizational choices and defaults:
+She customizes her organizational overrides in `acme-overrides.json` to set company standards as defaults:
 
 ```json
 {
   "python_version": [
     "3.12.11",  // First = default: company standard with security patches
     "3.11.13",  // Legacy project compatibility, stable patches
-    "3.13.2",   // Early adopter stable option
     "3.13.7"    // Latest early adopter option
   ],
   "airflow_version": [
@@ -86,29 +86,24 @@ She customizes the template's `cookiecutter.json` to set organizational choices 
 
 *Sarah thinks: "For infrastructure and security settings, some things I'll hard-code (like our container registry), others I'll provide as constrained choices with our standard as the default."*
 
-She customizes the organizational infrastructure in `cookiecutter.json`:
+She adds the organizational infrastructure to her `acme-overrides.json`:
 
 ```json
 {
   // Hard-coded organizational infrastructure
   "image_repo": "acme.azurecr.io/data-eng/{{ cookiecutter.customer_slug }}",
   "company_domain": "acme.com",
-  "license": "Proprietary",  // Internal company code
+  "license": "Proprietary",
 
   // Constrained choices (first = default)
   "secrets_strategy": [
     "azure-key-vault",         // First = default: company standard
-    "external-secrets-operator", // K8s environments
     "env-vars"                 // Development only
   ],
   "executor": [
     "KubernetesExecutor",      // First = default: we have AKS clusters
     "CeleryExecutor",          // High-throughput scenarios
     "LocalExecutor"            // Development/testing
-  ],
-  "enable_kerberos": [
-    "no",                      // First = default: modern auth
-    "yes"                      // Legacy system compatibility
   ]
 }
 ```
@@ -121,7 +116,7 @@ She customizes the organizational infrastructure in `cookiecutter.json`:
 
 *Sarah thinks: "For environment workflows, I want to give teams options but start with dev as the sensible default. Database settings can be hard-coded for simplicity."*
 
-She sets up the environment configuration in `cookiecutter.json`:
+She completes her organizational overrides with environment and database settings:
 
 ```json
 {
@@ -131,22 +126,21 @@ She sets up the environment configuration in `cookiecutter.json`:
     "prod",   // Production deployments
     "int",    // Integration testing
     "qa"      // QA environments
-  ],
-
-  // Hard-coded development defaults
-  "local_domain": "localhost",   // Keep it simple
-  "db_user": "postgres",         // Standard dev defaults
-  "db_password": "postgres"      // Dev environments only
+  ]
 }
 ```
 
-*Sarah's reasoning: "Environment names should be choices since teams deploy to different stages, but dev database credentials can be hard-coded since they're only for local development."*
+*Sarah's reasoning: "I only need to override things that differ from the template defaults. For database settings and domains, the upstream defaults work fine for our development environments."*
 
 ---
 
 ## 🧪 **Step 3: Sarah Tests Her Configuration**
 
 ```bash
+# First, merge the configurations to create the effective config
+cp acme-overrides.json org-cookiecutter.json
+python scripts/merge-config.py
+
 # Generate a test project (developers answer ~7 prompts total)
 cookiecutter .
 
@@ -154,9 +148,9 @@ cookiecutter .
 customer_slug: customer-segmentation
 description: Customer behavior analysis pipeline
 deployment_mode: 1 (production - default)
-airflow_version: 1 (3.0.6 - default)
+airflow_version: 1 (3.0.6 - default, from Acme overrides)
 author_name: Sarah Johnson
-# ... other prompts with sensible defaults
+# ... other prompts with Acme defaults
 
 # Verify the results
 cd customer-segmentation-etl
@@ -171,13 +165,16 @@ grep "3.12.11" Dockerfile.airflow
 ## 💾 **Step 4: Sarah Commits the Configuration**
 
 ```bash
-git add cookiecutter.json
-git commit -m "feat: Customize template for Acme Analytics
+# Rename to standard filename and commit
+mv acme-overrides.json org-cookiecutter.json
+git add org-cookiecutter.json scripts/merge-config.py .gitignore .pre-commit-config.yaml
+git commit -m "feat: Add Acme Analytics organizational configuration
 
-- Set organizational technology choices with company standards as defaults
+- Create org-cookiecutter.json with Acme standards as defaults
 - Configure acme.azurecr.io registry and company domain
-- Provide constrained choices for secrets, executor, and environment options
-- Optimal Docker caching through consistent version defaults
+- Set Python 3.12.11, Airflow 3.0.6, PostgreSQL 16 as defaults
+- Add merge script for conflict-free upstream updates
+- Enable pre-commit validation for configuration changes
 "
 
 git push origin acme-config
@@ -243,18 +240,26 @@ See the [Template Configuration Guide](template-configuration.md) for technical 
 
 **Step 1**: Fork or clone the template
 
-**Step 2**: Edit `cookiecutter.json` to set your organizational choices and defaults
+**Step 2**: Create your `org-cookiecutter.json` to set organizational overrides
 
 **Step 3**: Test with a sample project
 
 **Step 4**: Commit and share with your team
 
-### **Simple Customization Process**
+### **Conflict-Free Customization Process**
 
-Edit your fork's `cookiecutter.json` to reflect your organizational standards:
+Create `org-cookiecutter.json` in your fork to override upstream defaults:
 
 ```json
 {
+  "_comment": "Organizational cookiecutter overrides - customize as needed",
+  "_instructions": [
+    "This file overrides upstream cookiecutter.json defaults",
+    "Only include attributes you want to customize",
+    "First item in arrays becomes the default choice",
+    "Missing attributes will use upstream defaults"
+  ],
+
   // Technology choices (first item = default)
   "python_version": [
     "3.12.11",   // Your primary standard (becomes default)
@@ -277,17 +282,19 @@ Edit your fork's `cookiecutter.json` to reflect your organizational standards:
 
 ### **Key Principles**
 
+- **Override, don't replace**: Only include settings you want to customize
 - **First choice = default**: Cookiecutter automatically uses the first item in each array as the default
 - **Constrained choices**: Provide 2-4 organizational-approved options instead of unlimited freedom
 - **Hard-code fixed values**: Set truly organizational constants (registry, domain) as single values
 - **Array for flexibility**: Use arrays when teams might need different options for different projects
 
 ### **Benefits of This Approach**
-- ✅ **Simpler**: Just one file to edit (cookiecutter.json)
-- ✅ **Native**: Uses cookiecutter's built-in choice and default functionality
+- ✅ **Conflict-free updates**: `org-cookiecutter.json` never conflicts with upstream changes
+- ✅ **Override only what matters**: Don't duplicate settings that work fine as defaults
+- ✅ **Automatic validation**: Pre-commit hooks ensure configuration stays valid
+- ✅ **Warning system**: Get notified when new upstream options become available
 - ✅ **Cache sharing**: Projects using same versions share Docker layers
 - ✅ **Clear guidance**: Developers see exactly what's approved during repo creation
-- ✅ **Default compliance**: Most projects automatically use organizational standards
 
 ### **Key Configuration Areas to Consider**
 

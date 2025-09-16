@@ -1,0 +1,43 @@
+# Pre-commit hooks for template repository
+repos:
+  # Organizational cookiecutter config validation
+  - repo: local
+    hooks:
+      - id: merge-cookiecutter-config
+        name: Validate and merge cookiecutter configuration
+        entry: python scripts/merge-config.py
+        language: python
+        files: ^(cookiecutter\.json|org-cookiecutter\.json)$
+        pass_filenames: false
+        additional_dependencies: []
+
+  # Standard Python formatting and linting
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.8
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  # JSON formatting
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-json
+      - id: pretty-format-json
+        args: [--autofix, --indent=2]
+        files: \.json$
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
