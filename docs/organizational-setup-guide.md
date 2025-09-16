@@ -82,57 +82,69 @@ She modifies the template's `cookiecutter.json` to set organizational choices:
 
 **Why constrained choices**: → [See Critical Caching Settings details](template-configuration.md#-critical-caching-settings)
 
-### **Decision 2: Acme's Container Registry**
+### **Decision 2: Organizational Infrastructure Choices**
 
-*Sarah thinks: "We're an Azure shop. All our images should go to our ACR, and follow our naming conventions."*
+*Sarah thinks: "Now I need to set up choices for our infrastructure and security settings. Some things we hard-code (like our container registry), others we give constrained options."*
 
-```yaml
-default_context:
-  image_repo: "acme.azurecr.io/data-eng/{{ cookiecutter.customer_slug }}"
+**Hard-coded organizational standards** (edit in `cookiecutter.json`):
+```json
+{
+  "image_repo": "acme.azurecr.io/data-eng/{{ cookiecutter.customer_slug }}",
+  "company_domain": "acme.com",
+  "author_name": "Acme Analytics Team"
+}
 ```
 
-**Registry decision factors**: → [See Container Registry Configuration details](template-configuration.md#-container-registry-configuration)
-
-### **Decision 3: Security Strategy**
-
-*Sarah thinks: "We're already using Azure Key Vault company-wide. Development can use env vars, but production must use Key Vault."*
-
-```yaml
-default_context:
-  secrets_strategy: "azure-key-vault"  # Company standard
-  executor: "KubernetesExecutor"       # We have AKS clusters
-  enable_kerberos: "no"                # We use modern auth
-  license: "Proprietary"               # Internal company code
+**Constrained organizational choices** (edit in `cookiecutter.json`):
+```json
+{
+  "secrets_strategy": [
+    "azure-key-vault",         // Default: company standard
+    "external-secrets-operator", // K8s environments
+    "env-vars"                 // Development only
+  ],
+  "executor": [
+    "KubernetesExecutor",      // Default: we have AKS clusters
+    "CeleryExecutor",          // High-throughput scenarios
+    "LocalExecutor"            // Development/testing
+  ],
+  "enable_kerberos": [
+    "no",                      // Default: modern auth
+    "yes"                      // Legacy system compatibility
+  ]
+}
 ```
 
-**Security choice rationale**: → [See Security and Enterprise Settings details](template-configuration.md#-security-and-enterprise-settings)
+*Sarah's reasoning: "I hard-code things that never change (our Azure infrastructure), but provide choices for things where different projects might have different needs while staying within our approved options."*
 
-### **Decision 4: Acme Organizational Identity**
+**Note**: Cookiecutter provides single-select choices only. For scenarios requiring multiple selections (like supporting multiple executors in one project), that would be handled in the generated project's runtime configuration, not in the template generation step.
 
-*Sarah thinks: "Every generated project should reflect our team and company standards automatically."*
+### **Decision 3: Development Environment Choices**
 
-```yaml
-default_context:
-  author_name: "Acme Analytics Team"
-  company_domain: "acme.com"
-  high_label: "confidential"          # Acme's classification level
+*Sarah thinks: "For environment workflows, I want to give teams options but start with dev as the sensible default. Database settings can be hard-coded for simplicity."*
+
+**Environment workflow choices** (edit in `cookiecutter.json`):
+```json
+{
+  "env_name": [
+    "dev",    // Default: most projects start here
+    "prod",   // Production deployments
+    "int",    // Integration testing
+    "qa"      // QA environments
+  ]
+}
 ```
 
-**Organizational settings**: → [See Organizational Settings details](template-configuration.md#-organizational-and-documentation-settings)
-
-### **Decision 5: Development Environment**
-
-*Sarah thinks: "Most of our work starts in development mode, with localhost being the simplest for local work."*
-
-```yaml
-default_context:
-  env_name: "dev"                      # Start in development mode
-  local_domain: "localhost"            # Keep it simple
-  db_user: "postgres"                  # Standard defaults
-  db_password: "postgres"              # Dev environments only
+**Hard-coded development defaults** (edit in `cookiecutter.json`):
+```json
+{
+  "local_domain": "localhost",     // Keep it simple for dev
+  "db_user": "postgres",           // Standard dev default
+  "db_password": "postgres"        // Dev environments only
+}
 ```
 
-**Environment choices**: → [See Environment and Database Settings details](template-configuration.md#-environment-and-database-settings)
+*Sarah's reasoning: "Environment names should be choices since teams deploy to different stages, but dev database credentials can be hard-coded since they're only for local development."*
 
 ---
 
