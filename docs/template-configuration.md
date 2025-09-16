@@ -6,7 +6,9 @@ This guide explains every configuration option in the cookiecutter template, org
 
 ### Docker Build Layer Caching
 
-Understanding Docker's 4-layer caching system is critical for optimal build performance. Configuration choices affect different layers with varying impact on rebuild times and cache sharing across your team.
+Understanding [Docker's layer caching system](https://docs.docker.com/build/cache/) is critical for optimal build performance. Configuration choices affect different layers with varying impact on rebuild times and cache sharing across your team.
+
+For this template, we conceptualize the build process as four logical layers:
 
 **Layer Impact Analysis:**
 
