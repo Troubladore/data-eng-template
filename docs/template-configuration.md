@@ -9,12 +9,12 @@ This guide explains every configuration option in the cookiecutter template, org
 Understanding Docker's 4-layer caching system is critical for optimal build performance:
 
 ```mermaid
-graph TB
+graph TD
     subgraph "Docker Image Stack (Build Time Impact)"
-        L4["🏷️ Final Layer (Layer 4)<br/>Runtime metadata, labels, container naming<br/><b>~1-5 seconds</b>"]
-        L3["📦 Application Layer (Layer 3)<br/>Your code, configurations, DAGs, project files<br/><b>~30-60 seconds</b>"]
-        L2["📚 Dependency Layer (Layer 2)<br/>Python packages, system libraries, dependencies<br/><b>~2-8 minutes</b>"]
-        L1["🐧 Base Image Layer (Layer 1)<br/>Operating system, Python runtime, Airflow base images<br/><b>~5-15 minutes</b>"]
+        L4["🏷️ Final Layer (Layer 4)<br/>Runtime metadata, labels, container naming<br/><b>~1-5 seconds</b><br/><br/>"]
+        L3["📦 Application Layer (Layer 3)<br/>Your code, configurations, DAGs, project files<br/><b>~30-60 seconds</b><br/><br/><br/><br/>"]
+        L2["📚 Dependency Layer (Layer 2)<br/>Python packages, system libraries, dependencies<br/><b>~2-8 minutes</b><br/><br/><br/><br/><br/><br/><br/><br/>"]
+        L1["🐧 Base Image Layer (Layer 1)<br/>Operating system, Python runtime, Airflow base images<br/><b>~5-15 minutes</b><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>"]
     end
 
     L1 --> L2
