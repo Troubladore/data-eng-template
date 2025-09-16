@@ -42,8 +42,8 @@
   "project_name": "{{ cookiecutter.customer_slug | title }} ETL Project",
   "project_slug": "{{ cookiecutter.customer_slug }}-etl",
   "python_version": [
-    "3.12.13",
-    "3.11.12",
+    "3.12.11",
+    "3.11.13",
     "3.13.2",
     "3.13.7"
   ],

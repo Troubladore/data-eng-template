@@ -51,7 +51,7 @@ cp company-template-defaults.yaml acme-defaults.yaml
 *Sarah thinks: "My team wastes 20-30 minutes daily on Docker builds. If everyone uses different Python versions, we can't share any cached layers. But I also need to balance standardization with giving my team options for different project needs."*
 
 **Sarah's Technology Assessment:**
-- **Python 3.12.13**: Company standard with latest security patches, but some legacy projects need 3.11.12, and early adopters want 3.13 versions for performance testing
+- **Python 3.12.11**: Company standard with latest security patches, but some legacy projects need 3.11.13, and early adopters want 3.13 versions for performance testing
 - **Airflow 3.0.6**: Current stable, but 3.0.7 has bug fixes some teams need, and 2.10.2 for legacy compatibility
 - **PostgreSQL 16**: Our standard, but 15 for legacy systems and 17 for teams wanting cutting-edge features
 
@@ -60,8 +60,8 @@ She modifies the template's `cookiecutter.json` to set organizational choices:
 ```json
 {
   "python_version": [
-    "3.12.13",  // Default: company standard with security patches
-    "3.11.12",  // Legacy project compatibility, stable patches
+    "3.12.11",  // Default: company standard with security patches
+    "3.11.13",  // Legacy project compatibility, stable patches
     "3.13.2",   // Early adopter stable option
     "3.13.7"    // Latest early adopter option
   ],
@@ -233,8 +233,8 @@ See the [Template Configuration Guide](template-configuration.md) for technical 
 ```json
 {
   "python_version": [
-    "3.12.13",   // Your primary standard (becomes default)
-    "3.11.12",   // Legacy compatibility with patches
+    "3.12.11",   // Your primary standard (becomes default)
+    "3.11.13",   // Legacy compatibility with patches
     "3.13.7"     // Early adopter latest option
   ],
   "airflow_version": [
@@ -262,8 +262,8 @@ See the [Template Configuration Guide](template-configuration.md) for technical 
 
 ```json
 "python_version": [
-  "3.12.13",     // ✅ Default - most projects get this automatically
-  "3.11.12",     // Legacy support option with patches
+  "3.12.11",     // ✅ Default - most projects get this automatically
+  "3.11.13",     // Legacy support option with patches
   "3.13.2",      // Stable early adopter option
   "3.13.7"       // Latest early adopter option
 ]
