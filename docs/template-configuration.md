@@ -35,11 +35,9 @@ These three settings must be answered for every project generation:
 <details>
 <summary><strong>customer_slug</strong> <a id="customer_slug"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-The customer_slug is the fundamental identifier that flows through every aspect of your generated project. It becomes container names, database names, directory paths, and Docker image tags. While seemingly simple, this choice affects project organization, team coordination, and operational clarity. Format requirements: lowercase letters, numbers, and hyphens only—no spaces, underscores, or special characters.
-</div>
+> **The customer_slug is the fundamental identifier that flows through every aspect of your generated project.** It becomes container names, database names, directory paths, and Docker image tags. While seemingly simple, this choice affects project organization, team coordination, and operational clarity.
+>
+> **Format requirements:** lowercase letters, numbers, and hyphens only—no spaces, underscores, or special characters.
 
 | Example | Why This Works | Caching Impact | Isolation Impact |
 |---------|----------------|----------------|------------------|
@@ -47,18 +45,14 @@ The customer_slug is the fundamental identifier that flows through every aspect 
 | `fraud-detection` | Domain-focused naming, uses standard separators, immediately recognizable purpose | **Low - Final layer only** - Project naming doesn't impact underlying build layers or component caching | **Critical - Complete namespace separation** - Prevents any resource conflicts between projects |
 | `user-segmentation` | Business-aligned terminology, proper format, indicates data scope clearly | **Low - Final layer only** - Infrastructure and dependency caching unaffected by project naming | **Critical - Complete namespace separation** - Operational isolation across all Docker resources |
 
-</div>
-
 </details>
 
 <details>
 <summary><strong>description</strong> <a id="description"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-The description provides human-readable context for your project, appearing in documentation, README files, and project metadata. This is your opportunity to clearly communicate the project's business purpose and scope to team members and stakeholders. Format: free text, typically 1-2 sentences describing the project's business purpose.
-</div>
+> **The description provides human-readable context for your project,** appearing in documentation, README files, and project metadata. This is your opportunity to clearly communicate the project's business purpose and scope to team members and stakeholders.
+>
+> **Format:** free text, typically 1-2 sentences describing the project's business purpose.
 
 | Example | Why This Works | Caching Impact | Isolation Impact |
 |---------|----------------|----------------|------------------|
@@ -66,25 +60,17 @@ The description provides human-readable context for your project, appearing in d
 | "Real-time fraud detection system" | Specifies real-time requirement, clear security domain, system-level scope | **None** - Documentation metadata only | **None** - No operational impact |
 | "User behavior segmentation ML" | Indicates ML workload, specifies data type, clear analytical purpose | **None** - No influence on Docker layers or caching | **None** - Documentation artifact only |
 
-</div>
-
 </details>
 
 <details>
 <summary><strong>deployment_mode</strong> <a id="deployment_mode"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-Deployment mode controls the container naming strategy to enable parallel development workflows. This is critical for teams running multiple projects simultaneously, CI/CD pipelines, and isolating experimental work from production-bound projects.
-</div>
+> **Deployment mode controls the container naming strategy to enable parallel development workflows.** This is critical for teams running multiple projects simultaneously, CI/CD pipelines, and isolating experimental work from production-bound projects.
 
 | Choice Value | Definition | When to Use | Caching Impact | Isolation Impact |
 |--------------|------------|-------------|----------------|------------------|
 | `production`<br><div style="text-align:center">(default)</div> | Standard container names create predictable, clean operational environment for permanent projects | Permanent projects requiring clean, stable container naming without suffix conflicts | **Moderate - Namespace separation** - Production and testing use different Docker image caches for complete separation | **High - Standard namespace** - Clean, permanent container names without conflicts |
 | `testing`<br><div style="text-align:center"> </div> | `-test` suffix provides complete isolation for experiments, CI/CD, and temporary development work enabling parallel development workflows | Experiments, CI/CD pipelines, temporary development work, or any scenario requiring complete isolation from production containers | **Moderate - Namespace separation** - Testing containers completely isolated from production images ensuring no cache conflicts | **Critical - Complete isolation** - No conflicts with production containers during parallel development workflows |
-
-</div>
 
 </details>
 
@@ -103,11 +89,9 @@ These settings have **massive impact** on Docker build performance. Misalignment
 <details>
 <summary><strong>python_version</strong> <a id="python_version"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-The Python version forms the foundation of every Docker image in your project. This choice affects the base OS layer, system dependencies, package installation layers, and compatibility with your data processing libraries. Team alignment on this setting is absolutely critical for Docker layer sharing efficiency. Critical requirement: all team members MUST use the same Python version or Docker layer sharing fails completely across the entire development workflow.
-</div>
+> **The Python version forms the foundation of every Docker image in your project.** This choice affects the base OS layer, system dependencies, package installation layers, and compatibility with your data processing libraries. Team alignment on this setting is absolutely critical for Docker layer sharing efficiency.
+>
+> **⚠️ Critical requirement:** all team members MUST use the same Python version or Docker layer sharing fails completely across the entire development workflow.
 
 | Choice Value | Definition | When to Use | Caching Impact | Isolation Impact |
 |--------------|------------|-------------|----------------|------------------|
@@ -115,18 +99,14 @@ The Python version forms the foundation of every Docker image in your project. T
 | `3.12`<br><div style="text-align:center">(default)</div> | Current stable release with performance improvements and modern features, optimal for new projects | New projects requiring modern Python features with proven stability | **Critical - Layers 1-4** - Foundation for ALL containers, must match across entire team | **None** - No operational isolation impact |
 | `3.13`<br><div style="text-align:center"> </div> | Latest features and performance optimizations, cutting-edge development capabilities | Cutting-edge development requiring newest Python features | **Critical - Layers 1-4** - Different from team standard invalidates ALL cached layers | **None** - Runtime configuration |
 
-</div>
-
 </details>
 
 <details>
 <summary><strong>airflow_version</strong> <a id="airflow_version"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-Airflow version determines the orchestration runtime, available features, and compatibility with your DAG patterns. This choice affects the largest Docker layers (2GB+ base image), scheduler behavior, and API compatibility. Version coordination across your team is essential for build performance and feature consistency. Critical requirement: team must coordinate Airflow version changes to maintain Docker layer sharing efficiency across all projects.
-</div>
+> **Airflow version determines the orchestration runtime, available features, and compatibility with your DAG patterns.**
+>
+> This choice affects the largest Docker layers (2GB+ base image), scheduler behavior, and API compatibility. Version coordination across your team is essential for build performance and feature consistency. Critical requirement: team must coordinate Airflow version changes to maintain Docker layer sharing efficiency across all projects.
 
 | Choice Value | Definition | When to Use | Caching Impact | Isolation Impact |
 |--------------|------------|-------------|----------------|------------------|
@@ -134,18 +114,15 @@ Airflow version determines the orchestration runtime, available features, and co
 | `3.0.6`<br><div style="text-align:center">(default)</div> | Latest stable Airflow 3.0 release with modern features and performance improvements | New projects requiring modern Airflow 3.0 features with proven stability | **Critical - Layers 1-2** - Must align with team for sharing 2GB+ of cached layers | **None** - No isolation impact |
 | `3.0.7`<br><div style="text-align:center"> </div> | Newest features and fixes, requires coordinated team upgrade for optimal caching | Cutting-edge Airflow features requiring latest capabilities and fixes | **Critical - Layers 1-2** - Version changes break ALL Airflow-related layer sharing across team | **None** - Runtime configuration |
 
-</div>
 
 </details>
 
 <details>
 <summary><strong>postgres_version</strong> <a id="postgres_version"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-PostgreSQL version affects database container initialization, extension compatibility, and SQL feature availability. While having less cache impact than Python or Airflow, version consistency still matters for database schema compatibility and initialization script caching. Stability focus: version 16 provides good balance of features and stability for most data engineering workloads.
-</div>
+> **PostgreSQL version affects database container initialization, extension compatibility, and SQL feature availability.**
+>
+> While having less cache impact than Python or Airflow, version consistency still matters for database schema compatibility and initialization script caching. Stability focus: version 16 provides good balance of features and stability for most data engineering workloads.
 
 | Choice Value | Definition | When to Use | Caching Impact | Isolation Impact |
 |--------------|------------|-------------|----------------|------------------|
@@ -153,7 +130,6 @@ PostgreSQL version affects database container initialization, extension compatib
 | `16`<br><div style="text-align:center">(default)</div> | Current stable release with good balance of features, performance, and stability | Most production environments requiring balance of stability and modern features | **Moderate - Layer 2** - Database initialization, extension, and configuration layers | **None** - No operational isolation |
 | `17`<br><div style="text-align:center"> </div> | Latest features and performance improvements for cutting-edge database capabilities | Cutting-edge environments requiring newest PostgreSQL features and optimizations | **Moderate - Layer 2** - Different version affects database setup and extension layers | **None** - Database configuration |
 
-</div>
 
 </details>
 
@@ -168,11 +144,9 @@ PostgreSQL version affects database container initialization, extension compatib
 <details>
 <summary><strong>image_repo</strong> <a id="image_repo"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-The container registry pattern determines where your Docker images are stored, pushed, and pulled from. This choice affects build performance through layer sharing, deployment workflows, and team collaboration. Consistency across all team projects is critical for optimal Docker layer caching and operational efficiency. Critical requirement: all team projects must use the same registry pattern for Docker layer sharing to work effectively across your development workflow.
-</div>
+> **The container registry pattern determines where your Docker images are stored, pushed, and pulled from.**
+>
+> This choice affects build performance through layer sharing, deployment workflows, and team collaboration. Consistency across all team projects is critical for optimal Docker layer caching and operational efficiency. Critical requirement: all team projects must use the same registry pattern for Docker layer sharing to work effectively across your development workflow.
 
 | Example | Why This Works | Caching Impact | Isolation Impact |
 |---------|----------------|----------------|------------------|
@@ -182,7 +156,6 @@ The container registry pattern determines where your Docker images are stored, p
 | `gcr.io/your-project/data-eng/{{ cookiecutter.customer_slug }}` | Google Container Registry with project-specific namespace and data engineering focus | **High - Layers 2-4** - Registry consistency critical for Docker layer sharing efficiency | **None** - No isolation impact |
 | `yourorg/{{ cookiecutter.customer_slug }}-etl` | Docker Hub pattern with organization namespace, suitable for open or private repositories | **High - Layers 2-4** - Different registry patterns break cross-project layer sharing completely | **None** - Registry configuration |
 
-</div>
 
 </details>
 
@@ -200,11 +173,9 @@ The container registry pattern determines where your Docker images are stored, p
 <details>
 <summary><strong>secrets_strategy</strong> <a id="secrets_strategy"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-Secrets management strategy determines how your project handles sensitive data like database credentials, API keys, and service account tokens. This choice affects security posture, operational complexity, and integration with your organization's identity management systems. Security note: env-vars should only be used for development—production environments should use proper secrets management systems.
-</div>
+> **Secrets management strategy determines how your project handles sensitive data like database credentials, API keys, and service account tokens.**
+>
+> This choice affects security posture, operational complexity, and integration with your organization's identity management systems. Security note: env-vars should only be used for development—production environments should use proper secrets management systems.
 
 | Choice Value | Definition | When to Use | Caching Impact | Isolation Impact |
 |--------------|------------|-------------|----------------|------------------|
@@ -212,18 +183,15 @@ Secrets management strategy determines how your project handles sensitive data l
 | `external-secrets-operator`<br><div style="text-align:center"> </div> | Kubernetes-native secrets management supporting multiple secret backends with automated sync | Kubernetes environments requiring multi-cloud secret management or complex secret workflows | **None** - Runtime configuration with no caching impact | **None** - No operational isolation |
 | `env-vars`<br><div style="text-align:center"> </div> | Simple environment variable based secrets for development and testing scenarios only | Development environments only, never use in production due to security limitations | **None** - Runtime configuration affecting no build layers | **None** - Configuration choice only |
 
-</div>
 
 </details>
 
 <details>
 <summary><strong>executor</strong> <a id="executor"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-The Airflow executor determines how tasks are executed, affecting scalability, resource isolation, and operational complexity. This choice impacts your system's ability to handle concurrent workloads, resource allocation strategies, and failure isolation patterns. Scale consideration: KubernetesExecutor recommended for production workloads requiring scale and resource isolation.
-</div>
+> **The Airflow executor determines how tasks are executed, affecting scalability, resource isolation, and operational complexity.**
+>
+> This choice impacts your system's ability to handle concurrent workloads, resource allocation strategies, and failure isolation patterns. Scale consideration: KubernetesExecutor recommended for production workloads requiring scale and resource isolation.
 
 | Choice Value | Definition | When to Use | Caching Impact | Isolation Impact |
 |--------------|------------|-------------|----------------|------------------|
@@ -231,36 +199,30 @@ The Airflow executor determines how tasks are executed, affecting scalability, r
 | `CeleryExecutor`<br><div style="text-align:center"> </div> | Distributed task execution using Celery workers for horizontal scaling with shared infrastructure | Existing Celery infrastructure, traditional scaling patterns, or environments requiring persistent workers | **None** - Runtime configuration with no build impact | **High** - Tasks share worker nodes with process-level isolation |
 | `LocalExecutor`<br><div style="text-align:center"> </div> | Tasks execute on the scheduler machine using local processes for simplicity | Development environments, small workloads, or single-machine deployments with limited scaling needs | **None** - Runtime execution choice only | **Moderate** - Tasks share scheduler resources with process separation |
 
-</div>
 
 </details>
 
 <details>
 <summary><strong>enable_kerberos</strong> <a id="enable_kerberos"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-Kerberos integration enables enterprise authentication workflows, affecting how your project authenticates with external systems, databases, and services. This choice impacts security architecture, dependency requirements, and integration complexity. Enterprise context: only enable if your organization specifically requires Kerberos authentication integration.
-</div>
+> **Kerberos integration enables enterprise authentication workflows, affecting how your project authenticates with external systems, databases, and services.**
+>
+> This choice impacts security architecture, dependency requirements, and integration complexity. Enterprise context: only enable if your organization specifically requires Kerberos authentication integration.
 
 | Choice Value | Definition | When to Use | Caching Impact | Isolation Impact |
 |--------------|------------|-------------|----------------|------------------|
 | `no`<br><div style="text-align:center">(default)</div> | Standard authentication using modern patterns like OAuth, service accounts, and managed identities | Most modern environments with cloud-native authentication systems and standard security practices | **None** - Runtime authentication configuration only | **None** - No operational impact |
 | `yes`<br><div style="text-align:center"> </div> | Kerberos protocol integration for enterprise environments requiring legacy authentication compatibility | Enterprise environments with existing Kerberos infrastructure and legacy system integration requirements | **Low - Layer 2** - May affect some authentication library installation layers | **None** - Authentication configuration |
 
-</div>
 
 </details>
 
 <details>
 <summary><strong>license</strong> <a id="license"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-The project license determines legal usage rights, distribution permissions, and compliance requirements for your generated codebase. This choice affects intellectual property management, open source compliance, and distribution strategies. Distribution intent: choose based on whether and how you plan to distribute the generated project code.
-</div>
+> **The project license determines legal usage rights, distribution permissions, and compliance requirements for your generated codebase.**
+>
+> This choice affects intellectual property management, open source compliance, and distribution strategies. Distribution intent: choose based on whether and how you plan to distribute the generated project code.
 
 | Choice Value | Definition | When to Use | Caching Impact | Isolation Impact |
 |--------------|------------|-------------|----------------|------------------|
@@ -268,7 +230,6 @@ The project license determines legal usage rights, distribution permissions, and
 | `MIT`<br><div style="text-align:center"> </div> | Open source with minimal restrictions allowing maximum flexibility for downstream usage | Open source projects prioritizing adoption, maximum permissiveness, and community contributions | **None** - License header generation only | **None** - No operational impact |
 | `Apache-2.0`<br><div style="text-align:center"> </div> | Open source with patent protection providing legal safety for enterprise environments | Open source projects needing patent protection, enterprise adoption, and legal risk mitigation | **None** - Documentation and header generation only | **None** - Legal choice only |
 
-</div>
 
 </details>
 
@@ -286,11 +247,9 @@ The project license determines legal usage rights, distribution permissions, and
 <details>
 <summary><strong>env_name</strong> <a id="env_name"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-The default environment name sets the initial Hydra configuration context, affecting logging levels, debug settings, performance optimizations, and monitoring configurations. This choice establishes the baseline operational behavior for your project. Default impact: sets the default Hydra environment configuration—can be overridden at runtime.
-</div>
+> **The default environment name sets the initial Hydra configuration context, affecting logging levels, debug settings, performance optimizations, and monitoring configurations.**
+>
+> This choice establishes the baseline operational behavior for your project. Default impact: sets the default Hydra environment configuration—can be overridden at runtime.
 
 | Choice Value | Definition | When to Use | Caching Impact | Isolation Impact |
 |--------------|------------|-------------|----------------|------------------|
@@ -299,18 +258,15 @@ The default environment name sets the initial Hydra configuration context, affec
 | `qa`<br><div style="text-align:center"> </div> | Quality assurance focused settings optimized for testing, validation, and quality metrics | QA testing workflows requiring production-like behavior with enhanced testing and validation features | **None** - Runtime environment choice only | **None** - No isolation impact |
 | `prod`<br><div style="text-align:center"> </div> | Production-optimized settings with performance focus, minimal logging, and monitoring integration | Production deployments prioritizing performance, stability, and operational monitoring | **None** - Runtime configuration affecting no caching layers | **None** - Environment choice |
 
-</div>
 
 </details>
 
 <details>
 <summary><strong>local_domain</strong> <a id="local_domain"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-The local domain configures hostname resolution and service discovery for development environments, affecting how services communicate and how developers access local resources during development and testing workflows. Development focus: configures local service discovery and development environment networking.
-</div>
+> **The local domain configures hostname resolution and service discovery for development environments, affecting how services communicate and how developers access local resources during development and testing workflows.**
+>
+> Development focus: configures local service discovery and development environment networking.
 
 | Example | Why This Works | Caching Impact | Isolation Impact |
 |---------|----------------|----------------|------------------|
@@ -318,18 +274,15 @@ The local domain configures hostname resolution and service discovery for develo
 | `local.dev` | Custom local domain providing organized namespace for multiple services and projects | **None** - Runtime networking configuration only | **None** - No operational impact |
 | `dev.company.com` | Company-specific domain enabling integration with corporate DNS and certificate management | **None** - Local networking configuration with no caching impact | **None** - Domain configuration |
 
-</div>
 
 </details>
 
 <details>
 <summary><strong>db_user</strong> and <strong>db_password</strong> <a id="db_credentials"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-Default database credentials provide initial authentication for development databases, enabling immediate project startup while supporting eventual migration to proper secrets management for production deployments. Security warning: these are development defaults only—production environments should use proper secrets management systems.
-</div>
+> **Default database credentials provide initial authentication for development databases, enabling immediate project startup while supporting eventual migration to proper secrets management for production deployments.**
+>
+> Security warning: these are development defaults only—production environments should use proper secrets management systems.
 
 | Example | Why This Works | Caching Impact | Isolation Impact |
 |---------|----------------|----------------|------------------|
@@ -337,7 +290,6 @@ Default database credentials provide initial authentication for development data
 | `airflow` / `custom_password` | Airflow-specific database user with appropriate permissions and custom security | **None** - Runtime authentication configuration only | **None** - No operational isolation |
 | `etl_user` / `secure_password` | ETL-focused user account with specific permissions for data processing workflows | **None** - Runtime database authentication only | **None** - Authentication configuration |
 
-</div>
 
 </details>
 
@@ -354,11 +306,9 @@ Default database credentials provide initial authentication for development data
 <details>
 <summary><strong>author_name</strong>, <strong>company_domain</strong>, <strong>high_label</strong> <a id="organizational_settings"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-Organizational settings establish institutional identity, security classification, and documentation attribution throughout your generated project, affecting compliance, branding, and operational clarity across your data engineering workflows. Organizational customization: these settings should be customized in your organizational defaults file for consistency.
-</div>
+> **Organizational settings establish institutional identity, security classification, and documentation attribution throughout your generated project, affecting compliance, branding, and operational clarity across your data engineering workflows.**
+>
+> Organizational customization: these settings should be customized in your organizational defaults file for consistency.
 
 | Setting | Example | Why This Works | Caching Impact | Isolation Impact |
 |---------|---------|----------------|----------------|------------------|
@@ -369,7 +319,6 @@ Organizational settings establish institutional identity, security classificatio
 | **`high_label`** | `high`<br><div style="text-align:center">(default)</div> | Standard security classification providing baseline data sensitivity labeling | **None** - Security labeling metadata only | **None** - Classification choice |
 | `high_label` | `sensitive` | Organization-specific security classification reflecting actual corporate data governance policies | **None** - Documentation and labeling only | **None** - No operational isolation |
 
-</div>
 
 </details>
 
@@ -388,11 +337,9 @@ Organizational settings establish institutional identity, security classificatio
 <details>
 <summary><strong>db_name</strong>, <strong>project_name</strong>, <strong>project_slug</strong> <a id="auto_generated_names"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-Auto-generated naming values provide consistent, predictable naming patterns derived from your customer_slug, ensuring organizational consistency and eliminating naming conflicts across your project ecosystem. Recommendation: leave these as auto-generated unless you have specific requirements to override the default logic.
-</div>
+> **Auto-generated naming values provide consistent, predictable naming patterns derived from your customer_slug, ensuring organizational consistency and eliminating naming conflicts across your project ecosystem.**
+>
+> Recommendation: leave these as auto-generated unless you have specific requirements to override the default logic.
 
 | Setting | Example | Why This Works | Caching Impact | Isolation Impact |
 |---------|---------|----------------|----------------|------------------|
@@ -400,18 +347,15 @@ Auto-generated naming values provide consistent, predictable naming patterns der
 | **`project_name`** | `Customer Analytics ETL Project`<br><div style="text-align:center">(auto-generated)</div> | Human-readable title case formatting with ETL identification, suitable for documentation and UI display | **None** - Documentation metadata only | **None** - No operational impact |
 | **`project_slug`** | `customer-analytics-etl`<br><div style="text-align:center">(auto-generated)</div> | Extended slug with ETL suffix maintaining kebab-case format for technical identifier consistency | **Low - Layer 4** - Container naming affecting final layers only | **None** - Naming convention choice |
 
-</div>
 
 </details>
 
 <details>
 <summary><strong>runtime_tag</strong> <a id="runtime_tag"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-Runtime tag is automatically derived from your airflow_version choice to ensure perfect alignment between Airflow runtime and Astronomer base image versions. This eliminates the critical configuration trap where mismatched versions cause 5-10 minute cache penalties on every Docker build. Functional by design: runtime_tag is automatically derived from airflow_version to eliminate configuration traps and ensure proper cache alignment.
-</div>
+> **Runtime tag is automatically derived from your airflow_version choice to ensure perfect alignment between Airflow runtime and Astronomer base image versions.**
+>
+> This eliminates the critical configuration trap where mismatched versions cause 5-10 minute cache penalties on every Docker build. Functional by design: runtime_tag is automatically derived from airflow_version to eliminate configuration traps and ensure proper cache alignment.
 
 | Airflow Version | Runtime Tag | Why This Works | Caching Impact | Isolation Impact |
 |-----------------|-------------|----------------|----------------|------------------|
@@ -419,24 +363,20 @@ Runtime tag is automatically derived from your airflow_version choice to ensure 
 | `3.0.6` | `3.0-10`<br><div style="text-align:center">(auto-generated)</div> | Perfect version alignment ensuring maximum Docker layer sharing and build performance optimization | **Critical - Layers 1-2** - Auto-alignment ensures proper layer caching across team | **None** - No isolation impact |
 | `3.0.7` | `3.0-11`<br><div style="text-align:center">(auto-generated)</div> | Precise runtime matching preventing cache misses and ensuring consistent build performance | **Critical - Layers 1-2** - Auto-alignment prevents complete cache invalidation | **None** - Runtime configuration |
 
-</div>
 
 </details>
 
 <details>
 <summary><strong>year</strong> <a id="year"></a></summary>
 
-<div style="margin: 0 2rem;">
-
-<div style="margin: 0 4rem; text-align: center; font-style: italic; color: #666; margin-bottom: 1rem;">
-The current year is automatically generated for license headers and copyright notices, ensuring accurate legal documentation without manual maintenance or configuration drift. Recommendation: leave as auto-generated to always reflect the current year accurately.
-</div>
+> **The current year is automatically generated for license headers and copyright notices, ensuring accurate legal documentation without manual maintenance or configuration drift.**
+>
+> Recommendation: leave as auto-generated to always reflect the current year accurately.
 
 | Example | Why This Works | Caching Impact | Isolation Impact |
 |---------|----------------|----------------|------------------|
 | `2025`<br><div style="text-align:center">(auto-generated)</div> | Always reflects current year for accurate legal documentation and license header generation | **None** - Documentation metadata only | **None** - Legal documentation choice |
 
-</div>
 
 </details>
 
