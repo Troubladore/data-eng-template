@@ -10,14 +10,12 @@ Understanding [Docker's layer caching system](https://docs.docker.com/build/cach
 
 For this template, we conceptualize the build process as four logical layers:
 
-**Layer Impact Analysis:**
-
 | Layer | What Lives Here | Build Time | Cache Sharing Impact |
 |-------|----------------|------------|---------------------|
-| **🐧 Layer 1 (Base)** | OS + Python + Airflow runtime | **5-15 min** | **CRITICAL** - Different versions break ALL caching |
-| **📚 Layer 2 (Dependencies)** | pip packages, system libraries | **2-8 min** | **HIGH** - Package changes invalidate everything above |
-| **📦 Layer 3 (Application)** | Your code, DAGs, configs | **30-60 sec** | **MODERATE** - Code changes only rebuild this + Layer 4 |
 | **🏷️ Layer 4 (Final)** | Labels, metadata, naming | **1-5 sec** | **LOW** - Cosmetic changes, minimal impact |
+| **📦 Layer 3 (Application)** | Your code, DAGs, configs | **30-60 sec** | **MODERATE** - Code changes only rebuild this + Layer 4 |
+| **📚 Layer 2 (Dependencies)** | pip packages, system libraries | **2-8 min** | **HIGH** - Package changes invalidate everything above |
+| **🐧 Layer 1 (Base)** | OS + Python + Airflow runtime | **5-15 min** | **CRITICAL** - Different versions break ALL caching |
 
 ---
 
