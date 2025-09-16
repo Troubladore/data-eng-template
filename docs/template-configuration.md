@@ -6,28 +6,7 @@ This guide explains every configuration option in the cookiecutter template, org
 
 ### Docker Build Layer Caching
 
-Understanding Docker's 4-layer caching system is critical for optimal build performance:
-
-```mermaid
-%%{init: {'theme':'base', 'themeVariables': { 'primaryColor': '#ffffff'}}}%%
-%%{config: { 'flowchart': { 'htmlLabels': false, 'curve': 'linear' }, 'securityLevel': 'loose' } }%%
-graph TD
-    subgraph "Docker Image Stack (Build Time Impact)"
-        L4["🏷️ Final Layer (Layer 4)<br/>Runtime metadata, labels, container naming<br/><b>~1-5 seconds</b><br/><br/>"]
-        L3["📦 Application Layer (Layer 3)<br/>Your code, configurations, DAGs, project files<br/><b>~30-60 seconds</b><br/><br/><br/><br/>"]
-        L2["📚 Dependency Layer (Layer 2)<br/>Python packages, system libraries, dependencies<br/><b>~2-8 minutes</b><br/><br/><br/><br/><br/><br/><br/><br/>"]
-        L1["🐧 Base Image Layer (Layer 1)<br/>Operating system, Python runtime, Airflow base images<br/><b>~5-15 minutes</b><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>"]
-    end
-
-    L1 --> L2
-    L2 --> L3
-    L3 --> L4
-
-    style L1 fill:#ff6b6b,stroke:#d63031,stroke-width:4px,color:#fff
-    style L2 fill:#ffa726,stroke:#ef6c00,stroke-width:3px,color:#fff
-    style L3 fill:#66bb6a,stroke:#388e3c,stroke-width:2px,color:#fff
-    style L4 fill:#42a5f5,stroke:#1976d2,stroke-width:1px,color:#fff
-```
+Understanding Docker's 4-layer caching system is critical for optimal build performance. Configuration choices affect different layers with varying impact on rebuild times and cache sharing across your team.
 
 **Layer Impact Analysis:**
 
@@ -37,18 +16,6 @@ graph TD
 | **📚 Layer 2 (Dependencies)** | pip packages, system libraries | **2-8 min** | **CRITICAL** - Package changes invalidate everything above |
 | **📦 Layer 3 (Application)** | Your code, DAGs, configs | **30-60 sec** | **HIGH** - Code changes only rebuild this + Layer 4 |
 | **🏷️ Layer 4 (Final)** | Labels, metadata, naming | **1-5 sec** | **LOW** - Cosmetic changes, minimal impact |
-
-<center>
-
-**Cache Impact Degrees**
-
-- **Critical** - Affects foundational layers (1-2), complete cache invalidation across team
-- **High** - Affects multiple layers (2-3), significant rebuild performance impact
-- **Moderate** - Affects specific layers (3-4), localized rebuild requirements
-- **Low** - Affects final layers only (4), minimal performance impact
-- **None** - Runtime/documentation only, no build layer impact
-
-</center>
 
 ---
 
