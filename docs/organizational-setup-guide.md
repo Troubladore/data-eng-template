@@ -184,12 +184,6 @@ You'll only be asked 3 questions:
 - ✅ Acme Analytics branding
 - ✅ Optimal Docker caching across team
 
-## Questions?
-
-See the [Template Configuration Guide](template-configuration.md) for technical details on any setting.
-
----
-
 ## 📊 **Results: Sarah's Success Metrics**
 
 **After 2 weeks with the new setup:**
@@ -204,12 +198,22 @@ See the [Template Configuration Guide](template-configuration.md) for technical 
 
 ---
 
-## 🎯 **Your Turn: Customize for Your Organization**
+## ❓ **Questions?**
+
+See the [Template Configuration Guide](template-configuration.md) for technical details on any setting.
+
+---
+
+## 🎯 ***Your*** **Turn: Customize for Your Organization**
 
 **Step 1**: Fork or clone the template
+
 **Step 2**: Copy `company-template-defaults.yaml` to `your-org-defaults.yaml`
+
 **Step 3**: Make your configuration decisions (use the [Template Configuration Guide](template-configuration.md) for detailed explanations)
+
 **Step 4**: Test with a sample project
+
 **Step 5**: Commit and share with your team
 
 ### **Key Configuration Areas to Consider**
@@ -236,4 +240,4 @@ After completing your organizational setup, your team should have:
 - ✅ **Persistent customizations** that survive template updates
 - ✅ **Consistent environments** across all team members
 
-**Next**: Your team can now follow the [Getting Started Guide](getting-started.md) knowing every project will be optimized for your organization.
+Your template is now configured and ready for your team to deploy new repos following the [Getting Started Guide](getting-started.md).
