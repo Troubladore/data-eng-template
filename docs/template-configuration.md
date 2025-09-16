@@ -9,6 +9,8 @@ This guide explains every configuration option in the cookiecutter template, org
 Understanding Docker's 4-layer caching system is critical for optimal build performance:
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor': '#ffffff'}}}%%
+%%{config: { 'flowchart': { 'htmlLabels': false, 'curve': 'linear' }, 'securityLevel': 'loose' } }%%
 graph TD
     subgraph "Docker Image Stack (Build Time Impact)"
         L4["🏷️ Final Layer (Layer 4)<br/>Runtime metadata, labels, container naming<br/><b>~1-5 seconds</b><br/><br/>"]
