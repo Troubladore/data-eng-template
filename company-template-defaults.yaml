@@ -23,7 +23,6 @@ default_context:
   python_version: "3.12"
   airflow_version: "3.0.6"
   postgres_version: "16"
-  runtime_tag: "3.0-10"
 
   # Container Registry Configuration
   image_repo: "registry.example.com/etl/{{ cookiecutter.customer_slug }}"
@@ -32,9 +31,6 @@ default_context:
   secrets_strategy: "azure-key-vault"
   executor: "KubernetesExecutor"
   enable_kerberos: "no"
-  author_name: "Data Engineering Team"
-  company_domain: "myco.com"
-  high_label: "high"
   license: "Proprietary"
 
   # Environment and Database Settings
@@ -43,10 +39,16 @@ default_context:
   db_user: "postgres"
   db_password: "postgres"
 
+  # Organizational and Documentation Settings
+  author_name: "Data Engineering Team"
+  company_domain: "myco.com"
+  high_label: "high"
+
   # Auto-generated values (usually don't need changes)
   db_name: "{{ cookiecutter.customer_slug.replace('-', '_') }}_etl"
   project_name: "{{ cookiecutter.customer_slug | title }} ETL Project"
   project_slug: "{{ cookiecutter.customer_slug }}-etl"
+  runtime_tag: "{% if cookiecutter.airflow_version.startswith('3.0.6') %}3.0-10{% elif cookiecutter.airflow_version.startswith('3.0.7') %}3.0-11{% elif cookiecutter.airflow_version.startswith('2.10.2') %}2.10-1{% else %}3.0-10{% endif %}"
   year: "2025"
 
 # Port Management Integration
