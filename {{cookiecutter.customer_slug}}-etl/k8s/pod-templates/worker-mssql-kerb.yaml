@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: worker-mssql-kerb
+spec:
+  containers:
+    - name: mssql-kerb
+      image: {{ cookiecutter.image_repo }}:mssql-kerb
+      volumeMounts:
+        - name: krb-ccache
+          mountPath: /ccache
+          readOnly: true
+      env:
+        - name: AIRFLOW__KERBEROS__CCACHE
+          value: /ccache/krb5cc
+        - name: KRB5CCNAME
+          value: /ccache/krb5cc
+  volumes:
+    - name: krb-ccache
+      emptyDir: {}

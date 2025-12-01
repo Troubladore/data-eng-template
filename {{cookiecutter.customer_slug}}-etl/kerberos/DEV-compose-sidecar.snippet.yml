@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  kerberos:
+    image: your-org/airflow-kerberos-sidecar:latest
+    command: ["bash","-lc","airflow kerberos"]
+    volumes:
+      - ccache:/ccache
+      - keytab:/keytab:ro
+  scheduler:
+    volumes:
+      - ccache:/ccache:ro
+    environment:
+      - AIRFLOW__KERBEROS__CCACHE=/ccache/krb5cc
+      - KRB5CCNAME=/ccache/krb5cc
+  worker:
+    volumes:
+      - ccache:/ccache:ro
+    environment:
+      - AIRFLOW__KERBEROS__CCACHE=/ccache/krb5cc
+      - KRB5CCNAME=/ccache/krb5cc
+volumes:
+  ccache: {}
+  keytab: {}

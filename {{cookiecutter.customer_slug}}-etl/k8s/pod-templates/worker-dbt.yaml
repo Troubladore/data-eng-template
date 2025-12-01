@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: worker-dbt
+spec:
+  containers:
+    - name: dbt
+      image: {{ cookiecutter.image_repo }}:dbt
+      resources:
+        requests: { cpu: "500m", memory: "1Gi" }
+        limits:   { cpu: "2",    memory: "4Gi" }

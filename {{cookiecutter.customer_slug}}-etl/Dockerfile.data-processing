@@ -1,0 +1,46 @@
+# Data Processing Environment with Modern Dependencies
+# This is ISOLATED from Airflow core to avoid SQLAlchemy version conflicts
+#
+# Airflow 3.0.6 still uses SQLAlchemy 1.4.x, but modern data processing
+# benefits from SQLAlchemy 2.0+. This container provides isolation.
+
+FROM python:3.12-slim-bookworm
+
+# Set up non-root user
+RUN groupadd --gid 50000 dataproc && \
+    useradd --uid 50000 --gid dataproc --shell /bin/bash --create-home dataproc
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch to non-root user
+USER dataproc
+WORKDIR /home/dataproc
+
+# Install UV for fast dependency management
+RUN pip install --user --no-cache-dir uv
+
+# Add user bin to PATH
+ENV PATH="/home/dataproc/.local/bin:$PATH"
+
+# Copy project files
+COPY --chown=dataproc:dataproc pyproject.toml ./
+COPY --chown=dataproc:dataproc transforms/requirements.txt ./transforms/
+
+# Install modern data processing dependencies with SQLAlchemy 2.0+
+RUN uv pip install --user --no-cache -r transforms/requirements.txt
+
+# Install project in development mode
+COPY --chown=dataproc:dataproc . .
+RUN uv pip install --user --no-cache -e .
+
+# Default working directory for transforms
+WORKDIR /home/dataproc/transforms
+
+# Entry point for data processing tasks
+ENTRYPOINT ["python"]
+CMD ["-c", "print('Data processing environment ready with modern dependencies')"]

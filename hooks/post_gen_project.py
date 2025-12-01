@@ -1,8 +1,34 @@
-import base64, os, pathlib, json, subprocess
+import base64, os, pathlib, json, subprocess, shutil, re
 import yaml
+
+HERE = os.path.abspath(os.curdir)
+
+def run(cmd, **kw):
+    print("+", " ".join(cmd))
+    subprocess.check_call(cmd, **kw)
 
 # Generate Fernet key and dynamic configuration
 fernet_key = base64.urlsafe_b64encode(os.urandom(32)).decode()
+
+# 1) Initialize an Astro project if not present
+if not os.path.exists(os.path.join(HERE, "dags")):
+    if shutil.which("astro"):
+        run(["astro", "dev", "init"])
+        print("Initialized Astro project structure.")
+    else:
+        print("WARNING: Astro CLI not found; assuming project skeleton exists.")
+
+# 2) Export pinned requirements via uv if available
+# Note: This will typically fail in fresh projects since pyproject.toml/uv.lock don't exist yet
+# The requirements.txt will be generated when users run `uv sync` in their development workflow
+if shutil.which("uv") and os.path.exists("pyproject.toml"):
+    try:
+        run(["uv", "export", "--frozen", "--no-hashes", "-o", "requirements.txt"])
+        print("Exported requirements.txt via uv.")
+    except subprocess.CalledProcessError:
+        print("Note: requirements.txt will be generated when you run 'uv sync' in development.")
+else:
+    print("Note: requirements.txt will be generated when you run 'uv sync' in development.")
 
 # Create local Hydra configuration override with generated values
 local_config_dir = pathlib.Path("conf/local")
@@ -52,7 +78,7 @@ import sys
 sys.path.insert(0, 'src')
 
 try:
-    from {{cookiecutter.repo_slug.replace('-', '_')}}.config import get_settings
+    from {{cookiecutter.project_slug.replace('-', '_')}}.config import get_settings
     
     # Load configuration
     settings = get_settings()
@@ -117,9 +143,9 @@ _AIRFLOW_WWW_USER_USERNAME=admin
 _AIRFLOW_WWW_USER_PASSWORD=admin
 
 # Database configuration  
-POSTGRES_DB=airflow
-POSTGRES_USER=airflow
-POSTGRES_PASSWORD=airflow
+POSTGRES_DB={{cookiecutter.db_name}}
+POSTGRES_USER={{cookiecutter.db_user}}
+POSTGRES_PASSWORD={{cookiecutter.db_password}}
 
 # Version configuration from cookiecutter
 PYTHON_VERSION={{cookiecutter.python_version}}
@@ -206,3 +232,58 @@ try:
     
 except (subprocess.CalledProcessError, FileNotFoundError) as e:
     print(f"Warning: git initialization failed: {e}")
+
+# Generate build fingerprint for shared Docker image caching
+print("Generating build fingerprint for optimized Docker caching...")
+try:
+    # Generate fingerprint using the script we created
+    result = subprocess.run([
+        "python", "scripts/generate_build_fingerprint.py"
+    ], capture_output=True, text=True, check=True)
+    
+    fingerprint_output = result.stdout.strip()
+    print(fingerprint_output)
+    
+    # Extract image name from script output
+    import re
+    image_match = re.search(r'Shared Image Name: (.+)', fingerprint_output)
+    if image_match:
+        shared_image_name = image_match.group(1)
+        
+        # Update Docker Compose file to use shared image name
+        compose_file = pathlib.Path(".devcontainer/compose.yaml")
+        if compose_file.exists():
+            compose_content = compose_file.read_text()
+
+            # The generated Docker Compose file uses {{cookiecutter.project_slug}}-airflow-dev
+            # Since we're in the generated project directory, extract from the directory name
+            current_dir = os.path.basename(os.getcwd())
+
+            # For template test: "airflow-debug-etl" → project_slug should be "airflow-debug-etl"
+            # This matches the {{cookiecutter.project_slug}} value used in the template
+            project_slug = current_dir
+            old_image_pattern = f"{project_slug}-airflow-dev"
+
+            print(f"DEBUG: Looking for pattern '{old_image_pattern}' to replace with '{shared_image_name}'")
+
+            # Replace only the image name, keep build context for fallback
+            # This allows Docker to build locally if the fingerprinted image doesn't exist
+            compose_content = re.sub(
+                rf'image:\s+{re.escape(old_image_pattern)}.*',
+                f'image: {shared_image_name}',
+                compose_content
+            )
+
+            print(f"DEBUG: Replaced image references. Build contexts preserved for fallback.")
+
+            compose_file.write_text(compose_content)
+            print(f"Updated Docker Compose to use shared image: {shared_image_name}")
+        
+except subprocess.CalledProcessError as e:
+    print(f"Warning: Build fingerprinting failed: {e}")
+    print("Continuing with project-specific image names...")
+
+print("\nTemplate ready. Next:")
+print("  cp .env.example .env")  
+print("  make init")
+print("  ./tools/where.sh")

@@ -1,94 +1,95 @@
-# Data Engineering Template
+# Data Engineering Cookiecutter Template
 
-Reproducible data engineering template with:
-- Podman Compose: Airflow + Postgres
-- VS Code Dev Container (auto start/stop with `shutdownAction: stopCompose`)
-- `uv` for Python package & project management
-- `ruff` for linting/formatting (replaces black/isort)
-- `sqlmodel` for Bronze tables (Pydantic + SQLAlchemy)
-- `dbt-core` for Silver/Gold modeling
+## What Is This?
 
-## Prereqs
-- Podman **with Docker API socket** enabled (or Docker), macOS/Linux/WSL2.
-- DevContainer CLI: `npm install -g @devcontainers/cli` (or VS Code + Dev Containers extension)
-- Cookiecutter: `pipx install cookiecutter`
-- (Optional) `pyenv` on host; `.python-version` is respected.
+This template generates data engineering projects built on proven foundations:
 
-## First run
+- **[Cookiecutter](https://cookiecutter.readthedocs.io/)**: A command-line utility that creates projects from templates, enabling consistent project structure and configuration across teams
+- **[Astronomer](https://www.astronomer.io/)**: Enterprise-grade Apache Airflow distributions and operational tooling for production data workflows
 
-**⚠️ This is a cookiecutter template - do not use directly!**
+## Why Was This Created?
 
-1. **Generate project from template** (run from your projects directory):
-   ```bash
-   # Navigate to where you want the new project created
-   cd ~/projects  # or wherever you keep projects
-   
-   # Generate from remote template
-   cookiecutter https://github.com/Troubladore/data-eng-template
-   # Or if you have it locally:
-   cookiecutter .
-   ```
-   
-   You'll be prompted to enter:
-   - `project_name`: "My Awesome Data Project" 
-   - `repo_slug`: "my-awesome-data-project" (auto-generated from project name)
-   - `python_version`: "3.12" (default)
-   - `airflow_version`: "2.9.3" (default)
-   - `airflow_executor`: Choose execution model
-     - **LocalExecutor** (default): Runs tasks in parallel using separate processes
-     - **SequentialExecutor**: Runs tasks one at a time (for testing/lightweight setups)
-   - `license`: Choose project license
-     - **Proprietary** (default): All rights reserved, no license granted
-     - **MIT**: Permissive open source license
-     - **Apache-2.0**: Permissive with patent protection
+### The Challenge: Inconsistent Development Practices
+Teams often struggle with:
+- **Inconsistent project setups** across data engineering initiatives
+- **Reinventing operational patterns** instead of building on proven foundations
+- **Development environment drift** between team members and projects
+- **Lost time** recreating the same architectural decisions repeatedly
 
-2. **Navigate to generated project**:
-   ```bash
-   cd my-awesome-data-project/  # whatever you named it
-   ```
+### The Solution
+This template combines Astronomer's operational excellence with team-specific development alignment to eliminate these problems through consistent, production-ready project generation.
 
-3. **Start DevContainer**:
-   - **CLI** (recommended): `devcontainer up --workspace-folder .`
-   - **VS Code**: Open project → **Reopen in Container** (services auto-start)
+## How Do You Use It?
 
-4. **Access services**:
-   - **Airflow**: http://localhost:8080 (admin/admin)
-   - **Postgres**: `make psql`
+### Step 1: One-Time Organizational Setup
 
-> Airflow image installs lightweight extras on boot via `_PIP_ADDITIONAL_REQUIREMENTS` for dev only.
-> For heavier deps, build a custom image later.
+**📚 [Complete the Organizational Setup Guide](docs/organizational-setup-guide.md)**
 
-## 🚀 Deployment Features
+**Why this step is required:**
+- **Sets up optimized caching defaults** (10-second rebuilds vs 10-minute rebuilds)
+- **Configures port management** to prevent team conflicts
+- **Establishes container registry** and security settings
+- **Creates team dependency standards** and workflow documentation
+- **Ensures persistence** of customizations across template updates
 
-This template includes **Astronomer-inspired deployment optimizations**:
+### Step 2: Per-Project Repository Generation
 
-### ⚡ Fast DAG-Only Deployments
-- **5-15 second deployments** vs 5+ minute full rebuilds
-- Perfect for iterative DAG development
-- Automatic change detection with SHA256 hashing
+**📚 [Follow the Per-Project Usage Guide](docs/getting-started.md)**
 
-```bash
-make deploy-dags    # Deploy only DAG files (fastest)
-make deploy         # Auto-detect changes and choose optimal strategy
-make deploy-full    # Full rebuild (dependencies + code)
+Having completed the organizational setup, generating each new repository will be streamlined:
+- **3 simple prompts**: customer_slug, description, deployment_mode
+- **Optimized defaults**: All technical settings pre-configured for your team
+- **Fast builds**: Sub-10-second rebuilds with shared Docker layer caching
+- **Port coordination**: Automatic conflict-free port assignment
+- **Consistent environments**: Same setup across all team members
+
+## Project Architecture
+
+Generated projects follow this architecture:
+
+```
+your-project-etl/
+├── dags/                    # Airflow DAGs
+├── dbt/                     # dbt transformations
+├── .devcontainer/           # DevContainer + Docker Compose
+├── conf/                    # Hydra configuration (replaces .env)
+├── docs/                    # Project documentation
+├── tests/                   # Comprehensive test suite
+└── CLAUDE.md               # Generated project guidance
 ```
 
-### 🐳 Docker Layer Caching
-- **Multi-stage builds** with dependency separation
-- **60-80% faster rebuilds** with intelligent caching
-- Persistent pip/uv caches in development
+## How to Learn More
 
-### 🔍 Intelligent Change Detection
-- Automatically detects what changed (DAGs, dependencies, code)
-- Chooses optimal deployment strategy
-- Performance monitoring with timing metrics
+**About This Template**: For template architecture, development, and design decisions → **[`docs/`](docs/)**
 
-### 📊 Performance Optimizations
-- Volume mount caching for local development
-- Hot-reload configuration (10-second DAG scanning)
-- GitHub Actions CI/CD with registry caching
+**About the Deployed Repo**: Generated projects include their own comprehensive documentation. Explore what a **generated project looks like** → **[`{{cookiecutter.customer_slug}}-etl/README.md`]({{cookiecutter.customer_slug}}-etl/README.md)**
 
-**See full deployment guide**: [`docs/deployment/README.md`]({{cookiecutter.repo_slug}}/docs/deployment/README.md)
+## Key Features
 
-## Layout
-See repository tree in this README's template generation.
+### 🚀 **Astronomer Foundation**
+- **Airflow 3.0.6** with Astronomer runtime for proven reliability
+- **Enterprise security** with Azure Key Vault integration and secrets management patterns
+- **Multi-environment support** (dev/staging/prod) with consistent deployment
+- **Performance optimizations** from years of production experience
+
+### 🛠️ **Team Development**
+- **DevContainer environments** with custom Airflow images for consistent workflows
+- **Type-safe configuration** via Hydra + Pydantic replacing fragmented .env files
+- **Modern Python tooling** (`uv`, `ruff`, Python 3.12) aligned with team standards
+- **Hot-reload development** with 10-second DAG detection for rapid iteration
+
+### 🧹 **Docker Cleanup System**
+- **Labeled artifacts** (`de-template.project`, `de-template.deployment`)
+- **Shallow cleanup**: Remove test artifacts quickly
+- **Deep cleanup**: Complete system cleanup
+- **Production/testing isolation** with different naming patterns
+
+### 🧪 **Comprehensive Testing**
+- **4-tier test architecture**: Unit → Integration → E2E → Stress
+- **Docker cleanup validation**: Ensures no artifact leakage
+- **Concurrent operation testing**: Multi-project stress scenarios
+- **Airflow 3.0 compatibility**: Zero deprecation warnings
+
+## License
+
+This cookiecutter template is available under the MIT License. Generated projects can choose their own license during generation.

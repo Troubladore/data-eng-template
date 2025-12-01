@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: airflow-with-kerberos
+spec:
+  volumes:
+    - name: krb-ccache
+      emptyDir: {}
+    - name: krb-keytab
+      secret:
+        secretName: krb-keytab
+  containers:
+    - name: scheduler
+      volumeMounts:
+        - name: krb-ccache
+          mountPath: /ccache
+      env:
+        - name: AIRFLOW__KERBEROS__CCACHE
+          value: /ccache/krb5cc
+        - name: KRB5CCNAME
+          value: /ccache/krb5cc
+    - name: worker
+      volumeMounts:
+        - name: krb-ccache
+          mountPath: /ccache
+      env:
+        - name: AIRFLOW__KERBEROS__CCACHE
+          value: /ccache/krb5cc
+        - name: KRB5CCNAME
+          value: /ccache/krb5cc
+    - name: kerberos
+      image: your-org/airflow-kerberos-sidecar:latest
+      args: ["airflow","kerberos"]
+      volumeMounts:
+        - name: krb-ccache
+          mountPath: /ccache
+        - name: krb-keytab
+          mountPath: /keytab
+          readOnly: true

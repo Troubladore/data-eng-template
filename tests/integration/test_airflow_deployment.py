@@ -230,8 +230,8 @@ class TestLocalDevelopmentOptimization:
         airflow_config = project_dir / "conf" / "orchestration" / "airflow_local.yaml"
         config_content = airflow_config.read_text()
         
-        # Test for development-friendly settings
-        assert "dag_dir_list_interval" in config_content, "Must have DAG scanning interval"
+        # Test for development-friendly settings (Airflow 3.0+ uses dag_processor.refresh_interval)
+        assert "refresh_interval" in config_content, "Must have DAG scanning interval"
         assert "dag_discovery_safe_mode: false" in config_content, "Should disable safe mode for faster reload"
 
 

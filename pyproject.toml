@@ -1,0 +1,62 @@
+[project]
+name = "data-eng-template-tests"
+version = "0.1.0"
+description = "Testing infrastructure for Data Engineering Cookiecutter Template"
+authors = [
+    {name = "Data Engineering Team", email = "data-eng@example.com"}
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+    "pytest-xdist>=3.5.0",
+    "pytest-timeout>=2.3.1",
+    "pytest-mock>=3.14.0",
+    "cookiecutter>=2.6.0",
+    "docker>=7.0.0",
+    "requests>=2.31.0",
+    "PyYAML>=6.0.1",
+]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
+norecursedirs = ["{{cookiecutter.customer_slug}}-etl", ".git", ".venv", "__pycache__"]
+markers = [
+    "unit: Fast unit tests (< 1s each)",
+    "smoke: Ultra-fast smoke tests for immediate feedback", 
+    "integration: Integration tests (< 30s each)",
+    "e2e: End-to-end workflow tests (< 5m each)",
+    "slow: Longer running tests (> 30s)",
+    "stress: Resource-intensive stress tests",
+    "remote: Tests against published GitHub template",
+    "clean_slate: Tests requiring clean Docker environment",
+    "guidance: Documentation validation tests",
+    "devcontainer: DevContainer-specific tests",
+    "multi_project: Multi-project isolation tests"
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["tests"]

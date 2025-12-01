@@ -8,3 +8,8 @@ data/
 uv.lock
 
 .temp/
+test-local/
+
+# Organizational cookiecutter overrides (never commit to upstream)
+org-cookiecutter.json
+cookiecutter.json.effective
